@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">PBSM3</string>
+    <string name="amount_switch">amount_switch</string>
+    <string name="amount_textField">amount_textField</string>
+</resources>
