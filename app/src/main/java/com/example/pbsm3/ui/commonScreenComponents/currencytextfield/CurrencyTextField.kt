@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.commonScreenComponents
+package com.example.pbsm3.ui.commonScreenComponents.currencytextfield
 
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pbsm3.ui.commonScreenComponents.utils.CurrencyAmountInputVisualTransformation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.pbsm3.R
-import com.example.pbsm3.ui.commonScreenComponents.CurrencyTextField
+import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import com.example.pbsm3.ui.theme.PBSM3Theme
 
 private const val TAG = "TransactionScreen"

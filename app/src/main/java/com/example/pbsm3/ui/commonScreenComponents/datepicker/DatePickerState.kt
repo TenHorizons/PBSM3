@@ -1,6 +1,6 @@
-package com.example.pbsm3.ui.commonScreenComponents.viewmodel
+package com.example.pbsm3.ui.commonScreenComponents.datepicker
 
-import com.example.pbsm3.ui.commonScreenComponents.utils.CalendarDisplayMode
+import com.example.pbsm3.ui.commonScreenComponents.datepicker.CalendarDisplayMode
 import java.util.*
 
 data class DatePickerState(
@@ -11,5 +11,5 @@ data class DatePickerState(
     val navigationEnabled:Boolean = true,
     val previousEnabled:Boolean = true,
     val nextEnabled:Boolean = true,
-    val displayMode:CalendarDisplayMode = CalendarDisplayMode.NONE
+    val displayMode: CalendarDisplayMode = CalendarDisplayMode.NONE
 )

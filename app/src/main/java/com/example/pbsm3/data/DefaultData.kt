@@ -13,7 +13,8 @@ fun getFirstDayOfMonth():Date{
     return calendar.time
 }
 //month indexes 0~11
-val monthStrings = DateFormatSymbols.getInstance().months.asList()
+val shortMonthStrings = DateFormatSymbols.getInstance().shortMonths.asList()
+val validMonthRange:IntRange = shortMonthStrings.indices
 
 private val validYearRange: IntRange = IntRange(
     start = Calendar.getInstance().get(Calendar.YEAR).minus(10),

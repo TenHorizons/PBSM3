@@ -30,7 +30,7 @@ import com.example.pbsm3.data.getFirstDayOfMonth
 import com.example.pbsm3.model.Budget
 import com.example.pbsm3.model.BudgetItem
 import com.example.pbsm3.model.Category
-import com.example.pbsm3.ui.commonScreenComponents.CurrencyTextField
+import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import com.example.pbsm3.ui.theme.PBSM3Theme
 import java.util.*
 

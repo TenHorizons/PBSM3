@@ -23,22 +23,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.example.pbsm3.R
-import com.example.pbsm3.data.monthStrings
-import com.example.pbsm3.ui.commonScreenComponents.utils.CalendarDisplayMode
-import com.example.pbsm3.ui.commonScreenComponents.viewmodel.DatePickerViewModel
-import com.example.pbsm3.ui.commonScreenComponents.viewmodel.DatePickerState
+import com.example.pbsm3.ui.commonScreenComponents.datepicker.CalendarDisplayMode
+import com.example.pbsm3.ui.commonScreenComponents.datepicker.DatePickerViewModel
 import com.example.pbsm3.ui.theme.PBSM3Theme
-import com.maxkeppeker.sheets.core.icons.filled.ChevronLeft
-import com.maxkeppeker.sheets.core.icons.filled.ChevronRight
+import com.example.pbsm3.ui.commonScreenComponents.datepicker.ChevronLeft
+import com.example.pbsm3.ui.commonScreenComponents.datepicker.ChevronRight
 import java.util.*
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.pbsm3.data.shortMonthStrings
 
 private const val TAG = "DatePicker"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PBSDatePicker(
-    viewModel:DatePickerViewModel = viewModel(),
+    viewModel: DatePickerViewModel = viewModel(),
     onClick: (Date) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -47,7 +46,7 @@ fun PBSDatePicker(
         if (true) {
             Popup(
                 alignment = Alignment.Center,
-                onDismissRequest = { viewModel::collapsePicker }
+                onDismissRequest = viewModel::collapsePicker
             ) {
                 Box(
                     Modifier
@@ -68,10 +67,10 @@ fun PBSDatePicker(
 }
 
 @Composable
-private fun DatePickerPlaceHolder(viewModel:DatePickerViewModel) {
+private fun DatePickerPlaceHolder(viewModel: DatePickerViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     Row(
-        modifier = Modifier.clickable { viewModel::expandOrCollapsePicker },
+        modifier = Modifier.clickable{ viewModel.expandOrCollapsePicker() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(value = "", onValueChange = {}, readOnly = true)
@@ -84,7 +83,7 @@ private fun DatePickerPlaceHolder(viewModel:DatePickerViewModel) {
 //copied from sheets-compose-dialog
 @OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
-private fun MonthYearPicker(viewModel:DatePickerViewModel) {
+private fun MonthYearPicker(viewModel: DatePickerViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val chevronAVD = AnimatedImageVector.animatedVectorResource(
         R.drawable.avd_chevron_down_up)
@@ -113,7 +112,7 @@ private fun MonthYearPicker(viewModel:DatePickerViewModel) {
                         containerColor = MaterialTheme.colorScheme.secondaryContainer),
                     modifier = Modifier
                         .size(32.dp),
-                    onClick = { viewModel::moveToPreviousMonth }
+                    onClick = { viewModel.moveToPreviousMonth() }
                 ) {
                     Icon(
                         modifier = Modifier.size(24.dp),
@@ -132,12 +131,12 @@ private fun MonthYearPicker(viewModel:DatePickerViewModel) {
         ) {
             Row(
                 modifier = selectableContainerModifier
-                    .clickable { viewModel::displayMonthList },
+                    .clickable { viewModel.displayMonthList() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     modifier = selectableItemModifier,
-                    text = monthStrings[uiState.displayedMonthIndex],
+                    text = shortMonthStrings[uiState.displayedMonthIndex],
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold),
                     textAlign = TextAlign.Center
@@ -154,7 +153,7 @@ private fun MonthYearPicker(viewModel:DatePickerViewModel) {
 
             Row(
                 modifier = selectableContainerModifier
-                    .clickable { viewModel::displayYearList },
+                    .clickable { viewModel.displayYearList() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -186,7 +185,7 @@ private fun MonthYearPicker(viewModel:DatePickerViewModel) {
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer),
                     modifier = Modifier.size(32.dp),
-                    onClick = { viewModel::moveToNextMonth }
+                    onClick = { viewModel.moveToNextMonth() }
                 ) {
                     Icon(
                         modifier = Modifier.size(24.dp),

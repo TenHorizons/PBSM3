@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.commonScreenComponents.viewmodel
+package com.example.pbsm3.ui.commonScreenComponents.datepicker
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

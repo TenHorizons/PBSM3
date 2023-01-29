@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.commonScreenComponents.utils
+package com.example.pbsm3.ui.commonScreenComponents.currencytextfield
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
