@@ -2,6 +2,7 @@
 
 package com.example.pbsm3.ui.commonScreenComponents
 
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
@@ -24,29 +25,29 @@ import androidx.compose.ui.window.Popup
 import com.example.pbsm3.R
 import com.example.pbsm3.data.monthStrings
 import com.example.pbsm3.ui.commonScreenComponents.utils.CalendarDisplayMode
+import com.example.pbsm3.ui.commonScreenComponents.viewmodel.DatePickerViewModel
+import com.example.pbsm3.ui.commonScreenComponents.viewmodel.DatePickerState
 import com.example.pbsm3.ui.theme.PBSM3Theme
 import com.maxkeppeker.sheets.core.icons.filled.ChevronLeft
 import com.maxkeppeker.sheets.core.icons.filled.ChevronRight
-import java.text.DateFormatSymbols
 import java.util.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+private const val TAG = "DatePicker"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PBSDatePicker(onClick: (Date) -> Unit) {
-    var expanded by remember { mutableStateOf(true) }
+fun PBSDatePicker(
+    viewModel:DatePickerViewModel = viewModel(),
+    onClick: (Date) -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
     Column {
-        Row(
-            modifier = Modifier.clickable { expanded = true },
-            verticalAlignment = Alignment.CenterVertically) {
-            TextField(value = "", onValueChange = {}, readOnly = true)
-            Icon(
-                imageVector = Icons.Filled.ExpandMore, contentDescription =
-                "Select Date")
-        }
+        DatePickerPlaceHolder(viewModel)
         if (true) {
             Popup(
                 alignment = Alignment.Center,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { viewModel::collapsePicker }
             ) {
                 Box(
                     Modifier
@@ -66,50 +67,43 @@ fun PBSDatePicker(onClick: (Date) -> Unit) {
     }
 }
 
+@Composable
+private fun DatePickerPlaceHolder(viewModel:DatePickerViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
+    Row(
+        modifier = Modifier.clickable { viewModel::expandOrCollapsePicker },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextField(value = "", onValueChange = {}, readOnly = true)
+        Icon(
+            imageVector = Icons.Filled.ExpandMore, contentDescription =
+            "Select Date")
+    }
+}
+
 //copied from sheets-compose-dialog
 @OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
-private fun MonthYearPicker() {
+private fun MonthYearPicker(viewModel:DatePickerViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
+    val chevronAVD = AnimatedImageVector.animatedVectorResource(
+        R.drawable.avd_chevron_down_up)
     val enterTransition =
         expandIn(expandFrom = Alignment.Center, clip = false) + fadeIn()
     val exitTransition =
         shrinkOut(shrinkTowards = Alignment.Center, clip = false) + fadeOut()
-
-    val chevronAVD = AnimatedImageVector.animatedVectorResource(
-        R.drawable.avd_chevron_down_up)
-    var monthExpanded by remember { mutableStateOf(false) }
-    var yearExpanded by remember { mutableStateOf(false) }
-    var mode: CalendarDisplayMode = CalendarDisplayMode.NONE
-    LaunchedEffect(mode) {
-        when (mode) {
-            CalendarDisplayMode.MONTH -> yearExpanded = false
-            CalendarDisplayMode.YEAR -> monthExpanded = false
-            else -> {
-                yearExpanded = false
-                monthExpanded = false
-            }
-        }
-    }
-
-
-    var displayedMonthIndex: Int by remember { mutableStateOf(0) }
-    var displayedYear by remember { mutableStateOf(2023) }
-
-    var navigationEnabled by remember { mutableStateOf(true) }
-    var previousEnabled by remember { mutableStateOf(true) }
-    var nextEnabled by remember { mutableStateOf(true) }
-
-
     val selectableContainerModifier =
         Modifier.clip(MaterialTheme.shapes.extraSmall)
     val selectableItemModifier = Modifier
         .padding(start = 8.dp, end = 4.dp)
         .padding(vertical = 4.dp)
 
+    Log.d(TAG,"Selected Date: ${uiState.selectedDate}")
+
     Box(modifier = Modifier.fillMaxWidth()) {
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.CenterStart),
-            visible = navigationEnabled && previousEnabled,
+            visible = uiState.navigationEnabled && uiState.previousEnabled,
             enter = enterTransition,
             exit = exitTransition
         ) {
@@ -119,7 +113,7 @@ private fun MonthYearPicker() {
                         containerColor = MaterialTheme.colorScheme.secondaryContainer),
                     modifier = Modifier
                         .size(32.dp),
-                    onClick = /*onPrev*/{}
+                    onClick = { viewModel::moveToPreviousMonth }
                 ) {
                     Icon(
                         modifier = Modifier.size(24.dp),
@@ -138,15 +132,12 @@ private fun MonthYearPicker() {
         ) {
             Row(
                 modifier = selectableContainerModifier
-                    .clickable {
-                        monthExpanded = !monthExpanded
-//                        onMonthClick()
-                    },
+                    .clickable { viewModel::displayMonthList },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     modifier = selectableItemModifier,
-                    text = monthStrings[displayedMonthIndex],
+                    text = monthStrings[uiState.displayedMonthIndex],
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold),
                     textAlign = TextAlign.Center
@@ -154,7 +145,8 @@ private fun MonthYearPicker() {
                 Icon(
                     modifier = Modifier.size(24.dp),
                     painter = rememberAnimatedVectorPainter(
-                        chevronAVD, monthExpanded),
+                        animatedImageVector =  chevronAVD,
+                        atEnd = uiState.displayMode == CalendarDisplayMode.MONTH),
                     contentDescription = "Select Month",
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -162,15 +154,12 @@ private fun MonthYearPicker() {
 
             Row(
                 modifier = selectableContainerModifier
-                    .clickable {
-                        yearExpanded = !yearExpanded
-//                        onYearClick()
-                    },
+                    .clickable { viewModel::displayYearList },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     modifier = selectableItemModifier,
-                    text = displayedYear.toString(),
+                    text = uiState.displayedYear.toString(),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold),
                     textAlign = TextAlign.Center
@@ -178,7 +167,8 @@ private fun MonthYearPicker() {
                 Icon(
                     modifier = Modifier.size(24.dp),
                     painter = rememberAnimatedVectorPainter(
-                        chevronAVD, yearExpanded),
+                        chevronAVD,
+                        uiState.displayMode == CalendarDisplayMode.YEAR),
                     contentDescription = "Select Year",
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -187,7 +177,7 @@ private fun MonthYearPicker() {
 
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.CenterEnd),
-            visible = navigationEnabled && nextEnabled,
+            visible = uiState.navigationEnabled && uiState.nextEnabled,
             enter = enterTransition,
             exit = exitTransition
         ) {
@@ -196,7 +186,7 @@ private fun MonthYearPicker() {
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer),
                     modifier = Modifier.size(32.dp),
-                    onClick = /*onNext*/{}
+                    onClick = { viewModel::moveToNextMonth }
                 ) {
                     Icon(
                         modifier = Modifier.size(24.dp),
@@ -209,23 +199,6 @@ private fun MonthYearPicker() {
     }
 }
 
-private val validYearRange: IntRange = IntRange(
-    start = Calendar.getInstance().get(Calendar.YEAR).minus(10),
-    endInclusive = Calendar.getInstance().get(Calendar.YEAR).plus(11)
-)
-
-private fun validateMonthRange(month: Int): Int {
-    val validIndexes: IntRange = monthStrings.indices
-    if (validIndexes.contains(month)) return month
-    else {
-        if (month < validIndexes.first) {
-            if()
-        } else {
-
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun PBSDatePickerPreview() {
@@ -234,10 +207,10 @@ fun PBSDatePickerPreview() {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun MonthYearPickerPreview() {
     PBSM3Theme {
-        MonthYearPicker()
+        MonthYearPicker(viewModel())
     }
 }

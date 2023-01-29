@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.viewmodel
+package com.example.pbsm3.ui.screens.viewmodel
 
 import androidx.lifecycle.ViewModel
 

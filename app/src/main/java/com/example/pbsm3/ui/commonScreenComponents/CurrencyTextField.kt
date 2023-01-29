@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.pbsm3.ui.commonScreenComponents.utils.CurrencyAmountInputVisualTransformation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,15 +29,15 @@ fun CurrencyTextField(
     onValueChange: (String) -> Unit,
     errorCondition: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    defaultMinWidth:Dp = 10.dp
+    defaultMinWidth: Dp = 10.dp
 ) {
     TextField(
         value = value,
         onValueChange = onValueChange,
-        visualTransformation = CurrencyAmountInputVisualTransformation
-            (positiveValue = positiveValue),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType
-            .NumberPassword),
+        visualTransformation =
+        CurrencyAmountInputVisualTransformation(positiveValue = positiveValue),
+        keyboardOptions =
+        KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
         singleLine = true,
         colors = TextFieldDefaults.textFieldColors(
             containerColor = background,
@@ -153,14 +154,14 @@ fun CurrencyTextField(
 fun CurrencyTextFieldTransactionPreview() {
     CurrencyTextField(
         value = 100.toString(),
-            onValueChange = { },
-            positiveValue = true,
-            textColor = Green,
-            textStyle = TextStyle.Default.copy(
-                fontSize = 36.sp,
-                textAlign = TextAlign.End
-            ),
-            modifier = Modifier.requiredWidth(200.dp))
+        onValueChange = { },
+        positiveValue = true,
+        textColor = Green,
+        textStyle = TextStyle.Default.copy(
+            fontSize = 36.sp,
+            textAlign = TextAlign.End
+        ),
+        modifier = Modifier.requiredWidth(200.dp))
 }
 
 @Preview

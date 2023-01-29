@@ -15,6 +15,11 @@ fun getFirstDayOfMonth():Date{
 //month indexes 0~11
 val monthStrings = DateFormatSymbols.getInstance().months.asList()
 
+private val validYearRange: IntRange = IntRange(
+    start = Calendar.getInstance().get(Calendar.YEAR).minus(10),
+    endInclusive = Calendar.getInstance().get(Calendar.YEAR).plus(11)
+)
+
 val defaultBudgetItem = BudgetItem("Groceries&Laundry")
 
 val defaultCategories = listOf(
