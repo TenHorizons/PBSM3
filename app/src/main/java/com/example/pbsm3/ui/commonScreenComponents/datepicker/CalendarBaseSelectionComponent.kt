@@ -39,7 +39,8 @@ internal fun CalendarBaseSelectionComponent(
     cells: Int,
     mode: CalendarDisplayMode,
     onMonthView: LazyGridScope.() -> Unit,
-    onYearView: LazyListScope.() -> Unit
+    onYearView: LazyListScope.() -> Unit,
+    onCalendarView: LazyGridScope.() -> Unit
 ) {
 
     val baseModifier = modifier
@@ -107,6 +108,14 @@ internal fun CalendarBaseSelectionComponent(
                 }
             }
         }
-        else -> {}
+        else -> {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(cells),
+                modifier = baseModifier,
+                userScrollEnabled = false,
+            ) {
+                onCalendarView()
+            }
+        }
     }
 }

@@ -1,5 +1,5 @@
 package com.example.pbsm3.ui.commonScreenComponents.datepicker
 
 enum class CalendarDisplayMode{
-    YEAR,MONTH,NONE
+    YEAR,MONTH,CALENDAR
 }

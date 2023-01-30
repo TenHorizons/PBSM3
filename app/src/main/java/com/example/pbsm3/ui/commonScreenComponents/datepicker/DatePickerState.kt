@@ -11,5 +11,5 @@ data class DatePickerState(
     val navigationEnabled:Boolean = true,
     val previousEnabled:Boolean = true,
     val nextEnabled:Boolean = true,
-    val displayMode: CalendarDisplayMode = CalendarDisplayMode.NONE
+    val displayMode: CalendarDisplayMode = CalendarDisplayMode.CALENDAR
 )

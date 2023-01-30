@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.pbsm3.ui.commonScreenComponents
+package com.example.pbsm3.ui.commonScreenComponents.datepicker
 
 import android.util.Log
 import androidx.compose.animation.*
@@ -23,18 +23,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.example.pbsm3.R
-import com.example.pbsm3.ui.commonScreenComponents.datepicker.CalendarDisplayMode
-import com.example.pbsm3.ui.commonScreenComponents.datepicker.DatePickerViewModel
 import com.example.pbsm3.ui.theme.PBSM3Theme
-import com.example.pbsm3.ui.commonScreenComponents.datepicker.ChevronLeft
-import com.example.pbsm3.ui.commonScreenComponents.datepicker.ChevronRight
 import java.util.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pbsm3.data.shortMonthStrings
 
 private const val TAG = "DatePicker"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PBSDatePicker(
     viewModel: DatePickerViewModel = viewModel(),

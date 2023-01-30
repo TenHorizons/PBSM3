@@ -17,6 +17,6 @@ enum class Screen(val route:String,val icon:ImageVector? = null){
 
 val bottomNavItems = listOf(
     Screen.Budget,
-    Screen.Account,
-    Screen.Transaction
+    Screen.Transaction,
+    Screen.Account
 )

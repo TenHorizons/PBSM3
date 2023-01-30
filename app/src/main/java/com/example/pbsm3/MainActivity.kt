@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                         topBar = { PBSTopBar(screen = currentScreen) },
                         bottomBar = {
                             PBSBottomNav(
-                                onclick = {screen ->
+                                onClick = {_,screen ->
                                     navController.navigate(screen.name)
                                     currentScreen = screen
                                 }
@@ -66,7 +66,7 @@ fun MainPreview() {
                 topBar = { PBSTopBar(screen = currentScreen) },
                 bottomBar = {
                     PBSBottomNav(
-                        onclick = {screen ->
+                        onClick = {_, screen ->
                             navController.navigate(screen.name)
                             currentScreen = screen
                         }

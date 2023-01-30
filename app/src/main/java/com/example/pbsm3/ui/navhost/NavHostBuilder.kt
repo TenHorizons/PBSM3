@@ -20,7 +20,7 @@ import com.example.pbsm3.ui.theme.PBSM3Theme
 fun NavHostBuilder(
     navController: NavHostController,
     onScreenChange: (Screen) -> Unit,
-    startDestination: String,
+    startDestination: String = Screen.Budget.name,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -28,20 +28,20 @@ fun NavHostBuilder(
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        composable(Screen.Budget.name) {
+        composable(route = Screen.Budget.name) {
             BudgetScreen(
                 budget = defaultBudget,
                 date = getFirstDayOfMonth(),
                 modifier = modifier)
         }
 
-        composable(Screen.BudgetItem.name) {
+        composable(route = Screen.BudgetItem.name) {
             BudgetItemScreen(
                 budgetItem = defaultBudgetItem,
                 modifier = modifier)
         }
 
-        composable(Screen.Transaction.name) {
+        composable(route = Screen.Transaction.name) {
             TransactionScreen(
                 onNavigateUp = {},
                 modifier = modifier)

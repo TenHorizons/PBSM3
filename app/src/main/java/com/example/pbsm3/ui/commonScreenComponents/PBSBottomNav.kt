@@ -15,9 +15,9 @@ import com.example.pbsm3.ui.theme.PBSM3Theme
 @Composable
 fun PBSBottomNav(
     modifier: Modifier = Modifier,
-    onclick:(Screen)->Unit
+    onClick:(Int, Screen)->Unit
 ) {
-    var selectedItem by remember { mutableStateOf(0) }
+    var selectedItemIndex by remember { mutableStateOf(0) }
 
     NavigationBar(modifier = modifier) {
         bottomNavItems.forEachIndexed { index, item ->
@@ -28,8 +28,10 @@ fun PBSBottomNav(
                         contentDescription = item.route)
                 },
                 label = { Text(item.route) },
-                selected = selectedItem == index,
-                onClick = { selectedItem = index }
+                selected = selectedItemIndex == index,
+                onClick = {
+                    selectedItemIndex = index
+                    onClick(index,item) }
             )
         }
     }
@@ -39,6 +41,6 @@ fun PBSBottomNav(
 @Composable
 fun BottomNavPreview() {
     PBSM3Theme {
-        PBSBottomNav(onclick = {})
+        PBSBottomNav(onClick = {_,_->})
     }
 }
