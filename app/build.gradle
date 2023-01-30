@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.pbsm3"
-        minSdk 24
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -59,8 +59,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-script-runtime:1.8.0"
 
     //Sheets-Compose-Dialogs Android Library for Month/Year Picker
-//    implementation "com.maxkeppeler.sheets-compose-dialogs:core:$sheets_compose_dialogs_version"
-//    implementation "com.maxkeppeler.sheets-compose-dialogs:calendar:$sheets_compose_dialogs_version"
+    implementation "com.maxkeppeler.sheets-compose-dialogs:core:$sheets_compose_dialogs_version"
+    implementation "com.maxkeppeler.sheets-compose-dialogs:calendar:$sheets_compose_dialogs_version"
     implementation "androidx.compose.animation:animation-graphics:1.3.3"
 
     testImplementation 'junit:junit:4.13.2'

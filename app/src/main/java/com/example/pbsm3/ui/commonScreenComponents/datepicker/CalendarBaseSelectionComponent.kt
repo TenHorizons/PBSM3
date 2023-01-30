@@ -27,9 +27,9 @@ import androidx.compose.ui.unit.dp
  * @param yearListState The state of the year list selection view.
  * @param cells The amount of cells / columns that are used for the calendar grid view.
  * @param mode The display mode of the dialog.
- * @param onCalendarView The content that will be displayed if the [CalendarDisplayMode] is in [CalendarDisplayMode.CALENDAR].
- * @param onMonthView The content that will be displayed if the [CalendarDisplayMode] is in [CalendarDisplayMode.MONTH].
- * @param onYearView The content that will be displayed if the [CalendarDisplayMode] is in [CalendarDisplayMode.YEAR].
+ * @param onCalendarView The content that will be displayed if the [PickerDisplayMode] is in [PickerDisplayMode.CALENDAR].
+ * @param onMonthView The content that will be displayed if the [PickerDisplayMode] is in [PickerDisplayMode.MONTH].
+ * @param onYearView The content that will be displayed if the [PickerDisplayMode] is in [PickerDisplayMode.YEAR].
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -37,7 +37,7 @@ internal fun CalendarBaseSelectionComponent(
     modifier: Modifier,
     yearListState: LazyListState,
     cells: Int,
-    mode: CalendarDisplayMode,
+    mode: PickerDisplayMode,
     onMonthView: LazyGridScope.() -> Unit,
     onYearView: LazyListScope.() -> Unit,
     onCalendarView: LazyGridScope.() -> Unit
@@ -67,7 +67,7 @@ internal fun CalendarBaseSelectionComponent(
     val behavior = rememberSnapFlingBehavior(lazyListState = yearListState)
 
     when (mode) {
-        CalendarDisplayMode.YEAR -> {
+        PickerDisplayMode.YEAR -> {
             Column(
                 modifier = Modifier
                     .padding(top = 24.dp),
@@ -89,7 +89,7 @@ internal fun CalendarBaseSelectionComponent(
                 }
             }
         }
-        CalendarDisplayMode.MONTH -> {
+        PickerDisplayMode.MONTH -> {
             Column(
                 modifier = Modifier
                     .padding(top = 24.dp),

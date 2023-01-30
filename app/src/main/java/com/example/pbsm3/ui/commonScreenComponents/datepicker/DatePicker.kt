@@ -9,69 +9,88 @@ import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
 import com.example.pbsm3.R
 import com.example.pbsm3.ui.theme.PBSM3Theme
 import java.util.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pbsm3.data.shortMonthStrings
+import com.example.pbsm3.ui.navhost.Screen
+import com.maxkeppeker.sheets.core.models.base.SheetState
+import com.maxkeppeker.sheets.core.models.base.rememberSheetState
+import com.maxkeppeker.sheets.core.utils.TestTags
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import com.maxkeppeler.sheets.calendar.models.CalendarStyle
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 
 private const val TAG = "DatePicker"
 
 @Composable
 fun PBSDatePicker(
     viewModel: DatePickerViewModel = viewModel(),
-    onClick: (Date) -> Unit
+    screen: Screen,
 ) {
-    val uiState by viewModel.uiState.collectAsState()
     Column {
-        DatePickerPlaceHolder(viewModel)
+        DatePickerPlaceHolder(viewModel, screen)
         if (true) {
-            Popup(
-                alignment = Alignment.Center,
-                onDismissRequest = viewModel::collapsePicker
-            ) {
-                Box(
-                    Modifier
-                        .wrapContentWidth()
-                        .widthIn(max = 300.dp)
-                ) {
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surface,
-                        shadowElevation = 4.dp,
-                    ) {
-
-                    }
+            when (screen) {
+                Screen.Budget -> {
+                    MonthYearPicker(viewModel = viewModel)
                 }
+                Screen.Transaction -> {
+                    CalendarMode(viewModel = viewModel)
+                }
+                else -> {}
             }
         }
     }
 }
 
 @Composable
-private fun DatePickerPlaceHolder(viewModel: DatePickerViewModel) {
+private fun DatePickerPlaceHolder(
+    viewModel: DatePickerViewModel,
+    screen: Screen
+) {
     val uiState by viewModel.uiState.collectAsState()
     Row(
-        modifier = Modifier.clickable{ viewModel.expandOrCollapsePicker() },
+        modifier = Modifier.clickable { viewModel.expandOrCollapsePicker() },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextField(value = "", onValueChange = {}, readOnly = true)
+        TextField(
+            value = when (screen) {
+                Screen.Budget -> uiState.selectedDate.format(
+                    DateTimeFormatter.ofPattern("MMM yyyy"))
+                Screen.Transaction -> uiState.selectedDate.toString()
+                else -> ""
+            },
+            onValueChange = {},
+            readOnly = true)
         Icon(
-            imageVector = Icons.Filled.ExpandMore, contentDescription =
-            "Select Date")
+            imageVector =
+            if(uiState.pickerExpanded) Icons.Filled.ExpandLess
+            else Icons.Filled.ExpandMore,
+            contentDescription = "Select Date")
     }
 }
 
@@ -80,8 +99,6 @@ private fun DatePickerPlaceHolder(viewModel: DatePickerViewModel) {
 @Composable
 private fun MonthYearPicker(viewModel: DatePickerViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-    val chevronAVD = AnimatedImageVector.animatedVectorResource(
-        R.drawable.avd_chevron_down_up)
     val enterTransition =
         expandIn(expandFrom = Alignment.Center, clip = false) + fadeIn()
     val exitTransition =
@@ -92,12 +109,12 @@ private fun MonthYearPicker(viewModel: DatePickerViewModel) {
         .padding(start = 8.dp, end = 4.dp)
         .padding(vertical = 4.dp)
 
-    Log.d(TAG,"Selected Date: ${uiState.selectedDate}")
+    Log.d(TAG, "Selected Date: ${uiState.selectedDate}")
 
     Box(modifier = Modifier.fillMaxWidth()) {
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.CenterStart),
-            visible = uiState.navigationEnabled && uiState.previousEnabled,
+            visible = uiState.previousEnabled,
             enter = enterTransition,
             exit = exitTransition
         ) {
@@ -131,18 +148,11 @@ private fun MonthYearPicker(viewModel: DatePickerViewModel) {
             ) {
                 Text(
                     modifier = selectableItemModifier,
-                    text = shortMonthStrings[uiState.displayedMonthIndex],
+                    text = uiState.selectedDate.month.getDisplayName(
+                        TextStyle.SHORT, Locale.getDefault()),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold),
                     textAlign = TextAlign.Center
-                )
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = rememberAnimatedVectorPainter(
-                        animatedImageVector =  chevronAVD,
-                        atEnd = uiState.displayMode == CalendarDisplayMode.MONTH),
-                    contentDescription = "Select Month",
-                    tint = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -153,25 +163,17 @@ private fun MonthYearPicker(viewModel: DatePickerViewModel) {
             ) {
                 Text(
                     modifier = selectableItemModifier,
-                    text = uiState.displayedYear.toString(),
+                    text = uiState.selectedDate.year.toString(),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold),
                     textAlign = TextAlign.Center
-                )
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = rememberAnimatedVectorPainter(
-                        chevronAVD,
-                        uiState.displayMode == CalendarDisplayMode.YEAR),
-                    contentDescription = "Select Year",
-                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
 
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.CenterEnd),
-            visible = uiState.navigationEnabled && uiState.nextEnabled,
+            visible = uiState.nextEnabled,
             enter = enterTransition,
             exit = exitTransition
         ) {
@@ -193,11 +195,40 @@ private fun MonthYearPicker(viewModel: DatePickerViewModel) {
     }
 }
 
+@Composable
+private fun CalendarMode(
+    viewModel: DatePickerViewModel
+) {
+    var selectedDate: LocalDate by remember { mutableStateOf(LocalDate.now()) }
+    CalendarDialog(
+        state = rememberSheetState(
+            visible = true,
+            onCloseRequest = { viewModel.setSelectedDate(selectedDate) }),
+        config = CalendarConfig(
+            yearSelection = true,
+            monthSelection = true,
+            style = CalendarStyle.MONTH,
+            disabledDates = null
+        ),
+        selection = CalendarSelection.Date { newDate ->
+            selectedDate = newDate
+        },
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
-fun PBSDatePickerPreview() {
+fun PBSDatePickerMonthYearPreview() {
     PBSM3Theme {
-        PBSDatePicker(onClick = { })
+        PBSDatePicker(onClick = { }, screen = Screen.Transaction)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PBSDatePickerCalendarPreview() {
+    PBSM3Theme {
+        PBSDatePicker(onClick = { }, screen = Screen.Budget)
     }
 }
 

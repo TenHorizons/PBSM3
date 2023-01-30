@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import java.time.LocalDate
 
 class DatePickerViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(DatePickerState())
@@ -57,5 +58,13 @@ class DatePickerViewModel : ViewModel() {
             }
         }*/
         return -1
+    }
+
+    fun setSelectedDate(date: LocalDate) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                selectedDate = date
+            )
+        }
     }
 }
