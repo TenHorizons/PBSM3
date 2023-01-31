@@ -11,17 +11,17 @@ import androidx.navigation.compose.rememberNavController
 import com.example.pbsm3.data.defaultBudget
 import com.example.pbsm3.data.defaultBudgetItem
 import com.example.pbsm3.data.getFirstDayOfMonth
+import com.example.pbsm3.ui.screens.AccountScreen
+import com.example.pbsm3.ui.screens.BudgetItemScreen
 import com.example.pbsm3.ui.screens.BudgetScreen
 import com.example.pbsm3.ui.screens.TransactionScreen
-import com.example.pbsm3.ui.screens.BudgetItemScreen
 import com.example.pbsm3.ui.theme.PBSM3Theme
 
 @Composable
 fun NavHostBuilder(
+    modifier: Modifier = Modifier,
     navController: NavHostController,
-    onScreenChange: (Screen) -> Unit,
-    startDestination: String = Screen.Budget.name,
-    modifier: Modifier = Modifier
+    startDestination: String = Screen.Budget.name
 ) {
     NavHost(
         navController = navController,
@@ -31,20 +31,19 @@ fun NavHostBuilder(
         composable(route = Screen.Budget.name) {
             BudgetScreen(
                 budget = defaultBudget,
-                date = getFirstDayOfMonth(),
-                modifier = modifier)
+                date = getFirstDayOfMonth())
         }
 
         composable(route = Screen.BudgetItem.name) {
-            BudgetItemScreen(
-                budgetItem = defaultBudgetItem,
-                modifier = modifier)
+            BudgetItemScreen(budgetItem = defaultBudgetItem)
         }
 
         composable(route = Screen.Transaction.name) {
-            TransactionScreen(
-                onNavigateUp = {},
-                modifier = modifier)
+            TransactionScreen(onNavigateUp = {})
+        }
+
+        composable(route = Screen.Account.name) {
+            AccountScreen()
         }
     }
 }
@@ -55,7 +54,18 @@ fun NavHostPreview() {
     PBSM3Theme {
         NavHostBuilder(
             navController = rememberNavController(),
-            onScreenChange = {},
+            startDestination = Screen.Budget.name,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NavHostPreview2() {
+    PBSM3Theme {
+        NavHostBuilder(
+            navController = rememberNavController(),
             startDestination = Screen.Budget.name,
             modifier = Modifier.fillMaxSize()
         )

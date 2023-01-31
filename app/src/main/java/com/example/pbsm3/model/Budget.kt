@@ -1,6 +1,7 @@
 package com.example.pbsm3.model
 
 import com.example.pbsm3.data.defaultMonthlyBudget
+import java.time.LocalDate
 import java.util.Date
 
 data class User(
@@ -11,7 +12,7 @@ data class User(
 
 data class Budget(
     val name:String,
-    val monthlyBudgets:Map<Date,List<Category>> = defaultMonthlyBudget
+    val monthlyBudgets:Map<LocalDate,List<Category>> = defaultMonthlyBudget
 )
 
 data class Category(

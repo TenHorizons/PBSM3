@@ -32,13 +32,13 @@ import com.example.pbsm3.model.BudgetItem
 import com.example.pbsm3.model.Category
 import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import com.example.pbsm3.ui.theme.PBSM3Theme
-import java.util.*
+import java.time.LocalDate
 
 
 private const val TAG = "BudgetScreen"
 
 @Composable
-fun BudgetScreen(budget: Budget, date: Date, modifier: Modifier = Modifier) {
+fun BudgetScreen(budget: Budget, date: LocalDate, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.padding(horizontal = 8.dp)

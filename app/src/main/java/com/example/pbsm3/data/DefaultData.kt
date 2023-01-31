@@ -1,25 +1,15 @@
 package com.example.pbsm3.data
 
 import com.example.pbsm3.model.Budget
-import com.example.pbsm3.model.Category
 import com.example.pbsm3.model.BudgetItem
-import java.text.DateFormatSymbols
-import java.util.Date
-import java.util.Calendar
+import com.example.pbsm3.model.Category
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 
-fun getFirstDayOfMonth():Date{
-    val calendar: Calendar = Calendar.getInstance()
-    calendar.set(Calendar.DAY_OF_MONTH,1)
-    return calendar.time
+//TODO: Change all Date to LocalDate
+fun getFirstDayOfMonth():LocalDate{
+    return LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
 }
-//month indexes 0~11
-val shortMonthStrings = DateFormatSymbols.getInstance().shortMonths.asList()
-val validMonthRange:IntRange = shortMonthStrings.indices
-
-private val validYearRange: IntRange = IntRange(
-    start = Calendar.getInstance().get(Calendar.YEAR).minus(10),
-    endInclusive = Calendar.getInstance().get(Calendar.YEAR).plus(11)
-)
 
 val defaultBudgetItem = BudgetItem("Groceries&Laundry")
 

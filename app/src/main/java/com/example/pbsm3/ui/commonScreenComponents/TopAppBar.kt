@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.pbsm3.ui.commonScreenComponents.datepicker.PBSDatePicker
 import com.example.pbsm3.ui.navhost.Screen
 import com.example.pbsm3.ui.theme.PBSM3Theme
 import java.util.*
@@ -28,7 +29,7 @@ fun PBSTopBar(
     val pinScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     if(screen == Screen.Budget) CenterAlignedTopAppBar(
-        title = {Text("Date Picker Here")},
+        title = { PBSDatePicker(screen = Screen.Budget)},
         modifier = modifier.nestedScroll(hideScrollBehavior.nestedScrollConnection),
         scrollBehavior = hideScrollBehavior
     )else TopAppBar(
@@ -51,42 +52,6 @@ fun PBSTopBar(
         modifier = modifier.nestedScroll(pinScrollBehavior.nestedScrollConnection),
         scrollBehavior = pinScrollBehavior
     )
-    /*Taken from Material Design's TopAppBar composable with
-    modifications.*/
-    /*Surface(
-        shape = RectangleShape,
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = BottomAppBarDefaults.ContainerElevation,
-        shadowElevation = 4.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (screen == Screen.Budget) {
-                Spacer(Modifier.weight(1f))
-                //TODO: MonthYear picker implementation here.
-                Text("Date Picker Here!")
-                Spacer(Modifier.weight(1f))
-            } else {
-                IconButton(onClick = onNavigateUp) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Back to Previous Screen")
-                }
-                Text(
-                    modifier = Modifier.padding(start = 8.dp),
-                    text = when (screen) {
-                        Screen.Transaction -> "Add Transaction"
-                        Screen.BudgetItem -> budgetItemName
-                        else -> "ERROR SELECTING TITLE"
-                    })
-            }
-        }
-    }*/
 }
 
 @Preview(showBackground = true)

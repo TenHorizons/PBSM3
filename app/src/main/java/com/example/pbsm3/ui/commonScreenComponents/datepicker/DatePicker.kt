@@ -2,14 +2,8 @@
 
 package com.example.pbsm3.ui.commonScreenComponents.datepicker
 
-import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
-import androidx.compose.animation.graphics.res.animatedVectorResource
-import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
-import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
@@ -19,49 +13,139 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.Popup
-import com.example.pbsm3.R
-import com.example.pbsm3.ui.theme.PBSM3Theme
-import java.util.*
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.pbsm3.data.shortMonthStrings
+import com.example.pbsm3.data.getFirstDayOfMonth
 import com.example.pbsm3.ui.navhost.Screen
+import com.example.pbsm3.ui.theme.PBSM3Theme
+import com.maxkeppeker.sheets.core.icons.filled.ChevronLeft
+import com.maxkeppeker.sheets.core.icons.filled.ChevronRight
 import com.maxkeppeker.sheets.core.models.base.SheetState
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
-import com.maxkeppeker.sheets.core.utils.TestTags
+import com.maxkeppeker.sheets.core.views.base.DialogBase
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
+import java.util.*
 
 private const val TAG = "DatePicker"
 
 @Composable
 fun PBSDatePicker(
+    modifier: Modifier = Modifier,
     viewModel: DatePickerViewModel = viewModel(),
     screen: Screen,
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     Column {
-        DatePickerPlaceHolder(viewModel, screen)
-        if (true) {
-            when (screen) {
-                Screen.Budget -> {
-                    MonthYearPicker(viewModel = viewModel)
+        DatePickerPlaceHolder(modifier, uiState, viewModel::expandPicker, screen)
+        when (screen) {
+            Screen.Budget -> {
+                MonthPicker(
+                    withDialog = false,
+                    onOk = { selectedDate ->
+                        viewModel.setSelectedDate(
+                            viewModel.getFirstDayOfMonth(selectedDate))
+                    }, onCancel = viewModel::collapsePicker)
+                /*MonthMode(
+                    uiState = uiState,
+                    onOk = { selectedDate ->
+                        viewModel.setSelectedDate(
+                            viewModel.getFirstDayOfMonth(selectedDate))
+                    },
+                    onCancel = viewModel::collapsePicker
+                )*/
+            }
+            Screen.Transaction -> {
+                CalendarMode(
+                    uiState = uiState,
+                    onDateSelected = { selectedDate -> viewModel.setSelectedDate(selectedDate) },
+                    onCloseRequest = { viewModel.collapsePicker() }
+                )
+            }
+            else -> {}
+        }
+    }
+}
+
+@Composable
+private fun MonthPicker(
+    modifier: Modifier = Modifier,
+    viewModel: DatePickerViewModel = viewModel(),
+    withDialog: Boolean,
+    onOk: (LocalDate) -> Unit,
+    onCancel: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    val selectedDate by remember { mutableStateOf(uiState.selectedDate) }
+
+    val enterTransition =
+        expandIn(expandFrom = Alignment.Center, clip = false) + fadeIn()
+    val exitTransition =
+        shrinkOut(shrinkTowards = Alignment.Center, clip = false) + fadeOut()
+    val selectableContainerModifier =
+        Modifier.clip(MaterialTheme.shapes.extraSmall)
+    val selectableItemModifier = Modifier
+        .padding(start = 8.dp, end = 4.dp)
+        .padding(vertical = 4.dp)
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .padding(top = 16.dp, bottom = if (withDialog) 0.dp else 16.dp)
+    ) {
+        Column(modifier = Modifier.align(Alignment.TopCenter)) {
+            Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                AnimatedButton(
+                    uiState = uiState,
+                    enterTransition = enterTransition,
+                    exitTransition = exitTransition,
+                    onCLick = { selectedDate.minusMonths(1) },
+                    imageVector = ChevronLeft)
+                Spacer(
+                    modifier =
+                    if (withDialog) Modifier.weight(1f)
+                    else Modifier.width(24.dp))
+                Row(
+                    modifier = selectableContainerModifier.wrapContentWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        modifier = selectableItemModifier,
+                        text = selectedDate.format(
+                            DateTimeFormatter.ofPattern("MMM yyyy")),
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold),
+                        textAlign = TextAlign.Center
+                    )
                 }
-                Screen.Transaction -> {
-                    CalendarMode(viewModel = viewModel)
-                }
-                else -> {}
+                Spacer(
+                    modifier =
+                    if (withDialog) Modifier.weight(1f)
+                    else Modifier.width(24.dp))
+                AnimatedButton(
+                    uiState = uiState,
+                    enterTransition = enterTransition,
+                    exitTransition = exitTransition,
+                    onCLick = { selectedDate.plusMonths(1) },
+                    imageVector = ChevronRight)
+            }
+            if (withDialog) {
+                BottomButtons(
+                    modifier = Modifier.align(Alignment.End),
+                    onOk = { onOk(selectedDate) },
+                    onCancel = onCancel
+                )
             }
         }
     }
@@ -69,12 +153,13 @@ fun PBSDatePicker(
 
 @Composable
 private fun DatePickerPlaceHolder(
-    viewModel: DatePickerViewModel,
+    modifier: Modifier = Modifier,
+    uiState: DatePickerState,
+    onCLick: () -> Unit,
     screen: Screen
 ) {
-    val uiState by viewModel.uiState.collectAsState()
     Row(
-        modifier = Modifier.clickable { viewModel.expandOrCollapsePicker() },
+        modifier = modifier.clickable { onCLick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
@@ -88,154 +173,130 @@ private fun DatePickerPlaceHolder(
             readOnly = true)
         Icon(
             imageVector =
-            if(uiState.pickerExpanded) Icons.Filled.ExpandLess
+            if (uiState.pickerExpanded) Icons.Filled.ExpandLess
             else Icons.Filled.ExpandMore,
             contentDescription = "Select Date")
     }
 }
 
-//copied from sheets-compose-dialog
-@OptIn(ExperimentalAnimationGraphicsApi::class)
+//copied from sheets-compose-dialog and modified to fit purpose
 @Composable
-private fun MonthYearPicker(viewModel: DatePickerViewModel) {
-    val uiState by viewModel.uiState.collectAsState()
-    val enterTransition =
-        expandIn(expandFrom = Alignment.Center, clip = false) + fadeIn()
-    val exitTransition =
-        shrinkOut(shrinkTowards = Alignment.Center, clip = false) + fadeOut()
-    val selectableContainerModifier =
-        Modifier.clip(MaterialTheme.shapes.extraSmall)
-    val selectableItemModifier = Modifier
-        .padding(start = 8.dp, end = 4.dp)
-        .padding(vertical = 4.dp)
+private fun MonthMode(
+    uiState: DatePickerState,
+    onOk: (LocalDate) -> Unit,
+    onCancel: () -> Unit
+) {
+    DialogBase(
+        state = rememberSheetState(visible = uiState.pickerExpanded),
+        properties = DialogProperties()
+    ) {
+        MonthPicker(withDialog = true, onOk = onOk, onCancel = onCancel)
+    }
+}
 
-    Log.d(TAG, "Selected Date: ${uiState.selectedDate}")
-
-    Box(modifier = Modifier.fillMaxWidth()) {
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.CenterStart),
-            visible = uiState.previousEnabled,
-            enter = enterTransition,
-            exit = exitTransition
-        ) {
-            Column(Modifier.align(Alignment.CenterStart)) {
-                FilledIconButton(
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer),
-                    modifier = Modifier
-                        .size(32.dp),
-                    onClick = { viewModel.moveToPreviousMonth() }
-                ) {
-                    Icon(
-                        modifier = Modifier.size(24.dp),
-                        imageVector = ChevronLeft,
-                        contentDescription = "Previous Month"
-                    )
-                }
+@Composable
+private fun AnimatedButton(
+    uiState: DatePickerState,
+    enterTransition: EnterTransition,
+    exitTransition: ExitTransition,
+    onCLick: () -> Unit,
+    imageVector: ImageVector
+) {
+    AnimatedVisibility(
+        visible = uiState.previousEnabled,
+        enter = enterTransition,
+        exit = exitTransition
+    ) {
+        Column {
+            FilledIconButton(
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                modifier = Modifier.size(32.dp),
+                onClick = onCLick
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = imageVector,
+                    contentDescription = "Previous Month"
+                )
             }
         }
+    }
+}
 
-        Row(
+@Composable
+private fun BottomButtons(modifier: Modifier = Modifier, onOk: () -> Unit, onCancel: () -> Unit) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End
+    ) {
+        TextButton(
             modifier = Modifier
-                .align(Alignment.Center)
-                .wrapContentWidth(),
-            verticalAlignment = Alignment.CenterVertically
+                .wrapContentWidth()
+                .padding(horizontal = 16.dp),
+            onClick = onCancel
         ) {
-            Row(
-                modifier = selectableContainerModifier
-                    .clickable { viewModel.displayMonthList() },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = selectableItemModifier,
-                    text = uiState.selectedDate.month.getDisplayName(
-                        TextStyle.SHORT, Locale.getDefault()),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold),
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            Row(
-                modifier = selectableContainerModifier
-                    .clickable { viewModel.displayYearList() },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = selectableItemModifier,
-                    text = uiState.selectedDate.year.toString(),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold),
-                    textAlign = TextAlign.Center
-                )
-            }
+            Text("Cancel")
         }
-
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.CenterEnd),
-            visible = uiState.nextEnabled,
-            enter = enterTransition,
-            exit = exitTransition
+        TextButton(
+            modifier = Modifier.wrapContentWidth(),
+            onClick = onOk
         ) {
-            Column(Modifier.align(Alignment.CenterEnd)) {
-                FilledIconButton(
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer),
-                    modifier = Modifier.size(32.dp),
-                    onClick = { viewModel.moveToNextMonth() }
-                ) {
-                    Icon(
-                        modifier = Modifier.size(24.dp),
-                        imageVector = ChevronRight,
-                        contentDescription = "Next Month"
-                    )
-                }
-            }
+            Text("Ok")
         }
     }
 }
 
 @Composable
 private fun CalendarMode(
-    viewModel: DatePickerViewModel
+    uiState: DatePickerState,
+    onDateSelected: (LocalDate) -> Unit,
+    onCloseRequest: (SheetState.() -> Unit)?
 ) {
-    var selectedDate: LocalDate by remember { mutableStateOf(LocalDate.now()) }
     CalendarDialog(
         state = rememberSheetState(
-            visible = true,
-            onCloseRequest = { viewModel.setSelectedDate(selectedDate) }),
+            visible = uiState.pickerExpanded,
+            onCloseRequest = onCloseRequest),
         config = CalendarConfig(
             yearSelection = true,
             monthSelection = true,
             style = CalendarStyle.MONTH,
-            disabledDates = null
         ),
         selection = CalendarSelection.Date { newDate ->
-            selectedDate = newDate
+            onDateSelected(newDate)
         },
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PBSDatePickerMonthYearPreview() {
+private fun PBSDatePickerMonthModePreview() {
     PBSM3Theme {
-        PBSDatePicker(onClick = { }, screen = Screen.Transaction)
+        val viewModel: DatePickerViewModel = viewModel()
+        viewModel.expandPicker()
+        PBSDatePicker(viewModel = viewModel, screen = Screen.Budget)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PBSDatePickerCalendarPreview() {
+private fun PBSDatePickerMonthPickerPreview() {
     PBSM3Theme {
-        PBSDatePicker(onClick = { }, screen = Screen.Budget)
+        val viewModel: DatePickerViewModel = viewModel()
+        viewModel.expandPicker()
+        MonthPicker(viewModel = viewModel, withDialog = false, onCancel = {}, onOk = {})
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun MonthYearPickerPreview() {
+private fun PBSDatePickerCalendarModePreview() {
     PBSM3Theme {
-        MonthYearPicker(viewModel())
+        val viewModel: DatePickerViewModel = viewModel()
+        viewModel.expandPicker()
+        PBSDatePicker(viewModel = viewModel, screen = Screen.Transaction)
     }
 }

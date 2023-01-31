@@ -1,13 +1,13 @@
 package com.example.pbsm3.model
 
-import java.util.Date
+import java.time.LocalDate
 
 data class Transaction(
     //TODO: [optional] add payee, repeat, cleared, and flag
     val amount:Double,
     val category:String,
     val account: Account,
-    val date:Date,
+    val date:LocalDate,
     val memo:String =""
 )
 data class Account(
