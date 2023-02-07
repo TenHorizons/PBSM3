@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -63,6 +64,7 @@ dependencies {
     implementation "com.maxkeppeler.sheets-compose-dialogs:calendar:$sheets_compose_dialogs_version"
     implementation "androidx.compose.animation:animation-graphics:1.3.3"
     implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.4.2'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
