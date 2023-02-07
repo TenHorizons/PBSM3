@@ -6,5 +6,5 @@ import java.time.LocalDate
 
 data class MainState(
     val selectedDate: LocalDate = getFirstDayOfMonth(),
-    val currentScreen: Screen = Screen.Budget
+    val currentScreen: Screen = Screen.Login
 )

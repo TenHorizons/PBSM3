@@ -1,10 +1,9 @@
 package com.example.pbsm3.ui.commonScreenComponents
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,10 +14,12 @@ import com.example.pbsm3.ui.theme.PBSM3Theme
 @Composable
 fun PBSBottomNav(
     modifier: Modifier = Modifier,
-    onClick:(Int, Screen)->Unit
+    onClick:(Int, Screen)->Unit,
+    screen: Screen
 ) {
     var selectedItemIndex by remember { mutableStateOf(0) }
 
+    if(screen == Screen.Login) return
     NavigationBar(modifier = modifier) {
         bottomNavItems.forEachIndexed { index, item ->
             NavigationBarItem(
@@ -41,6 +42,6 @@ fun PBSBottomNav(
 @Composable
 fun BottomNavPreview() {
     PBSM3Theme {
-        PBSBottomNav(onClick = {_,_->})
+        PBSBottomNav(onClick = {_,_->}, screen = Screen.Budget)
     }
 }

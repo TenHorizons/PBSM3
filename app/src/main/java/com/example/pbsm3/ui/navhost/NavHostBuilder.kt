@@ -18,37 +18,48 @@ import com.example.pbsm3.ui.theme.PBSM3Theme
 fun NavHostBuilder(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String = Screen.Budget.name,
+    startDestination: String,
     uiState:MainState
 ) {
-//    val backStack = navController.get
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        composable(route = Screen.Budget.name) {
+        composable(route = Screen.Login.route){
+            LoginScreen(onVerified = {userId ->
+                navController.navigate(Screen.Budget.route)
+                //TODO: load user data.
+                navController.popBackStack()
+            })
+        }
+
+        composable(route = Screen.Budget.route) {
             BudgetScreen(budget = defaultBudget, date = uiState.selectedDate)
         }
 
-        composable(route = Screen.BudgetItem.name) {
+        composable(route = Screen.BudgetItem.route) {
             BudgetItemScreen(
                 budgetItem = defaultBudgetItem,
                 onNavigateUp = {
-                    navController.navigate(Screen.Budget.name)
+                    navController.navigate(Screen.Budget.route)
+                    navController.popBackStack()
                 })
         }
 
-        composable(route = Screen.AddTransaction.name) {
+        composable(route = Screen.AddTransaction.route) {
             AddTransactionScreen()
         }
 
-        composable(route = Screen.Account.name) {
-            AccountScreen(onNavigateUp = {})
+        composable(route = Screen.Accounts.route) {
+            AccountsScreen()
         }
 
-        composable(route = Screen.AccountTransactions.name){
-            AccountTransactionsScreen(onNavigateUp = {})
+        composable(route = Screen.AccountTransactions.route){
+            AccountTransactionsScreen(onNavigateUp = {
+                navController.navigate(Screen.Accounts.route)
+                navController.popBackStack()
+            })
         }
     }
 }
@@ -59,7 +70,7 @@ fun NavHostPreview() {
     PBSM3Theme {
         NavHostBuilder(
             navController = rememberNavController(),
-            startDestination = Screen.Budget.name,
+            startDestination = Screen.Budget.route,
             modifier = Modifier.fillMaxSize(),
             uiState = MainState()
         )

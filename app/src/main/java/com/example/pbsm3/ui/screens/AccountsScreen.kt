@@ -19,9 +19,8 @@ import com.example.pbsm3.ui.screens.viewmodel.AccountScreenViewModel
 import com.example.pbsm3.ui.theme.PBSM3Theme
 
 @Composable
-fun AccountScreen(
+fun AccountsScreen(
     modifier: Modifier = Modifier,
-    onNavigateUp:()->Unit,
     viewModel: AccountScreenViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -67,6 +66,6 @@ fun AccountItems(accounts: List<Account>) {
 @Composable
 fun AccountScreenPreview() {
     PBSM3Theme {
-        AccountScreen()
+        AccountsScreen()
     }
 }

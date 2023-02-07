@@ -26,19 +26,52 @@ fun PBSTopBar(
     val hideScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val pinScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    if(screen == Screen.Budget) CenterAlignedTopAppBar(
-        title = { PBSDatePicker(screen = Screen.Budget, onDateSelected = onDateSelected)},
+    when (screen) {
+        Screen.Login -> return
+        Screen.Budget -> CenterAlignedTopAppBar(
+            title = { PBSDatePicker(screen = Screen.Budget, onDateSelected = onDateSelected) },
+            modifier = modifier.nestedScroll(hideScrollBehavior.nestedScrollConnection),
+            scrollBehavior = hideScrollBehavior
+        )
+        else -> TopAppBar(
+            title = {
+                Text(
+                    text =
+                    when (screen) {
+                        Screen.AddTransaction -> "Add Transaction"
+                        Screen.BudgetItem -> budgetItemName
+                        Screen.Accounts -> "Accounts"
+                        else -> "ERROR SELECTING TITLE"
+                    }
+                )
+            },
+            navigationIcon = {
+                IconButton(onClick = onNavigateUp) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back to Previous Screen")
+                }
+            },
+            modifier = modifier.nestedScroll(pinScrollBehavior.nestedScrollConnection),
+            scrollBehavior = pinScrollBehavior
+        )
+    }
+
+    /*if (screen == Screen.Login) return
+    else if (screen == Screen.Budget) CenterAlignedTopAppBar(
+        title = { PBSDatePicker(screen = Screen.Budget, onDateSelected = onDateSelected) },
         modifier = modifier.nestedScroll(hideScrollBehavior.nestedScrollConnection),
         scrollBehavior = hideScrollBehavior
-    )else TopAppBar(
+    ) else TopAppBar(
         title = {
-            Text(text =
-            when (screen) {
-                Screen.AddTransaction -> "Add Transaction"
-                Screen.BudgetItem -> budgetItemName
-                Screen.Account -> "Accounts"
-                else -> "ERROR SELECTING TITLE"
-            }
+            Text(
+                text =
+                when (screen) {
+                    Screen.AddTransaction -> "Add Transaction"
+                    Screen.BudgetItem -> budgetItemName
+                    Screen.Account -> "Accounts"
+                    else -> "ERROR SELECTING TITLE"
+                }
             )
         },
         navigationIcon = {
@@ -50,7 +83,7 @@ fun PBSTopBar(
         },
         modifier = modifier.nestedScroll(pinScrollBehavior.nestedScrollConnection),
         scrollBehavior = pinScrollBehavior
-    )
+    )*/
 }
 
 @Preview(showBackground = true)

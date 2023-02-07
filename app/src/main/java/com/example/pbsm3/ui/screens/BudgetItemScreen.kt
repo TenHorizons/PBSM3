@@ -38,6 +38,6 @@ fun BudgetItemScreen(onNavigateUp:()->Unit, budgetItem: BudgetItem, modifier: Mo
 @Composable
 fun BudgetItemScreenPreview(){
     PBSM3Theme() {
-        BudgetItemScreen(budgetItem = defaultBudgetItem)
+        BudgetItemScreen(budgetItem = defaultBudgetItem, onNavigateUp = {})
     }
 }

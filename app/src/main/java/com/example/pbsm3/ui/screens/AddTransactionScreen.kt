@@ -214,6 +214,6 @@ fun Memo(memoText: String, onTextChanged: (String) -> Unit) {
 @Composable
 fun TransactionScreenPreview() {
     PBSM3Theme {
-        AddTransactionScreen(onNavigateUp = { })
+        AddTransactionScreen()
     }
 }

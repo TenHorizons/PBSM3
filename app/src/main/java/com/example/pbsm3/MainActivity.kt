@@ -13,20 +13,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.pbsm3.ui.MainViewModel
 import com.example.pbsm3.ui.commonScreenComponents.PBSBottomNav
 import com.example.pbsm3.ui.commonScreenComponents.PBSTopBar
 import com.example.pbsm3.ui.navhost.NavHostBuilder
-import com.example.pbsm3.ui.navhost.Screen
 import com.example.pbsm3.ui.theme.PBSM3Theme
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 private const val TAG = "MainActivity"
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,27 +45,31 @@ fun Main(viewModel: MainViewModel = viewModel()) {
             topBar = {
                 PBSTopBar(
                     screen = uiState.currentScreen,
-                    onDateSelected ={ newDate ->
+                    onDateSelected = { newDate ->
                         viewModel.setSelectedDate(newDate)
                     })
-                     },
+            },
             bottomBar = {
-                PBSBottomNav { _, screen ->
-                    navController.navigate(screen.name)
-                    viewModel.updateCurrentScreen(screen)
-                }
+                PBSBottomNav(
+                    onClick = { _, screen ->
+                        navController.navigate(screen.route)
+                        navController.popBackStack()
+                        viewModel.updateCurrentScreen(screen)
+                    },
+                    screen = uiState.currentScreen
+                )
             }
         ) { innerPadding ->
             NavHostBuilder(
                 navController = navController,
-                startDestination = uiState.currentScreen.name,
+                startDestination = uiState.currentScreen.route,
                 modifier = Modifier.padding(innerPadding),
                 uiState = uiState
             )
         }
     }
 
-    private fun firestoreTest(db: FirebaseFirestore) {
+    fun firestoreTest(db: FirebaseFirestore) {
         // Create a new user with a first, middle, and last name
         val user = hashMapOf(
             "first" to "Alan",
