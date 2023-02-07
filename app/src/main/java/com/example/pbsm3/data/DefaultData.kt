@@ -1,5 +1,6 @@
 package com.example.pbsm3.data
 
+import com.example.pbsm3.model.Account
 import com.example.pbsm3.model.Budget
 import com.example.pbsm3.model.BudgetItem
 import com.example.pbsm3.model.Category
@@ -9,6 +10,15 @@ import java.time.temporal.TemporalAdjusters
 //TODO: Change all Date to LocalDate
 fun getFirstDayOfMonth():LocalDate{
     return LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
+}
+fun getFirstDayOfMonth(date:LocalDate):LocalDate{
+    return date.with(TemporalAdjusters.firstDayOfMonth())
+}
+fun setDate(oldDate: LocalDate,newDate: LocalDate):LocalDate{
+    return oldDate
+        .withYear(newDate.year)
+        .withMonth(newDate.monthValue)
+        .withDayOfMonth(newDate.dayOfMonth)
 }
 
 val defaultBudgetItem = BudgetItem("Groceries&Laundry")
@@ -78,4 +88,12 @@ val defaultMonthlyBudget = mapOf(
 val defaultBudget = Budget(
     name = "Default Budget",
     monthlyBudgets = defaultMonthlyBudget
+)
+
+val defaultAccount = Account(name = "Default Account")
+
+val defaultAccounts = listOf(
+    defaultAccount,
+    Account("Default Account 2"),
+    Account("Default Account 3")
 )

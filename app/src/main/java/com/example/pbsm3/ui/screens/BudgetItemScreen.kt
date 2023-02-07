@@ -10,13 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.pbsm3.data.defaultBudgetItem
 import com.example.pbsm3.model.BudgetItem
-import com.example.pbsm3.ui.commonScreenComponents.PBSTopBar
-import com.example.pbsm3.ui.navhost.Screen
 import com.example.pbsm3.ui.theme.PBSM3Theme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BudgetItemScreen(budgetItem: BudgetItem, modifier: Modifier = Modifier){
+fun BudgetItemScreen(onNavigateUp:()->Unit, budgetItem: BudgetItem, modifier: Modifier = Modifier){
     Column(modifier = modifier){
         Row{
             Text(text = "Name:")

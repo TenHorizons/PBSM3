@@ -12,11 +12,12 @@ enum class Screen(val route:String,val icon:ImageVector? = null){
     Budget(route = "Budget",icon = Icons.Filled.Savings),
     BudgetItem(route = "Budget_Item"),
     Account(route = "Account", icon = Icons.Filled.AccountBalance),
-    Transaction(route = "Transaction", icon = Icons.Filled.AddCircle)
+    AddTransaction(route = "AddTransaction", icon = Icons.Filled.AddCircle),
+    AccountTransactions(route = "AccountTransactions")
 }
 
 val bottomNavItems = listOf(
     Screen.Budget,
-    Screen.Transaction,
+    Screen.AddTransaction,
     Screen.Account
 )

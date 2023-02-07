@@ -2,6 +2,7 @@
 
 package com.example.pbsm3.ui.commonScreenComponents.datepicker
 
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,31 +45,27 @@ fun PBSDatePicker(
     modifier: Modifier = Modifier,
     viewModel: DatePickerViewModel = viewModel(),
     screen: Screen,
+    onDateSelected: (LocalDate) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     Column {
-        DatePickerPlaceHolder(modifier, uiState, viewModel::expandPicker, screen)
         when (screen) {
             Screen.Budget -> {
                 MonthPicker(
                     withDialog = false,
                     onOk = { selectedDate ->
-                        viewModel.setSelectedDate(
-                            viewModel.getFirstDayOfMonth(selectedDate))
+                        viewModel.setSelectedDate(getFirstDayOfMonth(selectedDate))
+                        onDateSelected(selectedDate)
                     }, onCancel = viewModel::collapsePicker)
-                /*MonthMode(
-                    uiState = uiState,
-                    onOk = { selectedDate ->
-                        viewModel.setSelectedDate(
-                            viewModel.getFirstDayOfMonth(selectedDate))
-                    },
-                    onCancel = viewModel::collapsePicker
-                )*/
             }
-            Screen.Transaction -> {
+            Screen.AddTransaction -> {
+                DatePickerPlaceHolder(modifier, uiState, viewModel::expandPicker, screen)
                 CalendarMode(
                     uiState = uiState,
-                    onDateSelected = { selectedDate -> viewModel.setSelectedDate(selectedDate) },
+                    onDateSelected = { selectedDate ->
+                        viewModel.setSelectedDate(selectedDate)
+                        onDateSelected(selectedDate)
+                    },
                     onCloseRequest = { viewModel.collapsePicker() }
                 )
             }
@@ -85,8 +83,7 @@ private fun MonthPicker(
     onCancel: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    val selectedDate by remember { mutableStateOf(uiState.selectedDate) }
+    var selectedDate by remember { mutableStateOf(uiState.selectedDate) }
 
     val enterTransition =
         expandIn(expandFrom = Alignment.Center, clip = false) + fadeIn()
@@ -110,7 +107,11 @@ private fun MonthPicker(
                     uiState = uiState,
                     enterTransition = enterTransition,
                     exitTransition = exitTransition,
-                    onCLick = { selectedDate.minusMonths(1) },
+                    onCLick = {
+                        selectedDate = selectedDate.minusMonths(1)
+                        if (!withDialog) onOk(selectedDate)
+                        Log.d(TAG, "Left Clicked, date: $selectedDate")
+                    },
                     imageVector = ChevronLeft)
                 Spacer(
                     modifier =
@@ -137,7 +138,11 @@ private fun MonthPicker(
                     uiState = uiState,
                     enterTransition = enterTransition,
                     exitTransition = exitTransition,
-                    onCLick = { selectedDate.plusMonths(1) },
+                    onCLick = {
+                        selectedDate = selectedDate.plusMonths(1)
+                        if (!withDialog) onOk(selectedDate)
+                        Log.d(TAG, "Right Clicked, date: $selectedDate")
+                    },
                     imageVector = ChevronRight)
             }
             if (withDialog) {
@@ -166,16 +171,25 @@ private fun DatePickerPlaceHolder(
             value = when (screen) {
                 Screen.Budget -> uiState.selectedDate.format(
                     DateTimeFormatter.ofPattern("MMM yyyy"))
-                Screen.Transaction -> uiState.selectedDate.toString()
+                Screen.AddTransaction -> uiState.selectedDate.toString()
                 else -> ""
             },
             onValueChange = {},
-            readOnly = true)
-        Icon(
-            imageVector =
-            if (uiState.pickerExpanded) Icons.Filled.ExpandLess
-            else Icons.Filled.ExpandMore,
-            contentDescription = "Select Date")
+            readOnly = true,
+            trailingIcon = {
+                Icon(
+                    imageVector =
+                    if (uiState.pickerExpanded) Icons.Filled.ExpandLess
+                    else Icons.Filled.ExpandMore,
+                    contentDescription = "Select Date")
+            },
+            colors = TextFieldDefaults.textFieldColors(
+                disabledIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Red
+            )
+        )
     }
 }
 
@@ -277,17 +291,7 @@ private fun PBSDatePickerMonthModePreview() {
     PBSM3Theme {
         val viewModel: DatePickerViewModel = viewModel()
         viewModel.expandPicker()
-        PBSDatePicker(viewModel = viewModel, screen = Screen.Budget)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PBSDatePickerMonthPickerPreview() {
-    PBSM3Theme {
-        val viewModel: DatePickerViewModel = viewModel()
-        viewModel.expandPicker()
-        MonthPicker(viewModel = viewModel, withDialog = false, onCancel = {}, onOk = {})
+        PBSDatePicker(viewModel = viewModel, screen = Screen.Budget, onDateSelected = {})
     }
 }
 
@@ -297,6 +301,6 @@ private fun PBSDatePickerCalendarModePreview() {
     PBSM3Theme {
         val viewModel: DatePickerViewModel = viewModel()
         viewModel.expandPicker()
-        PBSDatePicker(viewModel = viewModel, screen = Screen.Transaction)
+        PBSDatePicker(viewModel = viewModel, screen = Screen.AddTransaction, onDateSelected = {})
     }
 }

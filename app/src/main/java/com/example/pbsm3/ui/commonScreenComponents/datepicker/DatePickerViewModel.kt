@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.time.LocalDate
-import java.time.temporal.TemporalAdjusters
 
 class DatePickerViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(DatePickerState())
@@ -34,8 +33,5 @@ class DatePickerViewModel : ViewModel() {
                 selectedDate = date
             )
         }
-    }
-    fun getFirstDayOfMonth(date:LocalDate):LocalDate{
-        return date.with(TemporalAdjusters.firstDayOfMonth())
     }
 }

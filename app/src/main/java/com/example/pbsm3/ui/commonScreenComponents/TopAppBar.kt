@@ -5,22 +5,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.pbsm3.ui.commonScreenComponents.datepicker.PBSDatePicker
 import com.example.pbsm3.ui.navhost.Screen
 import com.example.pbsm3.ui.theme.PBSM3Theme
+import java.time.LocalDate
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PBSTopBar(
     modifier: Modifier = Modifier,
-    onDatePicked: (Date) -> Unit = {},
+    onDateSelected: (LocalDate) -> Unit = {},
     budgetItemName: String = "MISSING_BUDGET_ITEM_NAME",
     onNavigateUp: () -> Unit = {},
     screen: Screen
@@ -29,15 +27,16 @@ fun PBSTopBar(
     val pinScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     if(screen == Screen.Budget) CenterAlignedTopAppBar(
-        title = { PBSDatePicker(screen = Screen.Budget)},
+        title = { PBSDatePicker(screen = Screen.Budget, onDateSelected = onDateSelected)},
         modifier = modifier.nestedScroll(hideScrollBehavior.nestedScrollConnection),
         scrollBehavior = hideScrollBehavior
     )else TopAppBar(
         title = {
             Text(text =
             when (screen) {
-                Screen.Transaction -> "Add Transaction"
+                Screen.AddTransaction -> "Add Transaction"
                 Screen.BudgetItem -> budgetItemName
+                Screen.Account -> "Accounts"
                 else -> "ERROR SELECTING TITLE"
             }
             )
@@ -74,6 +73,6 @@ fun BudgetItemTopBarPreview() {
 @Composable
 fun TransactionTopBarPreview() {
     PBSM3Theme {
-        PBSTopBar(screen = Screen.Transaction)
+        PBSTopBar(screen = Screen.AddTransaction)
     }
 }

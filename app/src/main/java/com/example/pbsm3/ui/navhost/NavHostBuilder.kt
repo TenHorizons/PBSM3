@@ -10,40 +10,45 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.pbsm3.data.defaultBudget
 import com.example.pbsm3.data.defaultBudgetItem
-import com.example.pbsm3.data.getFirstDayOfMonth
-import com.example.pbsm3.ui.screens.AccountScreen
-import com.example.pbsm3.ui.screens.BudgetItemScreen
-import com.example.pbsm3.ui.screens.BudgetScreen
-import com.example.pbsm3.ui.screens.TransactionScreen
+import com.example.pbsm3.ui.MainState
+import com.example.pbsm3.ui.screens.*
 import com.example.pbsm3.ui.theme.PBSM3Theme
 
 @Composable
 fun NavHostBuilder(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String = Screen.Budget.name
+    startDestination: String = Screen.Budget.name,
+    uiState:MainState
 ) {
+//    val backStack = navController.get
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
     ) {
         composable(route = Screen.Budget.name) {
-            BudgetScreen(
-                budget = defaultBudget,
-                date = getFirstDayOfMonth())
+            BudgetScreen(budget = defaultBudget, date = uiState.selectedDate)
         }
 
         composable(route = Screen.BudgetItem.name) {
-            BudgetItemScreen(budgetItem = defaultBudgetItem)
+            BudgetItemScreen(
+                budgetItem = defaultBudgetItem,
+                onNavigateUp = {
+                    navController.navigate(Screen.Budget.name)
+                })
         }
 
-        composable(route = Screen.Transaction.name) {
-            TransactionScreen(onNavigateUp = {})
+        composable(route = Screen.AddTransaction.name) {
+            AddTransactionScreen()
         }
 
         composable(route = Screen.Account.name) {
-            AccountScreen()
+            AccountScreen(onNavigateUp = {})
+        }
+
+        composable(route = Screen.AccountTransactions.name){
+            AccountTransactionsScreen(onNavigateUp = {})
         }
     }
 }
@@ -55,19 +60,8 @@ fun NavHostPreview() {
         NavHostBuilder(
             navController = rememberNavController(),
             startDestination = Screen.Budget.name,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun NavHostPreview2() {
-    PBSM3Theme {
-        NavHostBuilder(
-            navController = rememberNavController(),
-            startDestination = Screen.Budget.name,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            uiState = MainState()
         )
     }
 }
