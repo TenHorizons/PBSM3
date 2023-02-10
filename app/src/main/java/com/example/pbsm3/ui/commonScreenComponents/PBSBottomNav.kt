@@ -14,7 +14,7 @@ import com.example.pbsm3.ui.theme.PBSM3Theme
 @Composable
 fun PBSBottomNav(
     modifier: Modifier = Modifier,
-    onClick:(Int, Screen)->Unit,
+    onClick:(Screen)->Unit,
     screen: Screen
 ) {
     var selectedItemIndex by remember { mutableStateOf(0) }
@@ -32,7 +32,7 @@ fun PBSBottomNav(
                 selected = selectedItemIndex == index,
                 onClick = {
                     selectedItemIndex = index
-                    onClick(index,item) }
+                    onClick(item) }
             )
         }
     }
@@ -42,6 +42,6 @@ fun PBSBottomNav(
 @Composable
 fun BottomNavPreview() {
     PBSM3Theme {
-        PBSBottomNav(onClick = {_,_->}, screen = Screen.Budget)
+        PBSBottomNav(onClick = {}, screen = Screen.Budget)
     }
 }

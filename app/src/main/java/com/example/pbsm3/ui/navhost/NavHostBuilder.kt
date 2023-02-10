@@ -19,7 +19,8 @@ fun NavHostBuilder(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     startDestination: String,
-    uiState:MainState
+    uiState:MainState,
+    onScreenChange:(Screen)->Unit
 ) {
     NavHost(
         navController = navController,
@@ -29,6 +30,7 @@ fun NavHostBuilder(
         composable(route = Screen.Login.route){
             LoginScreen(onVerified = {userId ->
                 navController.navigate(Screen.Budget.route)
+                onScreenChange(Screen.Budget)
                 //TODO: load user data.
                 navController.popBackStack()
             })
@@ -43,6 +45,7 @@ fun NavHostBuilder(
                 budgetItem = defaultBudgetItem,
                 onNavigateUp = {
                     navController.navigate(Screen.Budget.route)
+                    onScreenChange(Screen.Budget)
                     navController.popBackStack()
                 })
         }
@@ -58,6 +61,7 @@ fun NavHostBuilder(
         composable(route = Screen.AccountTransactions.route){
             AccountTransactionsScreen(onNavigateUp = {
                 navController.navigate(Screen.Accounts.route)
+                onScreenChange(Screen.Accounts)
                 navController.popBackStack()
             })
         }
@@ -72,7 +76,8 @@ fun NavHostPreview() {
             navController = rememberNavController(),
             startDestination = Screen.Budget.route,
             modifier = Modifier.fillMaxSize(),
-            uiState = MainState()
+            uiState = MainState(),
+            onScreenChange = {}
         )
     }
 }

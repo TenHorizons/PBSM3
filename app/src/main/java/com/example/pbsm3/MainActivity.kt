@@ -51,10 +51,10 @@ fun Main(viewModel: MainViewModel = viewModel()) {
             },
             bottomBar = {
                 PBSBottomNav(
-                    onClick = { _, screen ->
+                    onClick = { screen ->
                         navController.navigate(screen.route)
-                        navController.popBackStack()
                         viewModel.updateCurrentScreen(screen)
+                        navController.popBackStack()
                     },
                     screen = uiState.currentScreen
                 )
@@ -64,7 +64,8 @@ fun Main(viewModel: MainViewModel = viewModel()) {
                 navController = navController,
                 startDestination = uiState.currentScreen.route,
                 modifier = Modifier.padding(innerPadding),
-                uiState = uiState
+                uiState = uiState,
+                onScreenChange = { screen -> viewModel.updateCurrentScreen(screen) }
             )
         }
     }
