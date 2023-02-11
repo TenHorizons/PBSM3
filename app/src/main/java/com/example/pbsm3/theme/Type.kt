@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.theme
+package com.example.pbsm3.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

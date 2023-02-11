@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui
+package com.example.pbsm3
 
 import com.example.pbsm3.data.getFirstDayOfMonth
 import com.example.pbsm3.ui.navhost.Screen

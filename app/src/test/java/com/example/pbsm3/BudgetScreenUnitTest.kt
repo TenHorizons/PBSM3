@@ -5,7 +5,7 @@ import com.example.pbsm3.data.defaultCategories
 import com.example.pbsm3.data.getFirstDayOfMonth
 import com.example.pbsm3.model.BudgetItem
 import com.example.pbsm3.model.Category
-import com.example.pbsm3.ui.screens.viewmodel.BudgetScreenViewModel
+import com.example.pbsm3.ui.screens.budget.BudgetScreenViewModel
 import org.junit.Test
 
 /**

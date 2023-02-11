@@ -24,7 +24,7 @@ import com.example.pbsm3.R
 import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import com.example.pbsm3.ui.commonScreenComponents.datepicker.PBSDatePicker
 import com.example.pbsm3.ui.navhost.Screen
-import com.example.pbsm3.ui.theme.PBSM3Theme
+import com.example.pbsm3.theme.PBSM3Theme
 
 private const val TAG = "TransactionScreen"
 

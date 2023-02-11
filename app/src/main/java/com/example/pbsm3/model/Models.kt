@@ -1,12 +1,12 @@
 package com.example.pbsm3.model
 
 import com.example.pbsm3.data.defaultMonthlyBudget
+import com.google.firebase.firestore.DocumentId
 import java.time.LocalDate
 
 data class User(
-    val username:String,
-    val password:String,
-    val budgets: List<Budget>
+    val id: String = "",
+    val isAnonymous: Boolean = true,
 )
 
 data class Budget(
@@ -41,4 +41,16 @@ data class Transaction(
 data class Account(
     val name:String,
     val balance:Double = 0.0
+)
+
+data class Task(
+    @DocumentId val id: String = "",
+    val title: String = "",
+    val priority: String = "",
+    val dueDate: String = "",
+    val dueTime: String = "",
+    val description: String = "",
+    val url: String = "",
+    val flag: Boolean = false,
+    val completed: Boolean = false
 )

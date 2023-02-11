@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.pbsm3.ui.navhost.Screen
 import com.example.pbsm3.ui.navhost.bottomNavItems
-import com.example.pbsm3.ui.theme.PBSM3Theme
+import com.example.pbsm3.theme.PBSM3Theme
 
 @Composable
 fun PBSBottomNav(

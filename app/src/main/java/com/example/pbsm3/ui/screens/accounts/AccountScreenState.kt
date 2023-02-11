@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.screens.viewmodel
+package com.example.pbsm3.ui.screens.accounts
 
 import com.example.pbsm3.data.defaultAccount
 import com.example.pbsm3.model.Account

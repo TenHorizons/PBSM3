@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.screens.viewmodel
+package com.example.pbsm3.ui.screens.budget
 
 import androidx.lifecycle.ViewModel
 import com.example.pbsm3.data.defaultCategories

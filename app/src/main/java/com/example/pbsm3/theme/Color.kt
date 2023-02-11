@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.theme
+package com.example.pbsm3.theme
 import androidx.compose.ui.graphics.Color
 
 val md_theme_light_primary = Color(0xFF235FA6)

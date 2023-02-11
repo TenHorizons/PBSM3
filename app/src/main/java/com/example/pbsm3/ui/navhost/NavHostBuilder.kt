@@ -8,18 +8,22 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.pbsm3.AppState
+import com.example.pbsm3.MainState
 import com.example.pbsm3.data.defaultBudget
 import com.example.pbsm3.data.defaultBudgetItem
-import com.example.pbsm3.ui.MainState
+import com.example.pbsm3.rememberAppState
+import com.example.pbsm3.theme.PBSM3Theme
 import com.example.pbsm3.ui.screens.*
-import com.example.pbsm3.ui.theme.PBSM3Theme
+import com.example.pbsm3.ui.screens.login.LoginScreen
 
 @Composable
 fun NavHostBuilder(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     startDestination: String,
-    uiState:MainState,
+    uiState: MainState,
+    appState: AppState,
     onScreenChange:(Screen)->Unit
 ) {
     NavHost(
@@ -28,12 +32,11 @@ fun NavHostBuilder(
         modifier = modifier,
     ) {
         composable(route = Screen.Login.route){
-            LoginScreen(onVerified = {userId ->
-                navController.navigate(Screen.Budget.route)
-                onScreenChange(Screen.Budget)
-                //TODO: load user data.
-                navController.popBackStack()
-            })
+            LoginScreen(
+                navigateAndPopUpInclusive = { route, popUp ->
+                    appState.navigateAndPopUp(route, popUp)
+                }
+            )
         }
 
         composable(route = Screen.Budget.route) {
@@ -77,7 +80,8 @@ fun NavHostPreview() {
             startDestination = Screen.Budget.route,
             modifier = Modifier.fillMaxSize(),
             uiState = MainState(),
-            onScreenChange = {}
+            onScreenChange = {},
+            appState = rememberAppState()
         )
     }
 }

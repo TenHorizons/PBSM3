@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.pbsm3.data.defaultBudgetItem
 import com.example.pbsm3.model.BudgetItem
-import com.example.pbsm3.ui.theme.PBSM3Theme
+import com.example.pbsm3.theme.PBSM3Theme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.screens.viewmodel
+package com.example.pbsm3.ui.screens.accounts
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

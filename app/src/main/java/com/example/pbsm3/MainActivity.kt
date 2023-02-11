@@ -2,8 +2,8 @@
 
 package com.example.pbsm3
 
+import android.content.res.Resources
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,15 +11,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.pbsm3.ui.MainViewModel
+import com.example.pbsm3.theme.PBSM3Theme
 import com.example.pbsm3.ui.commonScreenComponents.PBSBottomNav
 import com.example.pbsm3.ui.commonScreenComponents.PBSTopBar
+import com.example.pbsm3.ui.commonScreenComponents.snackbar.SnackbarManager
 import com.example.pbsm3.ui.navhost.NavHostBuilder
-import com.example.pbsm3.ui.theme.PBSM3Theme
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.pbsm3.ui.navhost.Screen
+import kotlinx.coroutines.CoroutineScope
 
 private const val TAG = "MainActivity"
 
@@ -29,6 +34,32 @@ class MainActivity : ComponentActivity() {
         setContent {
             PBSM3Theme {
                 Main()
+                /*//Firestore Test
+                // Create a new user with a first, middle, and last name
+                val user = hashMapOf(
+                    "first" to "Alan",
+                    "middle" to "Mathison",
+                    "last" to "Turing",
+                    "born" to 1912
+                )
+                val db = Firebase.firestore
+                // Add a new document with a generated ID
+                db.collection("users")
+                    .add(user)
+                    .addOnSuccessListener { documentReference ->
+                        Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                    }
+
+                db.collection("users")
+                    .get()
+                    .addOnSuccessListener { result ->
+                        for (document in result) {
+                            Log.d(TAG, "${document.id} => ${document.data}")
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.w(TAG, "Error getting documents.", exception)
+                    }*/
             }
         }
     }
@@ -36,11 +67,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Main(viewModel: MainViewModel = viewModel()) {
-    val uiState by viewModel.uiState.collectAsState()
-    val navController = rememberNavController()
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background) {
+        color = MaterialTheme.colorScheme.background
+    ) {
+        val appState = rememberAppState()
+        val uiState by viewModel.uiState.collectAsState()
         Scaffold(
             topBar = {
                 PBSTopBar(
@@ -52,51 +84,52 @@ fun Main(viewModel: MainViewModel = viewModel()) {
             bottomBar = {
                 PBSBottomNav(
                     onClick = { screen ->
-                        navController.navigate(screen.route)
+                        appState.navController.navigate(screen.route)
                         viewModel.updateCurrentScreen(screen)
-                        navController.popBackStack()
+                        appState.navController.popBackStack()
                     },
                     screen = uiState.currentScreen
+                )
+            },
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = appState.snackbarHostState,
+                    modifier = Modifier.padding(8.dp),
+                    snackbar = { snackbarData ->
+                        Snackbar(snackbarData, contentColor = MaterialTheme.colorScheme.onPrimary)
+                    }
                 )
             }
         ) { innerPadding ->
             NavHostBuilder(
-                navController = navController,
-                startDestination = uiState.currentScreen.route,
+                navController = appState.navController,
+                startDestination = Screen.Login.route,
                 modifier = Modifier.padding(innerPadding),
                 uiState = uiState,
+                appState = appState,
                 onScreenChange = { screen -> viewModel.updateCurrentScreen(screen) }
             )
         }
     }
+}
 
-    fun firestoreTest(db: FirebaseFirestore) {
-        // Create a new user with a first, middle, and last name
-        val user = hashMapOf(
-            "first" to "Alan",
-            "middle" to "Mathison",
-            "last" to "Turing",
-            "born" to 1912
-        )
-
-        // Add a new document with a generated ID
-        db.collection("users")
-            .add(user)
-            .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-            }
-
-        db.collection("users")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    Log.d(TAG, "${document.id} => ${document.data}")
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents.", exception)
-            }
+@Composable
+fun rememberAppState(
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    navController: NavHostController = rememberNavController(),
+    snackbarManager: SnackbarManager = SnackbarManager,
+    resources: Resources = resources(),
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
+) =
+    remember(snackbarHostState, navController, snackbarManager, resources, coroutineScope) {
+        AppState(snackbarHostState, navController, snackbarManager, resources, coroutineScope)
     }
+
+@Composable
+@ReadOnlyComposable
+fun resources(): Resources {
+    LocalConfiguration.current
+    return LocalContext.current.resources
 }
 
 @Preview(showBackground = true)

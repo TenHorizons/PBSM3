@@ -24,7 +24,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pbsm3.data.getFirstDayOfMonth
 import com.example.pbsm3.ui.navhost.Screen
-import com.example.pbsm3.ui.theme.PBSM3Theme
+import com.example.pbsm3.theme.PBSM3Theme
 import com.maxkeppeker.sheets.core.icons.filled.ChevronLeft
 import com.maxkeppeker.sheets.core.icons.filled.ChevronRight
 import com.maxkeppeker.sheets.core.models.base.SheetState

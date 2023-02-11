@@ -10,7 +10,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.pbsm3.ui.commonScreenComponents.datepicker.PBSDatePicker
 import com.example.pbsm3.ui.navhost.Screen
-import com.example.pbsm3.ui.theme.PBSM3Theme
+import com.example.pbsm3.theme.PBSM3Theme
 import java.time.LocalDate
 import java.util.*
 

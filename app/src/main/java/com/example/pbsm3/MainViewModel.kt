@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui
+package com.example.pbsm3
 
 import androidx.lifecycle.ViewModel
 import com.example.pbsm3.ui.navhost.Screen
