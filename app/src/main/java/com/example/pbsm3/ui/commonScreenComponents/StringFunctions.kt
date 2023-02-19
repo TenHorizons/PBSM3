@@ -4,7 +4,14 @@ import android.util.Patterns
 import java.util.regex.Pattern
 
 private const val MIN_PASS_LENGTH = 6
-private const val PASS_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{4,}$"
+private const val PASS_PATTERN = "^" +
+        "(?=.*[0-9])" +         //at least 1 digit
+        "(?=.*[a-z])" +         //at least 1 lower case letter
+        "(?=.*[A-Z])" +         //at least 1 upper case letter
+        "(?=.*[@#$%^&+=])" +    //at least 1 special character
+        "(?=\\S+$)" +           //no white spaces
+        ".{4,}" +               //at least 4 characters
+        "$"
 
 fun String.isValidEmail(): Boolean {
     return this.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(this).matches()
