@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.screens
+package com.example.pbsm3.ui.screens.addTransaction
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -21,10 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.pbsm3.R
+import com.example.pbsm3.Screen
+import com.example.pbsm3.theme.PBSM3Theme
 import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import com.example.pbsm3.ui.commonScreenComponents.datepicker.PBSDatePicker
-import com.example.pbsm3.ui.navhost.Screen
-import com.example.pbsm3.theme.PBSM3Theme
 
 private const val TAG = "TransactionScreen"
 
@@ -199,7 +199,8 @@ fun Memo(memoText: String, onTextChanged: (String) -> Unit) {
                 .fillMaxWidth()
                 .fillMaxHeight(0.3f),
             colors = TextFieldDefaults.textFieldColors(
-                textColor = White,
+                focusedTextColor = White,
+                unfocusedTextColor = White,
                 disabledIndicatorColor = Transparent,
                 focusedIndicatorColor = Transparent,
                 unfocusedIndicatorColor = Transparent,

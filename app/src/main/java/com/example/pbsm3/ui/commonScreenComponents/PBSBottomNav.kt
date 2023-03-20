@@ -7,8 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.pbsm3.ui.navhost.Screen
-import com.example.pbsm3.ui.navhost.bottomNavItems
+import com.example.pbsm3.Screen
+import com.example.pbsm3.bottomNavItems
 import com.example.pbsm3.theme.PBSM3Theme
 
 @Composable
@@ -26,9 +26,9 @@ fun PBSBottomNav(
                 icon = {
                     Icon(
                         imageVector = item.icon!!,
-                        contentDescription = item.route)
+                        contentDescription = item.name)
                 },
-                label = { Text(item.route) },
+                label = { Text(item.name) },
                 selected = selectedItemIndex == index,
                 onClick = {
                     selectedItemIndex = index

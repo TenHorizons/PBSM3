@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.screens
+package com.example.pbsm3.ui.screens.budgetItem
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

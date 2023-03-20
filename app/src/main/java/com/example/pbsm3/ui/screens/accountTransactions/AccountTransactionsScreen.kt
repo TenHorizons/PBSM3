@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.screens
+package com.example.pbsm3.ui.screens.accountTransactions
 
 import androidx.compose.runtime.Composable
 

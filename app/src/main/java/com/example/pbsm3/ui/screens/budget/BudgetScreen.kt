@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.screens
+package com.example.pbsm3.ui.screens.budget
 
 import android.util.Log
 import androidx.compose.animation.animateContentSize
@@ -27,9 +27,8 @@ import com.example.pbsm3.data.getFirstDayOfMonth
 import com.example.pbsm3.model.Budget
 import com.example.pbsm3.model.BudgetItem
 import com.example.pbsm3.model.Category
-import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
-import com.example.pbsm3.ui.screens.budget.BudgetScreenViewModel
 import com.example.pbsm3.theme.PBSM3Theme
+import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import java.time.LocalDate
 
 
@@ -43,7 +42,8 @@ fun BudgetScreen(
     viewModel: BudgetScreenViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    Log.d(TAG, "BudgetScreen start. old budget equals new: " +
+    Log.d(
+        TAG, "BudgetScreen start. old budget equals new: " +
             "${uiState.budget == defaultBudget}")
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -60,7 +60,8 @@ fun BudgetScreen(
                     onItemClicked = {_,_->},
                     onItemChanged = {category, item, index->
                         viewModel.updateBudgetItem(category,item,index)
-                        Log.d(TAG, "updateBudgetItem. old budget equals new: " +
+                        Log.d(
+                            TAG, "updateBudgetItem. old budget equals new: " +
                                 "${uiState.budget == defaultBudget}")
                     })
             }

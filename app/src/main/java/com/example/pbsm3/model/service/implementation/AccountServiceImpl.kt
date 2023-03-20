@@ -4,14 +4,13 @@ import com.example.pbsm3.model.User
 import com.example.pbsm3.model.service.AccountService
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.perf.ktx.trace
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class AccountServiceImpl  @Inject constructor(private val auth: FirebaseAuth) : AccountService {
+class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : AccountService {
     //Access user info
     /*val user = Firebase.auth.currentUser
     user?.let {
@@ -108,11 +107,11 @@ class AccountServiceImpl  @Inject constructor(private val auth: FirebaseAuth) : 
         auth.signInAnonymously().await()
     }
 
-    override suspend fun linkAccount(email: String, password: String): Unit =
-        trace(LINK_ACCOUNT_TRACE) {
-            val credential = EmailAuthProvider.getCredential(email, password)
-            auth.currentUser!!.linkWithCredential(credential).await()
-        }
+    override suspend fun linkAccount(email: String, password: String) {
+        //removed trace. add in later after properly figuring out what it does.
+        val credential = EmailAuthProvider.getCredential(email, password)
+        auth.currentUser!!.linkWithCredential(credential).await()
+    }
 
     override suspend fun deleteAccount() {
         auth.currentUser!!.delete().await()
@@ -127,8 +126,5 @@ class AccountServiceImpl  @Inject constructor(private val auth: FirebaseAuth) : 
         createAnonymousAccount()
     }
 
-    //TODO: What is this for?
-    companion object {
-        private const val LINK_ACCOUNT_TRACE = "linkAccount"
-    }
+    //removed trace. add in later after properly figuring out what it does.
 }

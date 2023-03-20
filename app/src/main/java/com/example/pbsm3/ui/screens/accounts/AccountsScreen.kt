@@ -1,4 +1,4 @@
-package com.example.pbsm3.ui.screens
+package com.example.pbsm3.ui.screens.accounts
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,8 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pbsm3.data.defaultAccounts
 import com.example.pbsm3.model.Account
-import com.example.pbsm3.ui.screens.accounts.AccountScreenState
-import com.example.pbsm3.ui.screens.accounts.AccountScreenViewModel
 import com.example.pbsm3.theme.PBSM3Theme
 
 @Composable

@@ -23,7 +23,7 @@ private const val TAG ="Login"
 fun LoginScreen(
     modifier: Modifier = Modifier,
     navigateAndPopUpInclusive: (String, String) -> Unit,
-    viewModel: LoginScreenViewModel = hiltViewModel()
+    viewModel: LoginScreenViewModel  = hiltViewModel()
 ) {
     val uiState by viewModel.uiState
 
@@ -38,6 +38,7 @@ fun LoginScreen(
 
         EmailField(uiState.email, viewModel::onEmailChange, textFieldModifier)
         PasswordField(uiState.password, viewModel::onPasswordChange, textFieldModifier)
+
         Button(
             onClick = { viewModel.onSignInClick(navigateAndPopUpInclusive) },
             modifier = Modifier
@@ -51,6 +52,9 @@ fun LoginScreen(
         ) {
             Text(text = "Sign in", fontSize = 16.sp)
         }
+
+        //TODO Register Function and page
+
         TextButton(
             onClick = { viewModel.onForgotPasswordClick() },
             modifier = Modifier

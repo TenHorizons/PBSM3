@@ -40,7 +40,8 @@ fun CurrencyTextField(
         singleLine = true,
         colors = TextFieldDefaults.textFieldColors(
             containerColor = background,
-            textColor = textColor,
+            focusedTextColor = textColor,
+            unfocusedTextColor = textColor,
             disabledIndicatorColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
