@@ -19,7 +19,7 @@ fun PBSBottomNav(
 ) {
     var selectedItemIndex by remember { mutableStateOf(0) }
 
-    if(screen == Screen.Login) return
+    if(screen !in bottomNavItems) return
     NavigationBar(modifier = modifier) {
         bottomNavItems.forEachIndexed { index, item ->
             NavigationBarItem(

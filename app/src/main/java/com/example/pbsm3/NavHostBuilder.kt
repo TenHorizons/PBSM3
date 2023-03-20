@@ -91,7 +91,7 @@ fun NavHostPreview() {
             modifier = Modifier.fillMaxSize(),
             selectedDate = getFirstDayOfMonth(),
             onScreenChange = {},
-            appState = rememberAppState()
+            appState = rememberAppState(onScreenChange = {})
         )
     }
 }

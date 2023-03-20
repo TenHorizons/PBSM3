@@ -10,7 +10,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.pbsm3.data.getFirstDayOfMonth
@@ -22,30 +21,29 @@ import kotlinx.coroutines.CoroutineScope
 import java.time.LocalDate
 
 @Composable
-fun Main(viewModel: MainViewModel = viewModel()) {
+fun Main() {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        val appState = rememberAppState()
-
-        val selectedDate: LocalDate by remember{ mutableStateOf(getFirstDayOfMonth()) }
-        val currentScreen:Screen by remember{ mutableStateOf(Screen.Login) }
+        var currentScreen: Screen by remember { mutableStateOf(Screen.Splash) }
+        val appState = rememberAppState(onScreenChange = {
+            if (it != null) currentScreen = it
+        })
+        var selectedDate: LocalDate by remember { mutableStateOf(getFirstDayOfMonth()) }
 
         Scaffold(
             topBar = {
                 PBSTopBar(
                     screen = currentScreen,
                     onDateSelected = { newDate ->
-                        viewModel.setSelectedDate(newDate)
+                        selectedDate = newDate
                     })
             },
             bottomBar = {
                 PBSBottomNav(
                     onClick = { screen ->
-                        appState.navController.navigate(screen.name)
-                        viewModel.updateCurrentScreen(screen)
-                        appState.navController.popBackStack()
+                        appState.navigate(screen.name)
                     },
                     screen = currentScreen
                 )
@@ -66,7 +64,7 @@ fun Main(viewModel: MainViewModel = viewModel()) {
                 modifier = Modifier.padding(innerPadding),
                 selectedDate = selectedDate,
                 appState = appState,
-                onScreenChange = { screen -> viewModel.updateCurrentScreen(screen) }
+                onScreenChange = { screen -> currentScreen = screen }
             )
         }
     }
@@ -78,10 +76,14 @@ fun rememberAppState(
     navController: NavHostController = rememberNavController(),
     snackbarManager: SnackbarManager = SnackbarManager,
     resources: Resources = resources(),
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    onScreenChange: (Screen?) -> Unit
 ) =
-    remember(snackbarHostState, navController, snackbarManager, resources, coroutineScope) {
-        AppState(snackbarHostState, navController, snackbarManager, resources, coroutineScope)
+    remember(
+        snackbarHostState, navController, snackbarManager, resources, coroutineScope) {
+        AppState(
+            snackbarHostState, navController, snackbarManager, resources, coroutineScope,
+            onScreenChange)
     }
 
 @Composable

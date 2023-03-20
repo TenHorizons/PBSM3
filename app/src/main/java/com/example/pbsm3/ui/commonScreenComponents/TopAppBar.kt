@@ -8,9 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.pbsm3.ui.commonScreenComponents.datepicker.PBSDatePicker
 import com.example.pbsm3.Screen
 import com.example.pbsm3.theme.PBSM3Theme
+import com.example.pbsm3.ui.commonScreenComponents.datepicker.PBSDatePicker
 import java.time.LocalDate
 import java.util.*
 
@@ -27,13 +27,13 @@ fun PBSTopBar(
     val pinScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     when (screen) {
-        Screen.Login -> return
+        Screen.Login,Screen.Splash -> return
         Screen.Budget -> CenterAlignedTopAppBar(
             title = { PBSDatePicker(screen = Screen.Budget, onDateSelected = onDateSelected) },
             modifier = modifier.nestedScroll(hideScrollBehavior.nestedScrollConnection),
             scrollBehavior = hideScrollBehavior
         )
-        else -> TopAppBar(
+        else-> TopAppBar(
             title = {
                 Text(
                     text =
@@ -56,34 +56,6 @@ fun PBSTopBar(
             scrollBehavior = pinScrollBehavior
         )
     }
-
-    /*if (screen == Screen.Login) return
-    else if (screen == Screen.Budget) CenterAlignedTopAppBar(
-        title = { PBSDatePicker(screen = Screen.Budget, onDateSelected = onDateSelected) },
-        modifier = modifier.nestedScroll(hideScrollBehavior.nestedScrollConnection),
-        scrollBehavior = hideScrollBehavior
-    ) else TopAppBar(
-        title = {
-            Text(
-                text =
-                when (screen) {
-                    Screen.AddTransaction -> "Add Transaction"
-                    Screen.BudgetItem -> budgetItemName
-                    Screen.Account -> "Accounts"
-                    else -> "ERROR SELECTING TITLE"
-                }
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigateUp) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back to Previous Screen")
-            }
-        },
-        modifier = modifier.nestedScroll(pinScrollBehavior.nestedScrollConnection),
-        scrollBehavior = pinScrollBehavior
-    )*/
 }
 
 @Preview(showBackground = true)
