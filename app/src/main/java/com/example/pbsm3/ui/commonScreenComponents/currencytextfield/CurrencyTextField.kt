@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun CurrencyTextField(
     modifier: Modifier = Modifier,
-    positiveValue: Boolean,
+    isPositiveValue: Boolean,
     background: Color = MaterialTheme.colorScheme.surface,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     value: String,
@@ -34,7 +34,7 @@ fun CurrencyTextField(
         value = value,
         onValueChange = onValueChange,
         visualTransformation =
-        CurrencyAmountInputVisualTransformation(positiveValue = positiveValue),
+        CurrencyAmountInputVisualTransformation(isPositiveValue = isPositiveValue),
         keyboardOptions =
         KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
         singleLine = true,
@@ -59,7 +59,7 @@ fun CurrencyTextFieldTransactionPreview() {
     CurrencyTextField(
         value = 100.toString(),
         onValueChange = { },
-        positiveValue = true,
+        isPositiveValue = true,
         textColor = Green,
         textStyle = TextStyle.Default.copy(
             fontSize = 36.sp,
@@ -74,7 +74,7 @@ fun CurrencyTextFieldBudgetPreview() {
     CurrencyTextField(
         value = 100.toString(),
         onValueChange = { },
-        positiveValue = true,
+        isPositiveValue = true,
         textColor = Black,
         modifier = Modifier.requiredWidth(100.dp),
         textStyle = TextStyle.Default.copy(

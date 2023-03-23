@@ -7,7 +7,6 @@ import com.example.pbsm3.model.Category
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 
-//TODO: Change all Date to LocalDate
 fun getFirstDayOfMonth():LocalDate{
     return LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
 }

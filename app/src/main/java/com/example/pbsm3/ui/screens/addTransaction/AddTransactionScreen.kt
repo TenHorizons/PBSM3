@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Transparent
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -20,61 +19,74 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pbsm3.R
 import com.example.pbsm3.Screen
 import com.example.pbsm3.theme.PBSM3Theme
 import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import com.example.pbsm3.ui.commonScreenComponents.datepicker.PBSDatePicker
+import java.time.LocalDate
 
-private const val TAG = "TransactionScreen"
+private const val TAG = "AddTransactionScreen"
 
 @Composable
-fun AddTransactionScreen(modifier: Modifier = Modifier) {
-    var amount by remember { mutableStateOf(0.0) }
-    var memoText by remember { mutableStateOf("") }
-
-    var switchFlipped by remember { mutableStateOf(true) }
-    var displayedAmount by remember { mutableStateOf("") }
+fun AddTransactionScreen(
+    modifier: Modifier = Modifier,
+    viewModel: AddTransactionScreenViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState
 
     Column(modifier = modifier) {
         AmountRow(
-            switchFlipped = switchFlipped,
-            displayedAmount = displayedAmount,
-            onCheckedChange = { switchFlipped = it },
-            onValueChange = {
-                displayedAmount =
-                    if (it.startsWith("0")) ""
-                    else it
+            onAmountChange = { amount,switchGreen ->
+                viewModel.onAmountChange(amount,switchGreen)
             }
         )
         Card(modifier = Modifier.padding(8.dp)) {
-            TransactionInfo()
+            TransactionInfo(
+                categoryOptions = viewModel.getCategoryOptions(),
+                accountOptions = viewModel.getAccountOptions(),
+                onCategorySelected = { viewModel.onCategoryChange(it) },
+                onAccountSelected = { viewModel.onAccountChange(it) },
+                onDateSelected = { viewModel.onDateChange(it) }
+            )
         }
         Card(modifier = Modifier.padding(8.dp)) {
-            Memo(memoText, onTextChanged = {})
+            Memo(
+                uiState.memoText,
+                onTextChanged = { viewModel.onMemoChange(it) })
+        }
+        Row(
+            Modifier.padding(end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            Button(onClick = { viewModel.onAddTransaction() }) {
+                Text(text = "Add Transaction")
+            }
         }
     }
 }
 
 @Composable
 fun AmountRow(
-    switchFlipped: Boolean,
-    displayedAmount: String,
-    onCheckedChange: (Boolean) -> Unit,
-    onValueChange: (String) -> Unit
+    onAmountChange: (String,Boolean) -> String
 ) {
+    var displayedAmount by remember { mutableStateOf("") }
+    var switchGreen by remember { mutableStateOf(true) }
     Card(
         modifier = Modifier.padding(8.dp),
         colors = CardDefaults.cardColors(
             containerColor =
-            if (switchFlipped) colorScheme.tertiaryContainer
+            if (switchGreen) colorScheme.tertiaryContainer
             else colorScheme.errorContainer
         )
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Switch(
-                checked = switchFlipped,
-                onCheckedChange = onCheckedChange,
+                checked = switchGreen,
+                onCheckedChange = {switchGreen = !switchGreen},
                 colors = SwitchDefaults.colors(
                     checkedTrackColor = Green,
                     uncheckedTrackColor = Red
@@ -86,11 +98,13 @@ fun AmountRow(
             Spacer(modifier = Modifier.weight(1f))
             CurrencyTextField(
                 value = displayedAmount,
-                onValueChange = onValueChange,
+                onValueChange = {
+                    displayedAmount = onAmountChange(it,switchGreen)
+                },
                 background =
-                if (switchFlipped) colorScheme.tertiaryContainer
+                if (switchGreen) colorScheme.tertiaryContainer
                 else colorScheme.errorContainer,
-                positiveValue = switchFlipped,
+                isPositiveValue = switchGreen,
                 textStyle = TextStyle.Default.copy(
                     fontSize = 36.sp,
                     textAlign = TextAlign.End,
@@ -103,32 +117,45 @@ fun AmountRow(
 }
 
 @Composable
-fun TransactionInfo() {
-    val options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5")
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf(options[0]) }
+fun TransactionInfo(
+    categoryOptions: List<String>,
+    accountOptions: List<String>,
+    onCategorySelected: (String) -> Unit,
+    onAccountSelected: (String) -> Unit,
+    onDateSelected: (LocalDate) -> Unit
+) {
+    var selectedCategory by remember { mutableStateOf(categoryOptions[0]) }
+    var selectedAccount by remember { mutableStateOf(accountOptions[0]) }
 
     Column {
         TransactionInfoItemWithMenu(
-            title = "Category", selectedOption = selectedOptionText,
-            onSelectedChange = { selectedOptionText = it },
-            options = options)
+            title = "Category", selectedOption = selectedCategory,
+            onSelectedChange = {
+                selectedCategory = it
+                onCategorySelected(it)
+            },
+            options = categoryOptions)
         Divider()
         TransactionInfoItemWithMenu(
-            title = "Account", selectedOption = selectedOptionText,
-            onSelectedChange = { selectedOptionText = it },
-            options = options)
+            title = "Account", selectedOption = selectedAccount,
+            onSelectedChange = {
+                selectedAccount = it
+                onAccountSelected(it)
+            },
+            options = accountOptions)
         Divider()
         Row(
-            Modifier.padding(start = 8.dp).fillMaxWidth(),
+            Modifier.padding(start = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Date", textAlign = TextAlign.Start)
-            Spacer(Modifier.weight(0.5f))
+            Spacer(Modifier.weight(1f))
             PBSDatePicker(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+//                    .heightIn(min=56.dp,max=150.dp)
+                    .widthIn(100.dp),
                 screen = Screen.AddTransaction,
-                onDateSelected = {})
+                onDateSelected = onDateSelected)
         }
     }
 }
@@ -142,7 +169,10 @@ private fun TransactionInfoItemWithMenu(
     options: List<String>
 ) {
     var expanded by remember { mutableStateOf(false) }
-    Row(Modifier.padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        Modifier.padding(start = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(title, textAlign = TextAlign.Start)
         Spacer(modifier = Modifier.weight(1f))
         ExposedDropdownMenuBox(
@@ -150,8 +180,14 @@ private fun TransactionInfoItemWithMenu(
             onExpandedChange = { expanded = !expanded }
         ) {
             TextField(
+                modifier = Modifier
+                    .menuAnchor()
+                    .widthIn(100.dp),
                 readOnly = true,
                 value = selectedOption,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    textAlign = TextAlign.End
+                ),
                 onValueChange = { },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
@@ -163,8 +199,7 @@ private fun TransactionInfoItemWithMenu(
                     focusedIndicatorColor = Transparent,
                     unfocusedIndicatorColor = Transparent,
                     errorIndicatorColor = Red
-                ),
-                modifier = Modifier.widthIn(100.dp)
+                )
             )
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -176,7 +211,8 @@ private fun TransactionInfoItemWithMenu(
                         onClick = {
                             onSelectedChange.invoke(option)
                             expanded = false
-                        }
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                     )
                 }
             }
@@ -199,8 +235,6 @@ fun Memo(memoText: String, onTextChanged: (String) -> Unit) {
                 .fillMaxWidth()
                 .fillMaxHeight(0.3f),
             colors = TextFieldDefaults.textFieldColors(
-                focusedTextColor = White,
-                unfocusedTextColor = White,
                 disabledIndicatorColor = Transparent,
                 focusedIndicatorColor = Transparent,
                 unfocusedIndicatorColor = Transparent,
@@ -213,7 +247,7 @@ fun Memo(memoText: String, onTextChanged: (String) -> Unit) {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun TransactionScreenPreview() {
+fun AddTransactionScreenPreview() {
     PBSM3Theme {
         AddTransactionScreen()
     }

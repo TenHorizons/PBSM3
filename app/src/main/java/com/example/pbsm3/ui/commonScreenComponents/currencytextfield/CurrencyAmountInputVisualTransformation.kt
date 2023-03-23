@@ -12,7 +12,7 @@ import java.text.DecimalFormat
  * https://github.com/banmarkovic/CurrencyAmountInput/tree/master/app/src/main/java/com/ban/currencyamountinput*/
 class CurrencyAmountInputVisualTransformation(
     private val numberOfDecimals: Int = 2,
-    private val positiveValue:Boolean
+    private val isPositiveValue:Boolean
 ) : VisualTransformation {
 
     private val symbols = DecimalFormat().decimalFormatSymbols
@@ -52,7 +52,8 @@ class CurrencyAmountInputVisualTransformation(
 
         val formattedNumber = intPart + decimalSeparator + fractionPart
 
-        val currency = if(positiveValue) "RM" else "-RM"
+        //might make .toDouble() fail
+        val currency = if(isPositiveValue) "RM" else "-RM"
 
         val displayedText = currency + formattedNumber
 

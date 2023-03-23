@@ -190,7 +190,7 @@ fun BudgetItemRow(
                         )
                     },
                     background = colorScheme.surfaceVariant,
-                    positiveValue = true,
+                    isPositiveValue = true,
                     textColor = colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .weight(0.225f),
@@ -211,7 +211,7 @@ fun BudgetItemRow(
                         )
                     },
                     background = colorScheme.surfaceVariant,
-                    positiveValue = true,
+                    isPositiveValue = true,
                     textColor = colorScheme.onPrimaryContainer,
                     modifier = Modifier
                         .weight(0.225f),

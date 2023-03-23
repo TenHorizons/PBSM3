@@ -10,23 +10,6 @@ import java.time.LocalDate
 class DatePickerViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(DatePickerState())
     val uiState: StateFlow<DatePickerState> = _uiState.asStateFlow()
-
-    fun expandPicker() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                pickerExpanded = true
-            )
-        }
-    }
-
-    fun collapsePicker() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                pickerExpanded = false
-            )
-        }
-    }
-
     fun setSelectedDate(date: LocalDate) {
         _uiState.update { currentState ->
             currentState.copy(

@@ -30,8 +30,10 @@ data class BudgetItem(
     val notes:String = ""
 )
 
+//TODO Inspect Transaction for usability
 data class Transaction(
     //TODO: [optional] add payee, repeat, cleared, and flag
+    @DocumentId val id: String = "",
     val amount:Double,
     val category:String,
     val account: Account,
@@ -54,3 +56,119 @@ data class Task(
     val flag: Boolean = false,
     val completed: Boolean = false
 )
+
+/*
+
+import com.google.firebase.firestore.DocumentId
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
+
+data class User(
+    val id: String = "",
+    val isAnonymous: Boolean = true,
+)
+
+val budgetName:String = "Default Budget"
+
+data class Category(
+    @DocumentId val id: String = "",
+    val name:String,
+    val totalCarryover:Double = 0.0,
+    val totalExpenses:Double = 0.0,
+    val totalBudgeted:Double = 0.0
+)
+data class BudgetItem(
+    @DocumentId val id: String = "",
+    val name:String,
+    val totalCarryover:Double = 0.0,
+    val totalExpenses:Double = 0.0,
+    val totalBudgeted:Double = 0.0
+)
+data class Account(
+    @DocumentId val id:String = "",
+    val name:String,
+    val balance:Double = 0.0
+)
+data class Transaction(
+    @DocumentId val id:String = "",
+    val amount:Double = 0.0,
+    val category:String,
+    val date:LocalDate = LocalDate.now(),
+    val memo:String = ""
+)
+
+val unassignedBalance:Double = 0.0
+
+
+
+/**Functions to get defaults and process date below*/
+
+fun getFirstDayOfMonth(): LocalDate {
+    return LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
+}
+fun getFirstDayOfMonth(date: LocalDate): LocalDate {
+    return date.with(TemporalAdjusters.firstDayOfMonth())
+}
+
+
+fun Category.getDefaultCategories():List<Category> = listOf(
+    Category(name = "Immediate Obligations"),
+    Category(name = "True Expenses"),
+    Category(name = "Debt Payments"),
+    Category(name = "Quality of Life Goals"),
+    Category(name = "Just for Fun")
+)
+fun Category.getEmptyCategory():Category =
+    Category(name = "Category Name")
+
+
+fun BudgetItem.getImmediateObligationsDefaultItems():List<BudgetItem>{
+    return listOf(
+        BudgetItem(name = "Groceries&Laundry"),
+        BudgetItem(name = "Internet"),
+        BudgetItem(name = "Electric"),
+        BudgetItem(name = "Water"),
+        BudgetItem(name = "Rent/Mortgage"),
+        BudgetItem(name = "Monthly Software Subscriptions"),
+        BudgetItem(name = "Interest & Fees")
+    )
+}
+fun BudgetItem.getTrueExpensesDefaultItems():List<BudgetItem>{
+    return listOf(
+        BudgetItem(name = "Emergency Fund"),
+        BudgetItem(name = "Auto Maintenance"),
+        BudgetItem(name = "Home Maintenance"),
+        BudgetItem(name = "Renter's/Home Insurance"),
+        BudgetItem(name = "Medical"),
+        BudgetItem(name = "Clothing"),
+        BudgetItem(name = "Gifts"),
+        BudgetItem(name = "Computer Replacement"),
+        BudgetItem(name = "Annual Software Subscriptions"),
+        BudgetItem(name = "Stuff I Forgot to Budget For")
+    )
+}
+fun BudgetItem.getDebtPaymentsDefaultItems():List<BudgetItem>{
+    return listOf(
+        BudgetItem(name = "Student Loan"),
+        BudgetItem(name = "Auto Loan")
+    )
+}
+fun BudgetItem.getQualityOfLifeGoalsDefaultItems():List<BudgetItem>{
+    return listOf(
+        BudgetItem(name = "Investments"),
+        BudgetItem(name = "Vacation"),
+        BudgetItem(name = "Fitness"),
+        BudgetItem(name = "Education")
+    )
+}
+fun BudgetItem.getJustForFunDefaultItems():List<BudgetItem>{
+    return listOf(
+        BudgetItem(name = "Dining Out"),
+        BudgetItem(name = "Gaming"),
+        BudgetItem(name = "Music"),
+        BudgetItem(name = "Fun Money")
+    )
+}
+fun BudgetItem.getEmptyItem():BudgetItem =
+    BudgetItem(name = "Budget Item Name")
+*/

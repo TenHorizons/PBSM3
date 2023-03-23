@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : AccountService {
+class AccountServiceImpl @Inject constructor(
+    private val auth: FirebaseAuth
+) : AccountService {
     //Access user info
     /*val user = Firebase.auth.currentUser
     user?.let {
@@ -126,5 +128,5 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
         createAnonymousAccount()
     }
 
-    //removed trace. add in later after properly figuring out what it does.
+    //TODO removed trace. add in later after properly figuring out what it does.
 }

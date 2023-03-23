@@ -6,9 +6,6 @@ import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,16 +17,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.pbsm3.data.getFirstDayOfMonth
 import com.example.pbsm3.Screen
+import com.example.pbsm3.data.getFirstDayOfMonth
 import com.example.pbsm3.theme.PBSM3Theme
 import com.maxkeppeker.sheets.core.icons.filled.ChevronLeft
 import com.maxkeppeker.sheets.core.icons.filled.ChevronRight
 import com.maxkeppeker.sheets.core.models.base.SheetState
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
-import com.maxkeppeker.sheets.core.views.base.DialogBase
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
@@ -48,25 +43,34 @@ fun PBSDatePicker(
     onDateSelected: (LocalDate) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+
     Column {
         when (screen) {
             Screen.Budget -> {
                 MonthPicker(
                     withDialog = false,
-                    onOk = { selectedDate ->
+                    onClick = { selectedDate ->
                         viewModel.setSelectedDate(getFirstDayOfMonth(selectedDate))
-                        onDateSelected(selectedDate)
-                    }, onCancel = viewModel::collapsePicker)
+                        onDateSelected(getFirstDayOfMonth(selectedDate))
+                    }, onCancel = { expanded = false })
             }
             Screen.AddTransaction -> {
-                DatePickerPlaceHolder(modifier, uiState, viewModel::expandPicker, screen)
+                DatePickerPlaceHolder(
+                    modifier,
+                    uiState,
+                    {
+                        expanded = true
+                        Log.d(TAG, "expanded:$expanded")
+                    },
+                    expanded)
                 CalendarMode(
-                    uiState = uiState,
+                    expanded = expanded,
                     onDateSelected = { selectedDate ->
                         viewModel.setSelectedDate(selectedDate)
                         onDateSelected(selectedDate)
                     },
-                    onCloseRequest = { viewModel.collapsePicker() }
+                    onCloseRequest = { expanded = false }
                 )
             }
             else -> {}
@@ -79,7 +83,7 @@ private fun MonthPicker(
     modifier: Modifier = Modifier,
     viewModel: DatePickerViewModel = viewModel(),
     withDialog: Boolean,
-    onOk: (LocalDate) -> Unit,
+    onClick: (LocalDate) -> Unit,
     onCancel: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -109,7 +113,7 @@ private fun MonthPicker(
                     exitTransition = exitTransition,
                     onCLick = {
                         selectedDate = selectedDate.minusMonths(1)
-                        if (!withDialog) onOk(selectedDate)
+                        if (!withDialog) onClick(selectedDate)
                         Log.d(TAG, "Left Clicked, date: $selectedDate")
                     },
                     imageVector = ChevronLeft)
@@ -140,7 +144,7 @@ private fun MonthPicker(
                     exitTransition = exitTransition,
                     onCLick = {
                         selectedDate = selectedDate.plusMonths(1)
-                        if (!withDialog) onOk(selectedDate)
+                        if (!withDialog) onClick(selectedDate)
                         Log.d(TAG, "Right Clicked, date: $selectedDate")
                     },
                     imageVector = ChevronRight)
@@ -148,7 +152,7 @@ private fun MonthPicker(
             if (withDialog) {
                 BottomButtons(
                     modifier = Modifier.align(Alignment.End),
-                    onOk = { onOk(selectedDate) },
+                    onOk = { onClick(selectedDate) },
                     onCancel = onCancel
                 )
             }
@@ -161,40 +165,42 @@ private fun DatePickerPlaceHolder(
     modifier: Modifier = Modifier,
     uiState: DatePickerState,
     onCLick: () -> Unit,
-    screen: Screen
+    expanded: Boolean
 ) {
     Row(
-        modifier = modifier.clickable { onCLick() },
+        modifier = modifier.clickable(enabled = true) {
+            Log.d(TAG, "Date picker placeholder clicked.")
+            onCLick()
+        },
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
-            value = when (screen) {
-                Screen.Budget -> uiState.selectedDate.format(
-                    DateTimeFormatter.ofPattern("MMM yyyy"))
-                Screen.AddTransaction -> uiState.selectedDate.toString()
-                else -> ""
-            },
+            value = uiState.selectedDate.toString(),
             onValueChange = {},
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                textAlign = TextAlign.End
+            ),
             readOnly = true,
             trailingIcon = {
-                Icon(
-                    imageVector =
-                    if (uiState.pickerExpanded) Icons.Filled.ExpandLess
-                    else Icons.Filled.ExpandMore,
-                    contentDescription = "Select Date")
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expanded
+                )
             },
             colors = TextFieldDefaults.textFieldColors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant ,
                 disabledIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
                 errorIndicatorColor = Color.Red
-            )
+            ),
+            /*Apparently 'enabled' needs to be false for clickable() to work
+            * https://stackoverflow.com/questions/67902919/jetpack-compose-textfield-clickable-does-not-work*/
+            enabled = false
         )
     }
 }
 
 //copied from sheets-compose-dialog and modified to fit purpose
-@Composable
+/*@Composable
 private fun MonthMode(
     uiState: DatePickerState,
     onOk: (LocalDate) -> Unit,
@@ -204,9 +210,9 @@ private fun MonthMode(
         state = rememberSheetState(visible = uiState.pickerExpanded),
         properties = DialogProperties()
     ) {
-        MonthPicker(withDialog = true, onOk = onOk, onCancel = onCancel)
+        MonthPicker(withDialog = true, onClick = onOk, onCancel = onCancel)
     }
-}
+}*/
 
 @Composable
 private fun AnimatedButton(
@@ -266,23 +272,26 @@ private fun BottomButtons(modifier: Modifier = Modifier, onOk: () -> Unit, onCan
 
 @Composable
 private fun CalendarMode(
-    uiState: DatePickerState,
+    expanded: Boolean,
     onDateSelected: (LocalDate) -> Unit,
     onCloseRequest: (SheetState.() -> Unit)?
 ) {
-    CalendarDialog(
-        state = rememberSheetState(
-            visible = uiState.pickerExpanded,
-            onCloseRequest = onCloseRequest),
-        config = CalendarConfig(
-            yearSelection = true,
-            monthSelection = true,
-            style = CalendarStyle.MONTH,
-        ),
-        selection = CalendarSelection.Date { newDate ->
-            onDateSelected(newDate)
-        },
-    )
+    Log.d(TAG,"Calendar Mode recomposed, expanded: $expanded")
+    if(expanded){
+        CalendarDialog(
+            state = rememberSheetState(
+                visible = true,
+                onCloseRequest = onCloseRequest),
+            config = CalendarConfig(
+                yearSelection = true,
+                monthSelection = true,
+                style = CalendarStyle.MONTH,
+            ),
+            selection = CalendarSelection.Date { newDate ->
+                onDateSelected(newDate)
+            },
+        )
+    }
 }
 
 @Preview(showBackground = true)
@@ -290,7 +299,6 @@ private fun CalendarMode(
 private fun PBSDatePickerMonthModePreview() {
     PBSM3Theme {
         val viewModel: DatePickerViewModel = viewModel()
-        viewModel.expandPicker()
         PBSDatePicker(viewModel = viewModel, screen = Screen.Budget, onDateSelected = {})
     }
 }
@@ -300,7 +308,6 @@ private fun PBSDatePickerMonthModePreview() {
 private fun PBSDatePickerCalendarModePreview() {
     PBSM3Theme {
         val viewModel: DatePickerViewModel = viewModel()
-        viewModel.expandPicker()
         PBSDatePicker(viewModel = viewModel, screen = Screen.AddTransaction, onDateSelected = {})
     }
 }
