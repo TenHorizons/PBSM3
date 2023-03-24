@@ -39,7 +39,8 @@ fun BudgetScreen(
     modifier: Modifier = Modifier,
     budget: Budget,
     date: LocalDate,
-    viewModel: BudgetScreenViewModel = viewModel()
+    viewModel: BudgetScreenViewModel = viewModel(),
+    onItemClicked: (Category, BudgetItem) -> Unit = {_,_->}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     Log.d(
@@ -57,7 +58,7 @@ fun BudgetScreen(
             items(viewModel.getCategoriesByDate(date)) {
                 CategoryCard(
                     category = it,
-                    onItemClicked = {_,_->},
+                    onItemClicked = onItemClicked,
                     onItemChanged = {category, item, index->
                         viewModel.updateBudgetItem(category,item,index)
                         Log.d(

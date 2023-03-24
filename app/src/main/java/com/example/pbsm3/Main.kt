@@ -27,10 +27,9 @@ fun Main() {
         color = MaterialTheme.colorScheme.background
     ) {
         var currentScreen: Screen by remember { mutableStateOf(Screen.Splash) }
-        val appState = rememberAppState(onScreenChange = {
-            if (it != null) currentScreen = it
-        })
+        val appState = rememberAppState()
         var selectedDate: LocalDate by remember { mutableStateOf(getFirstDayOfMonth()) }
+        var customTopBarText: String by remember { mutableStateOf("") }
 
         Scaffold(
             topBar = {
@@ -38,7 +37,19 @@ fun Main() {
                     screen = currentScreen,
                     onDateSelected = { newDate ->
                         selectedDate = newDate
-                    })
+                    },
+                    onActionClicked = {
+                        manageActions(currentScreen, appState,
+                            onScreenChange = { newScreen -> currentScreen = newScreen }
+                        )
+                    },
+                    onNavigateUp = {
+                        manageNavigateUp(currentScreen, appState,
+                            onScreenChange = { newScreen -> currentScreen = newScreen }
+                        )
+                    },
+                    customTopBarText = customTopBarText
+                )
             },
             bottomBar = {
                 PBSBottomNav(
@@ -53,7 +64,11 @@ fun Main() {
                     hostState = appState.snackbarHostState,
                     modifier = Modifier.padding(8.dp),
                     snackbar = { snackbarData ->
-                        Snackbar(snackbarData, contentColor = MaterialTheme.colorScheme.onPrimary)
+                        //TODO: Use Snackbar to confirm actions and show errors
+                        Snackbar(
+                            snackbarData,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 )
             }
@@ -64,9 +79,46 @@ fun Main() {
                 modifier = Modifier.padding(innerPadding),
                 selectedDate = selectedDate,
                 appState = appState,
-                onScreenChange = { screen -> currentScreen = screen }
+                onScreenChange = { screen -> currentScreen = screen },
+                onTopBarChange = { customTopBarText = it }
             )
         }
+    }
+}
+
+fun manageActions(
+    screen: Screen,
+    appState: AppState,
+    onScreenChange: (Screen) -> Unit
+) {
+    when (screen) {
+        Screen.Accounts -> {
+            onScreenChange(Screen.AddAccountScreen)
+            appState.navigate(Screen.AddAccountScreen.name)
+        }
+        else -> {}
+    }
+}
+
+fun manageNavigateUp(
+    screen: Screen,
+    appState: AppState,
+    onScreenChange: (Screen) -> Unit
+) {
+    when (screen) {
+        Screen.BudgetItem -> {
+            onScreenChange(Screen.Budget)
+            appState.navigate(Screen.Budget.name)
+        }
+        Screen.AddAccountScreen -> {
+            onScreenChange(Screen.Accounts)
+            appState.navigate(Screen.Accounts.name)
+        }
+        Screen.AccountTransactions -> {
+            onScreenChange(Screen.Accounts)
+            appState.navigate(Screen.Accounts.name)
+        }
+        else -> {}
     }
 }
 
@@ -76,14 +128,12 @@ fun rememberAppState(
     navController: NavHostController = rememberNavController(),
     snackbarManager: SnackbarManager = SnackbarManager,
     resources: Resources = resources(),
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    onScreenChange: (Screen?) -> Unit
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) =
     remember(
         snackbarHostState, navController, snackbarManager, resources, coroutineScope) {
         AppState(
-            snackbarHostState, navController, snackbarManager, resources, coroutineScope,
-            onScreenChange)
+            snackbarHostState, navController, snackbarManager, resources, coroutineScope)
     }
 
 @Composable

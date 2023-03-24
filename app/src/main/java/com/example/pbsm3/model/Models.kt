@@ -34,7 +34,7 @@ data class BudgetItem(
 data class Transaction(
     //TODO: [optional] add payee, repeat, cleared, and flag
     @DocumentId val id: String = "",
-    val amount:Double,
+    val amount:Double = 0.0,
     val category:String,
     val account: Account,
     val date:LocalDate,

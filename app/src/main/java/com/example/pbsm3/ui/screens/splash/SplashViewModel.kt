@@ -1,7 +1,6 @@
 package com.example.pbsm3.ui.screens.splash
 
 import androidx.compose.runtime.mutableStateOf
-import com.example.pbsm3.Screen
 import com.example.pbsm3.model.service.AccountService
 import com.example.pbsm3.model.service.LogService
 import com.example.pbsm3.ui.screens.CommonViewModel
@@ -16,13 +15,13 @@ class SplashViewModel @Inject constructor(
 ) : CommonViewModel(logService) {
     val showError = mutableStateOf(false)
 
-    fun onAppStart(navigateAndPopUp: (String, String) -> Unit) {
+    fun onAppStart(onStartupComplete: () -> Unit) {
         showError.value = false
-        if (accountService.hasUser) navigateAndPopUp(Screen.Budget.name, Screen.Splash.name)
-        else createAnonymousAccount(navigateAndPopUp)
+        if (accountService.hasUser) onStartupComplete()
+        else createAnonymousAccount(onStartupComplete)
     }
 
-    private fun createAnonymousAccount(openAndPopUp: (String, String) -> Unit) {
+    private fun createAnonymousAccount(onStartupComplete: () -> Unit) {
         launchCatching(snackbar = false) {
             try {
                 accountService.createAnonymousAccount()
@@ -30,7 +29,7 @@ class SplashViewModel @Inject constructor(
                 showError.value = true
                 throw ex
             }
-            openAndPopUp(Screen.Budget.name, Screen.Splash.name)
+            onStartupComplete()
         }
     }
 }

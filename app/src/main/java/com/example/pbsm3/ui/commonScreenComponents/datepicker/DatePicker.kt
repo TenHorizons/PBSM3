@@ -111,7 +111,7 @@ private fun MonthPicker(
                     uiState = uiState,
                     enterTransition = enterTransition,
                     exitTransition = exitTransition,
-                    onCLick = {
+                    onClick = {
                         selectedDate = selectedDate.minusMonths(1)
                         if (!withDialog) onClick(selectedDate)
                         Log.d(TAG, "Left Clicked, date: $selectedDate")
@@ -142,7 +142,7 @@ private fun MonthPicker(
                     uiState = uiState,
                     enterTransition = enterTransition,
                     exitTransition = exitTransition,
-                    onCLick = {
+                    onClick = {
                         selectedDate = selectedDate.plusMonths(1)
                         if (!withDialog) onClick(selectedDate)
                         Log.d(TAG, "Right Clicked, date: $selectedDate")
@@ -219,7 +219,7 @@ private fun AnimatedButton(
     uiState: DatePickerState,
     enterTransition: EnterTransition,
     exitTransition: ExitTransition,
-    onCLick: () -> Unit,
+    onClick: () -> Unit,
     imageVector: ImageVector
 ) {
     AnimatedVisibility(
@@ -232,7 +232,7 @@ private fun AnimatedButton(
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer),
                 modifier = Modifier.size(32.dp),
-                onClick = onCLick
+                onClick = onClick
             ) {
                 Icon(
                     modifier = Modifier.size(24.dp),

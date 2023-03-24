@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 //TODO: Declare as stable when add variables?
+//TODO: find time to properly clean and manage backstack
 class AppState(
     val snackbarHostState: SnackbarHostState,
     val navController: NavHostController,
     private val snackbarManager: SnackbarManager,
     private val resources: Resources,
-    coroutineScope: CoroutineScope,
-    val onScreenChange:(Screen?)->Unit
+    coroutineScope: CoroutineScope
 ) {
     init {
         coroutineScope.launch {
@@ -29,12 +29,10 @@ class AppState(
 
     fun popUp() {
         navController.popBackStack()
-        onScreenChange(getCurrentScreen())
     }
 
     fun navigate(route: String) {
         navController.navigate(route) { launchSingleTop = true }
-        onScreenChange(getCurrentScreen())
     }
 
     fun navigateAndPopUp(route: String, popUp: String) {
@@ -42,7 +40,6 @@ class AppState(
             launchSingleTop = true
             popUpTo(popUp) { inclusive = true }
         }
-        onScreenChange(getCurrentScreen())
     }
 
     fun clearAndNavigate(route: String) {
@@ -50,13 +47,5 @@ class AppState(
             launchSingleTop = true
             popUpTo(0) { inclusive = true }
         }
-        onScreenChange(getCurrentScreen())
-    }
-    private fun getCurrentScreen():Screen?{
-        if(navController.currentBackStackEntry?.destination?.route != null){
-            return Screen.valueOf(
-                navController.currentBackStackEntry?.destination?.route!!)
-        }
-        return null
     }
 }

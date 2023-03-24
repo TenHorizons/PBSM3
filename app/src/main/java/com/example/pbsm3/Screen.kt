@@ -15,7 +15,8 @@ enum class Screen(val icon:ImageVector? = null){
     AddTransaction(icon = Icons.Filled.AddCircle),
     AccountTransactions,
     Login,
-    Splash
+    Splash,
+    AddAccountScreen
 }
 
 val bottomNavItems = listOf(

@@ -1,5 +1,6 @@
 package com.example.pbsm3.ui.screens.budgetItem
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,13 +9,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.pbsm3.data.defaultBudgetItem
-import com.example.pbsm3.model.BudgetItem
 import com.example.pbsm3.theme.PBSM3Theme
+
+private  const val TAG = "BudgetItemScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BudgetItemScreen(onNavigateUp:()->Unit, budgetItem: BudgetItem, modifier: Modifier = Modifier){
+fun BudgetItemScreen(
+    //TODO: convert to Firebase doc ID
+    budgetItemName: String,
+    modifier: Modifier = Modifier
+){
+    Log.d(TAG,"Budget Item Screen composed. Budget Item Name: $budgetItemName")
     Column(modifier = modifier){
         Row{
             Text(text = "Name:")
@@ -34,10 +40,10 @@ fun BudgetItemScreen(onNavigateUp:()->Unit, budgetItem: BudgetItem, modifier: Mo
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun BudgetItemScreenPreview(){
-    PBSM3Theme() {
-        BudgetItemScreen(budgetItem = defaultBudgetItem, onNavigateUp = {})
+    PBSM3Theme {
+        BudgetItemScreen(budgetItemName = "defaultBudgetItem")
     }
 }

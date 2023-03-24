@@ -21,7 +21,7 @@ private const val TIMEOUT = 1000L
 
 @Composable
 fun SplashScreen(
-    navigateAndPopUp: (String, String) -> Unit,
+    onStartupComplete: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
@@ -40,7 +40,7 @@ fun SplashScreen(
 
             Button(
                 modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp),
-                onClick = { viewModel.onAppStart(navigateAndPopUp) }
+                onClick = { viewModel.onAppStart(onStartupComplete) }
             ){
                 Text(text = "Try again", fontSize = 16.sp)
             }
@@ -51,6 +51,6 @@ fun SplashScreen(
 
     LaunchedEffect(true) {
         delay(TIMEOUT)
-        viewModel.onAppStart(navigateAndPopUp)
+        viewModel.onAppStart(onStartupComplete = onStartupComplete)
     }
 }

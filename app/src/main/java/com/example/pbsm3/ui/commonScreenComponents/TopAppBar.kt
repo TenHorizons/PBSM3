@@ -19,28 +19,52 @@ import java.util.*
 fun PBSTopBar(
     modifier: Modifier = Modifier,
     onDateSelected: (LocalDate) -> Unit = {},
-    budgetItemName: String = "MISSING_BUDGET_ITEM_NAME",
     onNavigateUp: () -> Unit = {},
-    screen: Screen
+    screen: Screen,
+    onActionClicked: () -> Unit = {},
+    customTopBarText: String = ""
 ) {
     val hideScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val pinScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     when (screen) {
-        Screen.Login,Screen.Splash -> return
+        Screen.Login, Screen.Splash -> return
         Screen.Budget -> CenterAlignedTopAppBar(
             title = { PBSDatePicker(screen = Screen.Budget, onDateSelected = onDateSelected) },
             modifier = modifier.nestedScroll(hideScrollBehavior.nestedScrollConnection),
             scrollBehavior = hideScrollBehavior
         )
-        else-> TopAppBar(
+        Screen.AddTransaction, Screen.Accounts -> TopAppBar(
+            title = {
+                Text(
+                    when (screen) {
+                        Screen.Accounts -> "Accounts"
+                        Screen.AddTransaction -> "Add Transaction"
+                        else -> "ERROR"
+                    })
+            },
+            modifier = modifier.nestedScroll(pinScrollBehavior.nestedScrollConnection),
+            scrollBehavior = pinScrollBehavior,
+            actions = {
+                if (screen == Screen.Accounts) {
+                    Button(onClick = onActionClicked) {
+                        Text(text = "Add Account")
+                    }
+                }
+            }
+        )
+        else -> TopAppBar(
             title = {
                 Text(
                     text =
                     when (screen) {
-                        Screen.AddTransaction -> "Add Transaction"
-                        Screen.BudgetItem -> budgetItemName
-                        Screen.Accounts -> "Accounts"
+                        Screen.BudgetItem ->
+                            if (customTopBarText != "") customTopBarText
+                            else "ERROR Budget Item Name"
+                        Screen.AddAccountScreen -> "Add Account"
+                        Screen.AccountTransactions ->
+                            if (customTopBarText != "") "$customTopBarText Transactions"
+                            else "ERROR Account Name Transactions"
                         else -> "ERROR SELECTING TITLE"
                     }
                 )
@@ -79,5 +103,29 @@ fun BudgetItemTopBarPreview() {
 fun TransactionTopBarPreview() {
     PBSM3Theme {
         PBSTopBar(screen = Screen.AddTransaction)
+    }
+}
+
+@Preview
+@Composable
+fun AccountTopBarPreview() {
+    PBSM3Theme {
+        PBSTopBar(screen = Screen.Accounts)
+    }
+}
+
+@Preview
+@Composable
+fun AccountTransactionsTopBarPreview() {
+    PBSM3Theme {
+        PBSTopBar(screen = Screen.AccountTransactions)
+    }
+}
+
+@Preview
+@Composable
+fun AddAccountTopBarPreview() {
+    PBSM3Theme {
+        PBSTopBar(screen = Screen.AddAccountScreen)
     }
 }
