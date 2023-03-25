@@ -1,6 +1,7 @@
 package com.example.pbsm3.ui.screens.accounts
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.pbsm3.data.ALL_ACCOUNTS
 import com.example.pbsm3.model.Account
 import com.example.pbsm3.theme.PBSM3Theme
 import com.maxkeppeker.sheets.core.icons.filled.ChevronRight
@@ -23,8 +25,10 @@ private const val TAG = "AccountsScreen"
 fun AccountsScreen(
     modifier: Modifier = Modifier,
     viewModel: AccountScreenViewModel = hiltViewModel(),
-    onAccountClicked:(String)->Unit = {}
+    onAccountClicked:(String)->Unit = {},
+    onBackPressed:()->Unit ={}
 ) {
+    BackHandler(onBack = onBackPressed)
     val uiState by viewModel.uiState
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -33,6 +37,7 @@ fun AccountsScreen(
         item {
             AllAccountTransactions(onClick = {
                 Log.d(TAG, "All accounts card/button clicked.")
+                onAccountClicked(ALL_ACCOUNTS)
             })
         }
         items(viewModel.getAccounts()) {

@@ -1,5 +1,6 @@
 package com.example.pbsm3.ui.screens.splash
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -23,8 +24,10 @@ private const val TIMEOUT = 1000L
 fun SplashScreen(
     onStartupComplete: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SplashViewModel = hiltViewModel()
+    viewModel: SplashViewModel = hiltViewModel(),
+    onBackPressed:()->Unit={}
 ) {
+    BackHandler(onBack = onBackPressed)
     Column(
         modifier =
         modifier

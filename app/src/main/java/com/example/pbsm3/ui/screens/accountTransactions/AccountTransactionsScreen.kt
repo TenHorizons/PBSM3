@@ -1,5 +1,6 @@
 package com.example.pbsm3.ui.screens.accountTransactions
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.pbsm3.data.ALL_ACCOUNTS
 import com.example.pbsm3.data.defaultTransactions
 import com.example.pbsm3.model.Transaction
 import com.example.pbsm3.theme.PBSM3Theme
@@ -19,19 +21,24 @@ private const val TAG = "AccountTransactionsScreen"
 @Composable
 fun AccountTransactionsScreen(
     //TODO: convert to account Firebase doc ID
-    accountName: String = ""
+    accountName: String = "",
+    onBackPressed: () -> Unit = {}
 ) {
+    BackHandler(onBack = onBackPressed)
     LazyColumn {
         /*item {
             Header()
         }*/
         items(
             //TODO: get transactions from Firebase using account doc ID
-            defaultTransactions.filter {
-                it.account.name == accountName
-            }.sortedByDescending { it.date }
+            if (accountName == ALL_ACCOUNTS)
+                defaultTransactions.sortedByDescending { it.date }
+            else
+                defaultTransactions.filter {
+                    it.account.name == accountName
+                }.sortedByDescending { it.date }
         ) {
-            Transaction(it)
+            Transaction(it,accountName)
         }
     }
 }
@@ -59,7 +66,7 @@ fun Header() {
 }
 
 @Composable
-fun Transaction(transaction:Transaction) {
+fun Transaction(transaction: Transaction,accountName: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = CutCornerShape(0.dp),
@@ -71,7 +78,12 @@ fun Transaction(transaction:Transaction) {
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column{
+            Column {
+                if(accountName == ALL_ACCOUNTS){
+                    Text(
+                        text = transaction.account.name,
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize)
+                }
                 Text(
                     text = transaction.date.toString(),
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize)
@@ -81,7 +93,7 @@ fun Transaction(transaction:Transaction) {
             }
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "RM${String.format("%.2f",transaction.amount)}",
+                text = "RM${String.format("%.2f", transaction.amount)}",
                 fontSize = MaterialTheme.typography.titleLarge.fontSize
             )
         }

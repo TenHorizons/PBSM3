@@ -34,8 +34,9 @@ fun NavHostBuilder(
             SplashScreen(
                 onStartupComplete = {
                     onScreenChange(Screen.Budget)
-                    appState.navigateAndPopUp(Screen.Budget.name,Screen.Splash.name)
-                }
+                    appState.navigateAndPopUp(Screen.Budget.name, Screen.Splash.name)
+                },
+                onBackPressed = { appState.onBackPressed(Screen.Splash,onScreenChange) }
             )
         }
         //TODO: deal with Login later
@@ -55,7 +56,8 @@ fun NavHostBuilder(
                     onTopBarChange(budgetItem.name)
                     onScreenChange(Screen.BudgetItem)
                     appState.navigate("${Screen.BudgetItem.name}/${budgetItem.name}")
-                }
+                },
+                onBackPressed = { appState.onBackPressed(Screen.Budget,onScreenChange) }
             )
         }
 
@@ -63,30 +65,43 @@ fun NavHostBuilder(
             //TODO: convert to Firebase doc ID
             route = "${Screen.BudgetItem.name}/{budgetItemName}"
         ) {
-            BudgetItemScreen(budgetItemName = it.arguments?.getString("budgetItemName")?:"")
+            BudgetItemScreen(
+                budgetItemName = it.arguments?.getString("budgetItemName") ?: "",
+                onBackPressed = { appState.onBackPressed(Screen.BudgetItem,onScreenChange) }
+            )
         }
 
         composable(route = Screen.AddTransaction.name) {
-            AddTransactionScreen()
+            AddTransactionScreen(
+                onBackPressed = { appState.onBackPressed(Screen.AddTransaction,onScreenChange) }
+            )
         }
 
         composable(route = Screen.Accounts.name) {
-            AccountsScreen(onAccountClicked = {name ->
-                onTopBarChange(name)
-                onScreenChange(Screen.AccountTransactions)
-                appState.navigate("${Screen.AccountTransactions.name}/$name")
-            })
+            AccountsScreen(
+                onAccountClicked = { name ->
+                    onTopBarChange(name)
+                    onScreenChange(Screen.AccountTransactions)
+                    appState.navigate("${Screen.AccountTransactions.name}/$name")
+                },
+                onBackPressed = { appState.onBackPressed(Screen.Accounts,onScreenChange) }
+            )
         }
 
         composable(
             //TODO: convert to Firebase doc ID
             route = "${Screen.AccountTransactions.name}/{accountName}"
-        ){
-            AccountTransactionsScreen(it.arguments?.getString("accountName")?:"")
+        ) {
+            AccountTransactionsScreen(
+                accountName = it.arguments?.getString("accountName") ?: "",
+                onBackPressed = { appState.onBackPressed(Screen.AccountTransactions,onScreenChange) }
+            )
         }
 
         composable(route = Screen.AddAccountScreen.name) {
-            AddAccountScreen()
+            AddAccountScreen(
+                onBackPressed = { appState.onBackPressed(Screen.AddAccountScreen,onScreenChange) }
+            )
         }
     }
 }

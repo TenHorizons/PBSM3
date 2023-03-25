@@ -42,10 +42,34 @@ class AppState(
         }
     }
 
-    fun clearAndNavigate(route: String) {
+    private fun clearAndNavigate(route: String) {
         navController.navigate(route) {
             launchSingleTop = true
             popUpTo(0) { inclusive = true }
+        }
+    }
+    
+    fun onBackPressed(
+        currentScreen:Screen,
+        onScreenChange:(Screen)->Unit
+    ){
+        when(currentScreen){
+            Screen.BudgetItem -> {
+                onScreenChange(Screen.Budget)
+                clearAndNavigate(Screen.Budget.name)
+            }
+            Screen.AddAccountScreen -> {
+                onScreenChange(Screen.Accounts)
+                clearAndNavigate(Screen.Accounts.name)
+            }
+            Screen.AccountTransactions -> {
+                onScreenChange(Screen.Accounts)
+                clearAndNavigate(Screen.Accounts.name)
+            }
+            else -> {
+                navController.popBackStack(navController.graph.id,true)
+                navController.navigateUp()
+            }
         }
     }
 }

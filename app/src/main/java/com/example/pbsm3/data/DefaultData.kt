@@ -114,3 +114,5 @@ val defaultTransactions: List<Transaction> =
             )
         }.flatten()
     }.flatten()
+
+const val ALL_ACCOUNTS = "All Account"

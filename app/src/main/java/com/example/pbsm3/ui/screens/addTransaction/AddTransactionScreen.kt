@@ -1,5 +1,6 @@
 package com.example.pbsm3.ui.screens.addTransaction
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material3.*
@@ -32,8 +33,10 @@ private const val TAG = "AddTransactionScreen"
 @Composable
 fun AddTransactionScreen(
     modifier: Modifier = Modifier,
-    viewModel: AddTransactionScreenViewModel = hiltViewModel()
+    viewModel: AddTransactionScreenViewModel = hiltViewModel(),
+    onBackPressed:()->Unit={}
 ) {
+    BackHandler(onBack = onBackPressed)
     val uiState by viewModel.uiState
 
     Column(modifier = modifier) {

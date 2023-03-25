@@ -1,6 +1,7 @@
 package com.example.pbsm3.ui.screens.budget
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -40,8 +41,10 @@ fun BudgetScreen(
     budget: Budget,
     date: LocalDate,
     viewModel: BudgetScreenViewModel = viewModel(),
-    onItemClicked: (Category, BudgetItem) -> Unit = {_,_->}
+    onItemClicked: (Category, BudgetItem) -> Unit = {_,_->},
+    onBackPressed:()->Unit={}
 ) {
+    BackHandler(onBack = onBackPressed)
     val uiState by viewModel.uiState.collectAsState()
     Log.d(
         TAG, "BudgetScreen start. old budget equals new: " +

@@ -44,8 +44,11 @@ fun Main() {
                         )
                     },
                     onNavigateUp = {
-                        manageNavigateUp(currentScreen, appState,
-                            onScreenChange = { newScreen -> currentScreen = newScreen }
+                        appState.onBackPressed(
+                            currentScreen = currentScreen,
+                            onScreenChange = {
+                                    newScreen -> currentScreen = newScreen
+                            }
                         )
                     },
                     customTopBarText = customTopBarText
@@ -55,6 +58,7 @@ fun Main() {
                 PBSBottomNav(
                     onClick = { screen ->
                         appState.navigate(screen.name)
+                        currentScreen = screen
                     },
                     screen = currentScreen
                 )
@@ -95,28 +99,6 @@ fun manageActions(
         Screen.Accounts -> {
             onScreenChange(Screen.AddAccountScreen)
             appState.navigate(Screen.AddAccountScreen.name)
-        }
-        else -> {}
-    }
-}
-
-fun manageNavigateUp(
-    screen: Screen,
-    appState: AppState,
-    onScreenChange: (Screen) -> Unit
-) {
-    when (screen) {
-        Screen.BudgetItem -> {
-            onScreenChange(Screen.Budget)
-            appState.navigate(Screen.Budget.name)
-        }
-        Screen.AddAccountScreen -> {
-            onScreenChange(Screen.Accounts)
-            appState.navigate(Screen.Accounts.name)
-        }
-        Screen.AccountTransactions -> {
-            onScreenChange(Screen.Accounts)
-            appState.navigate(Screen.Accounts.name)
         }
         else -> {}
     }

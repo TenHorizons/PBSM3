@@ -1,6 +1,7 @@
 package com.example.pbsm3.ui.screens.budgetItem
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,8 +19,10 @@ private  const val TAG = "BudgetItemScreen"
 fun BudgetItemScreen(
     //TODO: convert to Firebase doc ID
     budgetItemName: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onBackPressed:()->Unit={}
 ){
+    BackHandler(onBack = onBackPressed)
     Log.d(TAG,"Budget Item Screen composed. Budget Item Name: $budgetItemName")
     Column(modifier = modifier){
         Row{

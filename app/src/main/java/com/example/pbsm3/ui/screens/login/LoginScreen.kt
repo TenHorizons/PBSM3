@@ -3,6 +3,7 @@ package com.example.pbsm3.ui.screens.login
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -23,8 +24,10 @@ private const val TAG ="Login"
 fun LoginScreen(
     modifier: Modifier = Modifier,
     navigateAndPopUpInclusive: (String, String) -> Unit,
-    viewModel: LoginScreenViewModel  = hiltViewModel()
+    viewModel: LoginScreenViewModel  = hiltViewModel(),
+    onBackPressed:()->Unit={}
 ) {
+    BackHandler(onBack = onBackPressed)
     val uiState by viewModel.uiState
 
     Column(
