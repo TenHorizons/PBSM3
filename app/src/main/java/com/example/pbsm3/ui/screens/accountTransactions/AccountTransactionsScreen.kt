@@ -81,7 +81,7 @@ fun Transaction(transaction:Transaction) {
             }
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "RM${transaction.amount}",
+                text = "RM${String.format("%.2f",transaction.amount)}",
                 fontSize = MaterialTheme.typography.titleLarge.fontSize
             )
         }
