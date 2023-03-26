@@ -67,6 +67,7 @@ class AddTransactionScreenViewModel @Inject constructor(
 
     fun onAddTransaction() {
         //TODO: check if all required info is present, then save to Firebase.
+        // Also, update account balance with new transaction.
         Log.d(
             TAG, "onAdd Transaction called. State:\n" +
                     "amount: ${uiState.value.amount}\n" +

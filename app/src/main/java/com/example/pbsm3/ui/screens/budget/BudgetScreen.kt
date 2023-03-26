@@ -41,14 +41,14 @@ fun BudgetScreen(
     budget: Budget,
     date: LocalDate,
     viewModel: BudgetScreenViewModel = viewModel(),
-    onItemClicked: (Category, BudgetItem) -> Unit = {_,_->},
-    onBackPressed:()->Unit={}
+    onItemClicked: (Category, BudgetItem) -> Unit = { _, _ -> },
+    onBackPressed: () -> Unit = {}
 ) {
     BackHandler(onBack = onBackPressed)
     val uiState by viewModel.uiState.collectAsState()
     Log.d(
         TAG, "BudgetScreen start. old budget equals new: " +
-            "${uiState.budget == defaultBudget}")
+                "${uiState.budget == defaultBudget}")
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.padding(horizontal = 8.dp)
@@ -62,11 +62,11 @@ fun BudgetScreen(
                 CategoryCard(
                     category = it,
                     onItemClicked = onItemClicked,
-                    onItemChanged = {category, item, index->
-                        viewModel.updateBudgetItem(category,item,index)
+                    onItemChanged = { category, item, index ->
+                        viewModel.updateBudgetItem(category, item, index)
                         Log.d(
                             TAG, "updateBudgetItem. old budget equals new: " +
-                                "${uiState.budget == defaultBudget}")
+                                    "${uiState.budget == defaultBudget}")
                     })
             }
         }
@@ -103,8 +103,8 @@ fun AvailableToBudgetRow(
 @Composable
 fun CategoryCard(
     category: Category,
-    onItemClicked: (Category,BudgetItem) -> Unit,
-    onItemChanged: (Category,BudgetItem,Int) -> Unit,
+    onItemClicked: (Category, BudgetItem) -> Unit,
+    onItemChanged: (Category, BudgetItem, Int) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -121,24 +121,22 @@ fun CategoryCard(
         ) {
             Row(
                 Modifier
-                    .padding(start = 4.dp)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
                     .clickable { expanded = !expanded },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = category.name,
-                    modifier = Modifier
-                        .weight(0.5f)
-                        .padding(start = 4.dp)
+                    modifier = Modifier.weight(0.45f)
                 )
-                Column(Modifier.weight(0.225f)) {
+                Column(Modifier.weight(0.25f)) {
                     Text(text = "Budgeted")
                     Text(
                         text =
                         "RM${String.format("%.2f", category.totalBudgeted)}",
                         textAlign = TextAlign.End)
                 }
-                Column(Modifier.weight(0.225f)) {
+                Column(Modifier.weight(0.25f)) {
                     Text(text = "Available")
                     Text(
                         text =
@@ -152,13 +150,14 @@ fun CategoryCard(
                     contentDescription = null,
                     Modifier.weight(0.05f))
             }
-            if (expanded) {
+            if (true) {
                 BudgetItemRow(
                     category.items,
                     onBudgetItemChanged = { item, index -> onItemChanged(category, item, index) },
                     onItemClicked = { onItemClicked(category, it) }
                 )
             }
+            Divider()
         }
     }
 }
@@ -166,21 +165,20 @@ fun CategoryCard(
 @Composable
 fun BudgetItemRow(
     budgetItems: List<BudgetItem>,
-    onBudgetItemChanged: (BudgetItem,Int) -> Unit,
+    onBudgetItemChanged: (BudgetItem, Int) -> Unit,
     onItemClicked: (BudgetItem) -> Unit
 ) {
     for (item in budgetItems) {
         Card {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
-                    item.name,
-                    Modifier
-                        .weight(0.5f)
-                        .padding(start = 4.dp)
-                        .clickable(onClick = { onItemClicked(item) })
+                    text = item.name,
+                    modifier = Modifier.weight(0.45f)
+                        .clickable(onClick = { onItemClicked(item) }),
+                    softWrap = false
                 )
                 CurrencyTextField(
                     value =
@@ -195,35 +193,22 @@ fun BudgetItemRow(
                     },
                     background = colorScheme.surfaceVariant,
                     isPositiveValue = true,
-                    textColor = colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .weight(0.225f),
-                    textStyle = TextStyle.Default.copy(
-                        textAlign = TextAlign.Center
+                    textColor = LocalTextStyle.current.color,
+                    modifier = Modifier.weight(0.25f),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        textAlign = TextAlign.Start
                     )
                 )
-                //TODO: change Available field to normal Text since it's read only.
-                CurrencyTextField(
-                    value =
-                    if (item.available == 0.0) ""
-                    else String.format("%.0f", item.available * 100),
-                    onValueChange = {
-                        onBudgetItemChanged(
-                            if (it == "") item.copy(available = 0.0)
-                            else item.copy(available = it.toDouble() / 100),
-                            budgetItems.indexOf(item)
-                        )
-                    },
-                    background = colorScheme.surfaceVariant,
-                    isPositiveValue = true,
-                    textColor = colorScheme.onPrimaryContainer,
-                    modifier = Modifier
-                        .weight(0.225f),
-                    textStyle = TextStyle.Default.copy(
-                        textAlign = TextAlign.End
-                    )
+                //TODO: adjust text field color to match text composable
+                Text(
+                    text =
+                    (if (item.available < 0) "-RM" else "RM")
+                            + String.format("%.2f", item.available),
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    modifier = Modifier.weight(0.25f),
+                    softWrap = false
                 )
-                Spacer(modifier = Modifier.weight(0.05f))
+                Spacer(Modifier.weight(0.05f))
             }
             Divider()
         }

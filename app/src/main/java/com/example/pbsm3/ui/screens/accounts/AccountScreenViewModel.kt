@@ -43,7 +43,7 @@ class AccountScreenViewModel @Inject constructor(
     }
 
     fun calculateAccountBalance(account:Account):Double{
-        //TODO calculate account balance
+        //TODO Link to Firebase to get saved balance
         return 0.0
     }
 }

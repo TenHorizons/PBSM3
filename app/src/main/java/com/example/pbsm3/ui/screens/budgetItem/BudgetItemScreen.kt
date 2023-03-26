@@ -22,6 +22,7 @@ fun BudgetItemScreen(
     modifier: Modifier = Modifier,
     onBackPressed:()->Unit={}
 ){
+    //TODO not yet implemented
     BackHandler(onBack = onBackPressed)
     Log.d(TAG,"Budget Item Screen composed. Budget Item Name: $budgetItemName")
     Column(modifier = modifier){
