@@ -1,8 +1,12 @@
 package com.example.pbsm3.ui.screens.budgetItem
 
-import com.example.pbsm3.model.BudgetItem
+import java.math.BigDecimal
+import java.time.LocalDate
 
 data class BudgetItemScreenState(
-    val budgetItem:BudgetItem = "",
-    val
+    val budgetItemName:String = "",
+    val totalCarryover: BigDecimal = BigDecimal("0"),
+    val totalExpenses:BigDecimal = BigDecimal("0"),
+    val totalBudgeted:BigDecimal = BigDecimal("0"),
+    val date:LocalDate = LocalDate.now()
 )

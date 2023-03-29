@@ -71,35 +71,37 @@ val budgetName:String = "Default Budget"
 data class Category(
     @DocumentId val id: String = "",
     val name:String,
-    val totalCarryover:Double = 0.0,
-    val totalExpenses:Double = 0.0,
-    val totalBudgeted:Double = 0.0
+    val totalCarryover:BigDecimal = BigDecimal("0"),
+    val totalExpenses:BigDecimal = BigDecimal("0"),
+    val totalBudgeted:BigDecimal = BigDecimal("0"),
+    val date:LocalDate = LocalDate.now()
 )
 data class BudgetItem(
     @DocumentId val id: String = "",
     val name:String,
-    val totalCarryover:Double = 0.0,
-    val totalExpenses:Double = 0.0,
-    val totalBudgeted:Double = 0.0
+    val totalCarryover:BigDecimal = BigDecimal("0"),
+    val totalExpenses:BigDecimal = BigDecimal("0"),
+    val totalBudgeted:BigDecimal = BigDecimal("0"),
+    val date:LocalDate = LocalDate.now()
 )
 data class Account(
     @DocumentId val id:String = "",
     val name:String,
-    val balance:Double = 0.0
+    val balance:BigDecimal = BigDecimal("0")
 )
 data class Transaction(
     @DocumentId val id:String = "",
-    val amount:Double = 0.0,
+    val amount:BigDecimal = BigDecimal("0"),
     val category:String,
     val date:LocalDate = LocalDate.now(),
     val memo:String = ""
 )
 
-val unassignedBalance:Double = 0.0
+val unassignedBalance:BigDecimal = BigDecimal("0")*/
 
 
 
-/**Functions to get defaults and process date below*/
+/*/**Functions to get defaults and process date below*/
 
 fun getFirstDayOfMonth(): LocalDate {
     return LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
