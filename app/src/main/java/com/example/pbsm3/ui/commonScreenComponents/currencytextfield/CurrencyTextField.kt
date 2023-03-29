@@ -17,12 +17,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+
+//TODO deal with color issue, and how app exits when value is ""
 fun CurrencyTextField(
     modifier: Modifier = Modifier,
     isPositiveValue: Boolean,
@@ -31,8 +32,7 @@ fun CurrencyTextField(
     value: String,
     onValueChange: (String) -> Unit,
     errorCondition: Boolean = false,
-    textStyle: TextStyle = LocalTextStyle.current,
-    defaultMinWidth: Dp = 10.dp
+    textStyle: TextStyle = LocalTextStyle.current
 ) {
     val visualTransformation =
         CurrencyAmountInputVisualTransformation(isPositiveValue = isPositiveValue)
@@ -59,8 +59,6 @@ fun CurrencyTextField(
             contentPadding = PaddingValues(0.dp), // this is how you can remove the padding
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = background,
-                focusedTextColor = textColor,
-                unfocusedTextColor = textColor,
                 disabledIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,

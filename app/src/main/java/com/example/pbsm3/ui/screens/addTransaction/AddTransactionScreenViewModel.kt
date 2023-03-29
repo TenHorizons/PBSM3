@@ -7,7 +7,6 @@ import com.example.pbsm3.data.defaultCategories
 import com.example.pbsm3.model.service.LogService
 import com.example.pbsm3.model.service.module.StorageService
 import com.example.pbsm3.ui.screens.CommonViewModel
-import com.example.pbsm3.ui.screens.splash.TransactionScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
 import javax.inject.Inject
@@ -19,7 +18,7 @@ class AddTransactionScreenViewModel @Inject constructor(
     private val storageService: StorageService,
     logService: LogService
 ) : CommonViewModel(logService) {
-    var uiState = mutableStateOf(TransactionScreenState())
+    var uiState = mutableStateOf(AddTransactionScreenState())
     fun onAmountChange(newValue: String, switchGreen: Boolean): String {
         //TODO Add wrong input detection (non-numbers)
         val amount =

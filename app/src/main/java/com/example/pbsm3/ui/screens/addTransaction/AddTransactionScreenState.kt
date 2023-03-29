@@ -1,8 +1,8 @@
-package com.example.pbsm3.ui.screens.splash
+package com.example.pbsm3.ui.screens.addTransaction
 
 import java.time.LocalDate
 
-data class TransactionScreenState(
+data class AddTransactionScreenState(
     val amount: Double = 0.0,
     val selectedCategory: String="",//BudgetItem?=null,
     val selectedAccount: String="",//Account?=null,

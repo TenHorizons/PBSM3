@@ -100,7 +100,8 @@ fun NavHostBuilder(
 
         composable(route = Screen.AddAccountScreen.name) {
             AddAccountScreen(
-                onBackPressed = { appState.onBackPressed(Screen.AddAccountScreen,onScreenChange) }
+                onBackPressed = { appState.onBackPressed(Screen.AddAccountScreen,onScreenChange) },
+                onAddAccountComplete = {appState.navigate(Screen.Accounts.name)}
             )
         }
     }

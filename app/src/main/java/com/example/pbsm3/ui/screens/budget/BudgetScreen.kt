@@ -172,13 +172,14 @@ fun BudgetItemRow(
         Card {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp)
             ) {
                 Text(
                     text = item.name,
-                    modifier = Modifier.weight(0.45f)
+                    modifier = Modifier
+                        .weight(0.45f)
                         .clickable(onClick = { onItemClicked(item) }),
-                    softWrap = false
+                    //softWrap = false
                 )
                 CurrencyTextField(
                     value =
@@ -193,9 +194,9 @@ fun BudgetItemRow(
                     },
                     background = colorScheme.surfaceVariant,
                     isPositiveValue = true,
-                    textColor = LocalTextStyle.current.color,
                     modifier = Modifier.weight(0.25f),
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    textStyle = LocalTextStyle.current.copy(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                         textAlign = TextAlign.Start
                     )
                 )

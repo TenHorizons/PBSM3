@@ -4,6 +4,7 @@ import com.example.pbsm3.data.defaultMonthlyBudget
 import com.google.firebase.firestore.DocumentId
 import java.time.LocalDate
 
+//TODO replace model with new model during integration
 data class User(
     val id: String = "",
     val isAnonymous: Boolean = true,
@@ -30,7 +31,6 @@ data class BudgetItem(
     val notes:String = ""
 )
 
-//TODO Inspect Transaction for usability
 data class Transaction(
     //TODO: [optional] add payee, repeat, cleared, and flag
     @DocumentId val id: String = "",
@@ -57,9 +57,7 @@ data class Task(
     val completed: Boolean = false
 )
 
-/*
-
-import com.google.firebase.firestore.DocumentId
+/*import com.google.firebase.firestore.DocumentId
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 

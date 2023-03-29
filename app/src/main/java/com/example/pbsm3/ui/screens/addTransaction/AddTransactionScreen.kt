@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -108,12 +107,11 @@ fun AmountRow(
                 if (switchGreen) colorScheme.tertiaryContainer
                 else colorScheme.errorContainer,
                 isPositiveValue = switchGreen,
-                textStyle = TextStyle.Default.copy(
+                textStyle = LocalTextStyle.current.copy(
                     fontSize = 36.sp,
                     textAlign = TextAlign.End,
                     shadow = Shadow(Color.Black, blurRadius = 0.3f)
-                ),
-                defaultMinWidth = 100.dp
+                )
             )
         }
     }
