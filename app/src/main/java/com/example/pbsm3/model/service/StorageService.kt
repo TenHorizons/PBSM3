@@ -1,4 +1,4 @@
-package com.example.pbsm3.model.service.module
+package com.example.pbsm3.model.service
 
 import com.example.pbsm3.model.Transaction
 import kotlinx.coroutines.flow.Flow

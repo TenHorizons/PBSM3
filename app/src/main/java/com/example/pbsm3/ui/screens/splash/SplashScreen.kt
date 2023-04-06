@@ -16,9 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.delay
-
-private const val TIMEOUT = 1000L
 
 @Composable
 fun SplashScreen(
@@ -39,7 +36,7 @@ fun SplashScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (viewModel.showError.value) {
-            Text(text = "An error occurred when creating an anonymous account.")
+            Text(text = viewModel.errorMessage.value)
 
             Button(
                 modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp),
@@ -53,7 +50,7 @@ fun SplashScreen(
     }
 
     LaunchedEffect(true) {
-        delay(TIMEOUT)
+//        delay(10000L)
         viewModel.onAppStart(onStartupComplete = onStartupComplete)
     }
 }

@@ -12,6 +12,8 @@ import com.example.pbsm3.ui.screens.addAccount.AddAccountScreen
 import com.example.pbsm3.ui.screens.addTransaction.AddTransactionScreen
 import com.example.pbsm3.ui.screens.budget.BudgetScreen
 import com.example.pbsm3.ui.screens.budgetItem.BudgetItemScreen
+import com.example.pbsm3.ui.screens.login.SignInScreen
+import com.example.pbsm3.ui.screens.signup.SignUpScreen
 import com.example.pbsm3.ui.screens.splash.SplashScreen
 import java.time.LocalDate
 
@@ -30,24 +32,39 @@ fun NavHostBuilder(
         startDestination = startDestination,
         modifier = modifier,
     ) {
+        composable(route = Screen.SignInScreen.name) {
+            SignInScreen(
+                onSignUpClick = {
+                    onScreenChange(Screen.SignUpScreen)
+                    appState.navigateAndPopUp(Screen.SignUpScreen.name, Screen.SignInScreen.name)
+                },
+                onComplete = {
+                    appState.navigateAndPopUp(Screen.Splash.name, Screen.SignInScreen.name)
+                }
+            )
+        }
+        composable(route = Screen.SignUpScreen.name) {
+            SignUpScreen(
+                onComplete = {
+                    onScreenChange(Screen.Splash)
+                    appState.navigateAndPopUp(Screen.Splash.name, Screen.SignUpScreen.name)
+                },
+                onBackPressed = {
+                    onScreenChange(Screen.SignInScreen)
+                    appState.navigateAndPopUp(Screen.SignInScreen.name, Screen.SignUpScreen.name)
+                }
+            )
+        }
+
         composable(route = Screen.Splash.name) {
             SplashScreen(
                 onStartupComplete = {
                     onScreenChange(Screen.Budget)
                     appState.navigateAndPopUp(Screen.Budget.name, Screen.Splash.name)
                 },
-                onBackPressed = { appState.onBackPressed(Screen.Splash,onScreenChange) }
+                onBackPressed = { appState.onBackPressed(Screen.Splash, onScreenChange) }
             )
         }
-        //TODO: deal with Login later
-        /*composable(route = Screen.Login.name) {
-            LoginScreen(
-                navigateAndPopUpInclusive = { route, popUp ->
-                    appState.navigateAndPopUp(route, popUp)
-                }
-            )
-        }*/
-
         composable(route = Screen.Budget.name) {
             BudgetScreen(
                 budget = defaultBudget,
@@ -57,7 +74,7 @@ fun NavHostBuilder(
                     onScreenChange(Screen.BudgetItem)
                     appState.navigate("${Screen.BudgetItem.name}/${budgetItem.name}")
                 },
-                onBackPressed = { appState.onBackPressed(Screen.Budget,onScreenChange) }
+                onBackPressed = { appState.onBackPressed(Screen.Budget, onScreenChange) }
             )
         }
 
@@ -67,13 +84,13 @@ fun NavHostBuilder(
         ) {
             BudgetItemScreen(
                 budgetItemName = it.arguments?.getString("budgetItemName") ?: "",
-                onBackPressed = { appState.onBackPressed(Screen.BudgetItem,onScreenChange) }
+                onBackPressed = { appState.onBackPressed(Screen.BudgetItem, onScreenChange) }
             )
         }
 
         composable(route = Screen.AddTransaction.name) {
             AddTransactionScreen(
-                onBackPressed = { appState.onBackPressed(Screen.AddTransaction,onScreenChange) }
+                onBackPressed = { appState.onBackPressed(Screen.AddTransaction, onScreenChange) }
             )
         }
 
@@ -84,7 +101,7 @@ fun NavHostBuilder(
                     onScreenChange(Screen.AccountTransactions)
                     appState.navigate("${Screen.AccountTransactions.name}/$name")
                 },
-                onBackPressed = { appState.onBackPressed(Screen.Accounts,onScreenChange) }
+                onBackPressed = { appState.onBackPressed(Screen.Accounts, onScreenChange) }
             )
         }
 
@@ -94,14 +111,17 @@ fun NavHostBuilder(
         ) {
             AccountTransactionsScreen(
                 accountName = it.arguments?.getString("accountName") ?: "",
-                onBackPressed = { appState.onBackPressed(Screen.AccountTransactions,onScreenChange) }
+                onBackPressed = {
+                    appState.onBackPressed(
+                        Screen.AccountTransactions, onScreenChange)
+                }
             )
         }
 
         composable(route = Screen.AddAccountScreen.name) {
             AddAccountScreen(
-                onBackPressed = { appState.onBackPressed(Screen.AddAccountScreen,onScreenChange) },
-                onAddAccountComplete = {appState.navigate(Screen.Accounts.name)}
+                onBackPressed = { appState.onBackPressed(Screen.AddAccountScreen, onScreenChange) },
+                onAddAccountComplete = { appState.navigate(Screen.Accounts.name) }
             )
         }
     }

@@ -28,7 +28,7 @@ fun PBSTopBar(
     val pinScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     when (screen) {
-        Screen.Login, Screen.Splash -> return
+        Screen.SignInScreen, Screen.SignUpScreen, Screen.Splash -> return
         Screen.Budget -> CenterAlignedTopAppBar(
             title = { PBSDatePicker(screen = Screen.Budget, onDateSelected = onDateSelected) },
             modifier = modifier.nestedScroll(hideScrollBehavior.nestedScrollConnection),

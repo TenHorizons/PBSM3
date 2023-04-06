@@ -31,12 +31,13 @@ fun AccountTransactionsScreen(
         }*/
         items(
             //TODO: get transactions from Firebase using account doc ID
-            if (accountName == ALL_ACCOUNTS)
-                defaultTransactions.sortedByDescending { it.date }
-            else
-                defaultTransactions.filter {
-                    it.account.name == accountName
-                }.sortedByDescending { it.date }
+            defaultTransactions.sortedByDescending { it.date }
+//            if (accountName == ALL_ACCOUNTS)
+//                defaultTransactions.sortedByDescending { it.date }
+//            else
+//                defaultTransactions.filter {
+//                    it.account.name == accountName
+//                }.sortedByDescending { it.date }
         ) {
             Transaction(it,accountName)
         }
@@ -81,7 +82,8 @@ fun Transaction(transaction: Transaction,accountName: String) {
             Column {
                 if(accountName == ALL_ACCOUNTS){
                     Text(
-                        text = transaction.account.name,
+                        //TODO fill with account name from Firebase (maybe use ref)
+                        text = "some account",
                         fontSize = MaterialTheme.typography.bodySmall.fontSize)
                 }
                 Text(

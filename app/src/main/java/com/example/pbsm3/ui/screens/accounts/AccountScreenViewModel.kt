@@ -6,7 +6,7 @@ import com.example.pbsm3.data.defaultTransactions
 import com.example.pbsm3.model.Account
 import com.example.pbsm3.model.Transaction
 import com.example.pbsm3.model.service.LogService
-import com.example.pbsm3.model.service.module.StorageService
+import com.example.pbsm3.model.service.StorageService
 import com.example.pbsm3.ui.screens.CommonViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -15,7 +15,7 @@ private const val TAG = "AccountsScreenViewModel"
 
 @HiltViewModel
 class AccountScreenViewModel @Inject constructor(
-    private val storageService: StorageService,
+    private val dataSource: StorageService,
     logService: LogService
 ) : CommonViewModel(logService) {
     //TODO difference between mutable state and flow?
@@ -34,7 +34,7 @@ class AccountScreenViewModel @Inject constructor(
 
     fun getAccounts(): List<Account> {
         return uiState.value.accounts.map {account ->
-            account.copy(balance = (10..200).random().toDouble())
+            account.copy(balance = (10..200).random().toBigDecimal())
         }
     }
 

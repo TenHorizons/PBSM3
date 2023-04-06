@@ -2,12 +2,101 @@ package com.example.pbsm3.model
 
 import com.example.pbsm3.data.defaultMonthlyBudget
 import com.google.firebase.firestore.DocumentId
+import java.math.BigDecimal
 import java.time.LocalDate
 
-//TODO replace model with new model during integration
+data class SignUser(
+    @DocumentId val id: String = "",
+    val username:String = "",
+    val password:String = "",
+    val categoryRefs:List<String> = listOf(),
+    val accountRefs:List<String> = listOf(),
+    val budgetItemRefs:List<String> = listOf(),
+    val transactionRefs:List<String> = listOf(),
+    val accountNames:List<String> = listOf(),
+    val categoryNames:List<String> = listOf(),
+    val budgetItemNames:List<String> = listOf()
+)
+
+data class Transaction(
+    @DocumentId val id:String = "",
+    val amount: BigDecimal = BigDecimal("0"),
+    val category:String = "",
+    val date:LocalDate = LocalDate.now(),
+    val memo:String = "",
+    val accountRef:String = ""
+)
+data class Account(
+    @DocumentId val id:String = "",
+    val name:String = "",
+    val balance:BigDecimal = BigDecimal("0"),
+    val transactionRefs:List<String> = listOf()
+)
+
+data class NewCategory(
+    @DocumentId val id: String = "",
+    val name:String ="",
+    val totalCarryover:BigDecimal = BigDecimal("0"),
+    val totalExpenses:BigDecimal = BigDecimal("0"),
+    val totalBudgeted:BigDecimal = BigDecimal("0"),
+    val date:LocalDate = LocalDate.now(),
+    val budgetItemsRef:List<String> = listOf()
+)
+
+data class NewBudgetItem(
+    @DocumentId val id: String = "",
+    val name:String ="",
+    val totalCarryover:BigDecimal = BigDecimal("0"),
+    val totalExpenses:BigDecimal = BigDecimal("0"),
+    val totalBudgeted:BigDecimal = BigDecimal("0"),
+    val date:LocalDate = LocalDate.now(),
+    val categoryRef: String = ""
+)
+
+data class FirestoreTransaction(
+    @DocumentId val id:String = "",
+    val amount: String = "",
+    val category:String = "",
+    val date:String = LocalDate.now().toString(),
+    val memo:String = "",
+    val accountRef:String = ""
+)
+
+data class FirestoreCategory(
+    @DocumentId val id: String = "",
+    val name:String = "",
+    val totalCarryover:String = "",
+    val totalExpenses:String = "",
+    val totalBudgeted:String = "",
+    val date:String = LocalDate.now().toString(),
+    val budgetItemsRef:List<String> = listOf()
+)
+
+data class FirestoreAccount(
+    @DocumentId val id:String = "",
+    val name:String = "",
+    val balance:String = "",
+    val transactionRefs:List<String> = listOf()
+)
+
+data class FirestoreBudgetItem(
+    @DocumentId val id: String = "",
+    val name:String = "",
+    val totalCarryover:String = "",
+    val totalExpenses:String = "",
+    val totalBudgeted:String = "",
+    val date:String = LocalDate.now().toString(),
+    val categoryRef: String = ""
+)
+//_____________________________________________________
+
 data class User(
     val id: String = "",
     val isAnonymous: Boolean = true,
+    val categoryRefs:List<String> = listOf(),
+    val accountRefs:List<String> = listOf(),
+    val budgetItemRefs:List<String> = listOf(),
+    val transactionRefs:List<String> = listOf()
 )
 
 data class Budget(
@@ -28,33 +117,7 @@ data class BudgetItem(
     val name:String,
     val budgeted:Double = 0.0,
     val available:Double = 0.0,
-    val notes:String = ""
-)
-
-data class Transaction(
-    //TODO: [optional] add payee, repeat, cleared, and flag
-    @DocumentId val id: String = "",
-    val amount:Double = 0.0,
-    val category:String,
-    val account: Account,
-    val date:LocalDate,
-    val memo:String =""
-)
-data class Account(
-    val name:String,
-    val balance:Double = 0.0
-)
-
-data class Task(
-    @DocumentId val id: String = "",
-    val title: String = "",
-    val priority: String = "",
-    val dueDate: String = "",
-    val dueTime: String = "",
-    val description: String = "",
-    val url: String = "",
-    val flag: Boolean = false,
-    val completed: Boolean = false
+    val memo:String = ""
 )
 
 /*import com.google.firebase.firestore.DocumentId
@@ -74,7 +137,8 @@ data class Category(
     val totalCarryover:BigDecimal = BigDecimal("0"),
     val totalExpenses:BigDecimal = BigDecimal("0"),
     val totalBudgeted:BigDecimal = BigDecimal("0"),
-    val date:LocalDate = LocalDate.now()
+    val date:LocalDate = LocalDate.now(),
+    val budgetItemsRef:List<String> = listOf()
 )
 data class BudgetItem(
     @DocumentId val id: String = "",
@@ -82,19 +146,22 @@ data class BudgetItem(
     val totalCarryover:BigDecimal = BigDecimal("0"),
     val totalExpenses:BigDecimal = BigDecimal("0"),
     val totalBudgeted:BigDecimal = BigDecimal("0"),
-    val date:LocalDate = LocalDate.now()
+    val date:LocalDate = LocalDate.now(),
+    val categoryRef: String = ""
 )
 data class Account(
     @DocumentId val id:String = "",
     val name:String,
     val balance:BigDecimal = BigDecimal("0")
+    val transactionsRef:List<String> = listOf()
 )
 data class Transaction(
     @DocumentId val id:String = "",
     val amount:BigDecimal = BigDecimal("0"),
     val category:String,
     val date:LocalDate = LocalDate.now(),
-    val memo:String = ""
+    val memo:String = "",
+    val accountRef: String = ""
 )
 
 val unassignedBalance:BigDecimal = BigDecimal("0")*/

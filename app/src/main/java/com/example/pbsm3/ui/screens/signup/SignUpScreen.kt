@@ -1,34 +1,35 @@
-package com.example.pbsm3.ui.screens.login
+package com.example.pbsm3.ui.screens.signup
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pbsm3.theme.PBSM3Theme
-import com.example.pbsm3.ui.commonScreenComponents.EmailField
 import com.example.pbsm3.ui.commonScreenComponents.PasswordField
+import com.example.pbsm3.ui.commonScreenComponents.UsernameField
 
-private const val TAG ="Login"
+private const val TAG ="SignUpScreen"
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(
+fun SignUpScreen(
     modifier: Modifier = Modifier,
-    navigateAndPopUpInclusive: (String, String) -> Unit,
-    viewModel: LoginScreenViewModel  = hiltViewModel(),
+    onComplete: () -> Unit = {},
+    viewModel: SignUpScreenViewModel = hiltViewModel(),
     onBackPressed:()->Unit={}
 ) {
     BackHandler(onBack = onBackPressed)
     val uiState by viewModel.uiState
+
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -39,11 +40,14 @@ fun LoginScreen(
             .fillMaxWidth()
             .padding(16.dp, 4.dp)
 
-        EmailField(uiState.email, viewModel::onEmailChange, textFieldModifier)
+        UsernameField(uiState.username, viewModel::onUsernameChange, textFieldModifier)
         PasswordField(uiState.password, viewModel::onPasswordChange, textFieldModifier)
 
         Button(
-            onClick = { viewModel.onSignInClick(navigateAndPopUpInclusive) },
+            onClick = {
+                keyboardController?.hide()
+                viewModel.onSignUpClick(onComplete = onComplete)
+                      },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp, 8.dp),
@@ -53,34 +57,33 @@ fun LoginScreen(
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
-            Text(text = "Sign in", fontSize = 16.sp)
+            if(viewModel.signUpClickInProgress.value){
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.background)
+            }else {
+                Text(text = "Sign Up")
+            }
         }
-
-        //TODO Register Function and page
-
-        TextButton(
-            onClick = { viewModel.onForgotPasswordClick() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp, 8.dp, 16.dp, 0.dp)
-        ) {
-            Text(text = "Forgot password? Click to get recovery email")
+        if(viewModel.usernameExist.value){
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer)
+            ){
+                Text(
+                    modifier = Modifier.padding(8.dp),
+                    text = "Username already exists!"
+                )
+            }
+            viewModel.onUsernameExists()
         }
     }
 
 
 }
 
-fun Context.getActivity(): Activity = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.getActivity()
-    else -> throw IllegalStateException("no activity")
-}
-
 @Preview
 @Composable
-fun LoginScreenPreview() {
+fun SignUpScreenPreview() {
     PBSM3Theme {
-        LoginScreen(navigateAndPopUpInclusive = {_,_->})
+        SignUpScreen()
     }
 }

@@ -5,10 +5,7 @@ package com.example.pbsm3.ui.commonScreenComponents
 import androidx.annotation.StringRes
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -34,14 +31,14 @@ fun BasicField(
 }
 
 @Composable
-fun EmailField(value: String, onNewValue: (String) -> Unit, modifier: Modifier = Modifier) {
+fun UsernameField(value: String, onNewValue: (String) -> Unit, modifier: Modifier = Modifier) {
     OutlinedTextField(
         singleLine = true,
         modifier = modifier,
         value = value,
         onValueChange = { onNewValue(it) },
-        placeholder = { Text("Email") },
-        leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "Email") }
+        placeholder = { Text("Username") },
+        leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Username") }
     )
 }
 

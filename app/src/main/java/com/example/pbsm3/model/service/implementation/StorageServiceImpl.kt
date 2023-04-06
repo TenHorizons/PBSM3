@@ -2,7 +2,7 @@ package com.example.pbsm3.model.service.implementation
 
 import com.example.pbsm3.model.Transaction
 import com.example.pbsm3.model.service.AccountService
-import com.example.pbsm3.model.service.module.StorageService
+import com.example.pbsm3.model.service.StorageService
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.snapshots

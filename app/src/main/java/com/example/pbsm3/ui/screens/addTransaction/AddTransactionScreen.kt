@@ -152,9 +152,7 @@ fun TransactionInfo(
             Text(text = "Date", textAlign = TextAlign.Start)
             Spacer(Modifier.weight(1f))
             PBSDatePicker(
-                modifier = Modifier
-//                    .heightIn(min=56.dp,max=150.dp)
-                    .widthIn(100.dp),
+                modifier = Modifier.widthIn(100.dp),
                 screen = Screen.AddTransaction,
                 onDateSelected = onDateSelected)
         }
