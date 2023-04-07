@@ -2,7 +2,7 @@ package com.example.pbsm3.ui.screens.budget
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import com.example.pbsm3.model.Available
+import com.example.pbsm3.model.Unassigned
 import com.example.pbsm3.model.NewBudgetItem
 import com.example.pbsm3.model.NewCategory
 import com.example.pbsm3.model.service.LogService
@@ -20,7 +20,7 @@ private const val TAG = "BudgetScreenViewModel"
 class BudgetScreenViewModel @Inject constructor(
     private val categoryRepository: Repository<NewCategory>,
     private val budgetItemRepository: Repository<NewBudgetItem>,
-    private val availableRepository: Repository<Available>,
+    private val unassignedRepository: Repository<Unassigned>,
     logService: LogService
 ) : CommonViewModel(logService) {
     var uiState = mutableStateOf(BudgetScreenState())
@@ -34,7 +34,7 @@ class BudgetScreenViewModel @Inject constructor(
     fun getRepositoryData(selectedDate: LocalDate) {
         val categoryList = categoryRepository.getListByDate(selectedDate)
         val itemList = budgetItemRepository.getListByDate(selectedDate)
-        val availableList = availableRepository.getListByDate(selectedDate)
+        val availableList = unassignedRepository.getListByDate(selectedDate)
 
         Log.d(TAG, "Getting repository data in budget screen view model.")
         Log.d(TAG, "categoryList: $categoryList")
@@ -54,22 +54,22 @@ class BudgetScreenViewModel @Inject constructor(
         uiState.value = uiState.value.copy(
             displayedCategories = categoryList,
             displayedBudgetItems = itemList,
-            available = availableList.first()
+            unassigned = availableList.first()
         )
     }
 
     fun getAvailableValueToDisplay(): BigDecimal =
-        uiState.value.available.totalCarryover
-            .plus(uiState.value.available.totalBudgeted)
+        uiState.value.unassigned.totalCarryover
+            .plus(uiState.value.unassigned.totalBudgeted)
             //using plus, but value stored in expenses should be negative.
-            .plus(uiState.value.available.totalExpenses)
+            .plus(uiState.value.unassigned.totalExpenses)
 
     //returning function for now to see new values in log.
     fun updateBudgetItem(category: NewCategory, item: NewBudgetItem) {
         Log.d(TAG, "updateBudgetItem starting.")
         Log.d(TAG, "oldItem: $item,")
         Log.d(TAG, "category:$category,")
-        Log.d(TAG, "available: ${uiState.value.available}")
+        Log.d(TAG, "available: ${uiState.value.unassigned}")
 
         val oldBudgeted = budgetItemRepository.getByRef(item.id)
         //(new - old) to get change to be reflected in category and available.
@@ -83,16 +83,16 @@ class BudgetScreenViewModel @Inject constructor(
         val updatedCategory = category.copy(totalBudgeted = newCatBudgeted)
         categoryRepository.updateLocalData(category)
 
-        val oldAvaBudgeted = uiState.value.available.totalBudgeted
+        val oldAvaBudgeted = uiState.value.unassigned.totalBudgeted
         val newAvaBudgeted = oldAvaBudgeted.plus(changeInBudgeted)
-        val updatedAvailable = uiState.value.available.copy(totalBudgeted = newAvaBudgeted)
-        uiState.value = uiState.value.copy(available = updatedAvailable)
-        availableRepository.updateLocalData(updatedAvailable)
+        val updatedAvailable = uiState.value.unassigned.copy(totalBudgeted = newAvaBudgeted)
+        uiState.value = uiState.value.copy(unassigned = updatedAvailable)
+        unassignedRepository.updateLocalData(updatedAvailable)
 
         Log.d(TAG, "updateBudgetItem completed.")
         Log.d(TAG, "oldItem: $item,")
         Log.d(TAG, "category:$category,")
-        Log.d(TAG, "available: ${uiState.value.available}")
+        Log.d(TAG, "available: ${uiState.value.unassigned}")
     }
 
 
