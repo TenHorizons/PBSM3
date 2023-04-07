@@ -1,5 +1,6 @@
 package com.example.pbsm3.ui.screens.addTransaction
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -33,15 +34,18 @@ private const val TAG = "AddTransactionScreen"
 fun AddTransactionScreen(
     modifier: Modifier = Modifier,
     viewModel: AddTransactionScreenViewModel = hiltViewModel(),
-    onBackPressed:()->Unit={}
+    onBackPressed: () -> Unit = {}
 ) {
     BackHandler(onBack = onBackPressed)
     val uiState by viewModel.uiState
+    var isError by remember { mutableStateOf(false) }
+    var isAdded by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Column(modifier = modifier) {
         AmountRow(
-            onAmountChange = { amount,switchGreen ->
-                viewModel.onAmountChange(amount,switchGreen)
+            onAmountChange = { amount, switchGreen ->
+                viewModel.onAmountChange(amount, switchGreen)
             }
         )
         Card(modifier = Modifier.padding(8.dp)) {
@@ -64,8 +68,46 @@ fun AddTransactionScreen(
             horizontalArrangement = Arrangement.End
         ) {
             Spacer(modifier = Modifier.weight(1f))
-            Button(onClick = { viewModel.onAddTransaction() }) {
+            var isInProgress by remember { mutableStateOf(false) }
+            Button(
+                onClick = {
+                    isInProgress = true
+                    viewModel.onAddTransaction(
+                        onError = {
+                            isError = true
+                            errorMessage = it.toString()
+                            isInProgress = false
+                        }
+                    ) {
+                        isInProgress = false
+                        isAdded = true
+                    }
+                }
+            ) {
                 Text(text = "Add Transaction")
+            }
+        }
+        if (isError || isAdded) {
+            Card(
+                colors =
+                CardDefaults.cardColors(
+                    containerColor =
+                    if (isError) colorScheme.errorContainer
+                    else Green
+                )
+            ) {
+                Row(modifier = Modifier.padding(8.dp)) {
+                    Text(
+                        text =
+                        if (isError) "Error! Error Message:\n$errorMessage"
+                        else "Transaction Added!"
+                    )
+                }
+                viewModel.hideAfterDelay(onComplete = {
+                    isError = false
+                    isAdded = false
+                    errorMessage = ""
+                })
             }
         }
     }
@@ -73,7 +115,7 @@ fun AddTransactionScreen(
 
 @Composable
 fun AmountRow(
-    onAmountChange: (String,Boolean) -> String
+    onAmountChange: (String, Boolean) -> String
 ) {
     var displayedAmount by remember { mutableStateOf("") }
     var switchGreen by remember { mutableStateOf(true) }
@@ -88,7 +130,7 @@ fun AmountRow(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Switch(
                 checked = switchGreen,
-                onCheckedChange = {switchGreen = !switchGreen},
+                onCheckedChange = { switchGreen = !switchGreen },
                 colors = SwitchDefaults.colors(
                     checkedTrackColor = Green,
                     uncheckedTrackColor = Red
@@ -101,7 +143,8 @@ fun AmountRow(
             CurrencyTextField(
                 value = displayedAmount,
                 onValueChange = {
-                    displayedAmount = onAmountChange(it,switchGreen)
+                    Log.d(TAG, "$TAG AmountRow value changed. TextField return value: $it")
+                    displayedAmount = onAmountChange(it, switchGreen)
                 },
                 background =
                 if (switchGreen) colorScheme.tertiaryContainer
@@ -187,7 +230,7 @@ private fun TransactionInfoItemWithMenu(
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textAlign = TextAlign.End
                 ),
-                onValueChange = { },
+                onValueChange = {/*no action here, since read only.*/ },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = expanded
@@ -208,7 +251,7 @@ private fun TransactionInfoItemWithMenu(
                     DropdownMenuItem(
                         text = { Text(text = option) },
                         onClick = {
-                            onSelectedChange.invoke(option)
+                            onSelectedChange(option)
                             expanded = false
                         },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding

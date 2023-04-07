@@ -2,12 +2,18 @@ package com.example.pbsm3.ui.screens.addTransaction
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import com.example.pbsm3.data.defaultAccounts
-import com.example.pbsm3.data.defaultCategories
+import androidx.lifecycle.viewModelScope
+import com.example.pbsm3.data.fromDigitString
+import com.example.pbsm3.model.*
 import com.example.pbsm3.model.service.LogService
-import com.example.pbsm3.model.service.StorageService
+import com.example.pbsm3.model.service.repository.Repository
+import com.example.pbsm3.model.service.repository.UserRepository
 import com.example.pbsm3.ui.screens.CommonViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -15,16 +21,83 @@ private const val TAG = "AddTransactionViewModel"
 
 @HiltViewModel
 class AddTransactionScreenViewModel @Inject constructor(
-    private val transactionRepository: StorageService,
+    private val transactionRepository: Repository<Transaction>,
+    private val accountRepository: Repository<Account>,
+    private val categoryRepository: Repository<NewCategory>,
+    private val budgetItemRepository: Repository<NewBudgetItem>,
+    private val unassignedRepository: Repository<Unassigned>,
+    private val userRepository: UserRepository,
     logService: LogService
 ) : CommonViewModel(logService) {
     var uiState = mutableStateOf(AddTransactionScreenState())
+    private val _unassigned = "Unassigned"
+
+    fun getCategoryOptions(): List<String> {
+        //category names from user repo plus unassigned.
+        val toDisplay: MutableList<String> = mutableListOf()
+
+        toDisplay.add(_unassigned)
+        toDisplay.addAll(userRepository.getBudgetItemNames())
+
+        return toDisplay
+    }
+
+    fun getAccountOptions(): List<String> {
+        val options = userRepository.getAccountNames()
+        return options.ifEmpty {
+            uiState.value = uiState.value.copy(selectedAccountName = "No accounts!")
+            listOf("No accounts!")
+        }
+    }
+
+    fun onAddTransaction(onError: (Exception) -> Unit, onComplete: () -> Unit) {
+        //convert names to objects.
+        if(uiState.value.selectedAccountName == "No accounts!") {
+            onError(IllegalArgumentException("Please add an account before adding transactions!"))
+            onComplete()
+            return
+        }
+
+        val categoryList = categoryRepository.getListByDate(uiState.value.selectedDate)
+
+        if (categoryList.isEmpty()) {
+            viewModelScope.launch(NonCancellable) {
+                userRepository.generateDefaultDataFromMap(
+                    date = uiState.value.selectedDate,
+                    onError = onError
+                )
+            }.invokeOnCompletion {
+                onAddTransaction(onError,onComplete)
+                return@invokeOnCompletion
+            }
+        }else{
+
+        }
+        val accountList = accountRepository.getListByDate(uiState.value.selectedDate)
+        val selectedCategoryRef =
+            if (uiState.value.selectedCategoryName == _unassigned)
+                unassignedRepository.getListByDate(uiState.value.selectedDate).first().id
+            else
+                categoryList.first { it.name == uiState.value.selectedCategoryName }.id
+        val selectedAccountRef =
+            accountList.first { it.name == uiState.value.selectedAccountName }.id
+        val newTransaction = Transaction(
+            amount = uiState.value.amount,
+            date = uiState.value.selectedDate,
+            memo = uiState.value.memoText,
+            accountRef = selectedAccountRef,
+            assignedTo_Ref = selectedCategoryRef
+        )
+        Log.d(TAG, "onAdd Transaction called. newTransaction: $newTransaction")
+        transactionRepository.updateLocalData(newTransaction)
+    }
+
     fun onAmountChange(newValue: String, switchGreen: Boolean): String {
         //TODO Add wrong input detection (non-numbers)
         val amount =
-            if (newValue.startsWith("0")) 0.0
-            else newValue.toDouble() / 100
-        if (!switchGreen) amount * (-1)
+            if (newValue.startsWith("0")) BigDecimal.ZERO
+            else newValue.fromDigitString()
+        if (!switchGreen) amount.multiply(BigDecimal("-1"))
         uiState.value = uiState.value.copy(
             amount = amount
         )
@@ -34,15 +107,13 @@ class AddTransactionScreenViewModel @Inject constructor(
 
     fun onCategoryChange(categoryName: String) {
         uiState.value = uiState.value.copy(
-            //TODO: convert category name to selectedCategory
-            selectedCategory = categoryName
+            selectedCategoryName = categoryName
         )
     }
 
     fun onAccountChange(accountName: String) {
         uiState.value = uiState.value.copy(
-            //TODO: convert account name to selectedAccount
-            selectedAccount = accountName
+            selectedAccountName = accountName
         )
     }
 
@@ -54,25 +125,10 @@ class AddTransactionScreenViewModel @Inject constructor(
         uiState.value = uiState.value.copy(memoText = newValue)
     }
 
-    fun getCategoryOptions(): List<String> {
-        //TODO: get options from Firebase map eventually
-        return defaultCategories.map { category -> category.name }.toList()
-    }
-
-    fun getAccountOptions(): List<String> {
-        //TODO: get options from Firebase map eventually
-        return defaultAccounts.map { account -> account.name }.toList()
-    }
-
-    fun onAddTransaction() {
-        //TODO: check if all required info is present, then save to Firebase.
-        // Also, update account balance with new transaction.
-        Log.d(
-            TAG, "onAdd Transaction called. State:\n" +
-                    "amount: ${uiState.value.amount}\n" +
-                    "selectedCategory: ${uiState.value.selectedCategory}\n" +
-                    "selectedAccount: ${uiState.value.selectedAccount}\n" +
-                    "selectedDate: ${uiState.value.selectedDate}\n" +
-                    "memoText: ${uiState.value.memoText}\n")
+    fun hideAfterDelay(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            delay(3000L)
+            onComplete()
+        }
     }
 }

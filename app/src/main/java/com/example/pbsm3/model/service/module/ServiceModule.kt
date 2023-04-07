@@ -44,7 +44,7 @@ abstract class ServiceModule {
     @Binds
     abstract fun provideBudgetItemRepository(itemRepo:BudgetItemRepository):Repository<NewBudgetItem>
     @Binds
-    abstract fun provideAvailableRepository(avaRepo:AvailableRepository):Repository<Unassigned>
+    abstract fun provideAvailableRepository(avaRepo:UnassignedRepository):Repository<Unassigned>
 
     /*@Binds
     abstract fun provideConfigurationService(impl: ConfigurationServiceImpl): ConfigurationService*/

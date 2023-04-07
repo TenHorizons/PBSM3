@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.pbsm3.data.ALL_ACCOUNTS
-import com.example.pbsm3.data.defaultTransactions
 import com.example.pbsm3.model.Transaction
 import com.example.pbsm3.theme.PBSM3Theme
 
@@ -31,13 +30,7 @@ fun AccountTransactionsScreen(
         }*/
         items(
             //TODO: get transactions from Firebase using account doc ID
-            defaultTransactions.sortedByDescending { it.date }
-//            if (accountName == ALL_ACCOUNTS)
-//                defaultTransactions.sortedByDescending { it.date }
-//            else
-//                defaultTransactions.filter {
-//                    it.account.name == accountName
-//                }.sortedByDescending { it.date }
+            listOf<Transaction>()
         ) {
             Transaction(it,accountName)
         }
@@ -90,7 +83,7 @@ fun Transaction(transaction: Transaction,accountName: String) {
                     text = transaction.date.toString(),
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize)
                 Text(
-                    text = transaction.category,
+                    text = "to properly display",
                     fontSize = MaterialTheme.typography.bodySmall.fontSize)
             }
             Spacer(modifier = Modifier.weight(1f))

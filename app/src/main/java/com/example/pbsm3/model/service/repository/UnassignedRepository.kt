@@ -10,7 +10,7 @@ import javax.inject.Singleton
 private const val TAG = "AvailableRepository"
 
 @Singleton
-class AvailableRepository @Inject constructor(
+class UnassignedRepository @Inject constructor(
     private val unassignedDataSource: DataSource<Unassigned>
 ):Repository<Unassigned> {
 

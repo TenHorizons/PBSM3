@@ -5,6 +5,7 @@ import com.example.pbsm3.data.defaultCategoryToBudgetItemsMap
 import com.example.pbsm3.model.*
 import com.example.pbsm3.model.service.dataSource.UserDataSource
 import kotlinx.coroutines.*
+import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -63,7 +64,7 @@ class UserRepository @Inject constructor(
 
             if(currentUser!!.availableRefs.isEmpty()){
                 Log.d(TAG, "availableRefs is empty. Generating default data.")
-                generateDefaultAvailable(onError = onError)
+                generateDefaultUnassigned(onError = onError)
             }else{
                 unassignedRepository.loadData(currentUser!!.availableRefs, onError = onError)
             }
@@ -84,12 +85,20 @@ class UserRepository @Inject constructor(
         }
     }
 
-    private suspend fun generateDefaultAvailable(onError: (Exception) -> Unit) {
-        val availableReferences: MutableList<String> = mutableListOf()
+
+    suspend fun generateDefaultUnassigned(date: LocalDate, onError: (Exception) -> Unit) {
+        val isUnassignedExist = unassignedRepository.getListByDate(date).isNotEmpty()
+        if(isUnassignedExist){
+            Log.d(TAG, "unassigned already exists!")
+            onError(IllegalArgumentException("unassigned already exists!"))
+            return
+        }
+
+        val availableReferences: MutableList<String> = currentUser!!.availableRefs.toMutableList()
         withContext(NonCancellable) {
             async{
                 val unassignedReference =
-                    unassignedRepository.saveData(Unassigned(), onError)
+                    unassignedRepository.saveData(Unassigned(date = date), onError)
                 availableReferences.add(unassignedReference)
 
                 //save a copy of auto-generated references to local, then to Firestore for safekeeping
@@ -111,9 +120,18 @@ class UserRepository @Inject constructor(
         }.await()
     }
 
-    /**Generates default data. Should only be called with user's category and
-     * budget item references are empty.*/
-    private suspend fun generateDefaultDataFromMap(onError: (Exception) -> Unit) = coroutineScope {
+    private suspend fun generateDefaultUnassigned(onError: (Exception) -> Unit) {
+        generateDefaultUnassigned(LocalDate.now(),onError)
+    }
+
+    suspend fun generateDefaultDataFromMap(date: LocalDate, onError: (Exception) -> Unit) = coroutineScope {
+        val isEmptyCategory = categoryRepository.getListByDate(date).isNotEmpty()
+        if(isEmptyCategory){
+            Log.d(TAG, "category already exists!")
+            onError(IllegalArgumentException("category already exists!"))
+            this.cancel()
+        }
+
         val categoryReferences: MutableList<String> = mutableListOf()
         val totalItemReferences: MutableList<String> = mutableListOf()
 
@@ -123,11 +141,15 @@ class UserRepository @Inject constructor(
         withContext(NonCancellable) {
             defaultCategoryToBudgetItemsMap.map { (category: NewCategory, itemList: List<NewBudgetItem>) ->
                 async {
-                    val categoryReference = categoryRepository.saveData(category, onError)
+                    val dateAdjustedCategory = category.copy(date = date)
+                    val dateAdjustedItems = itemList.toMutableList()
+                        .map { it.copy(date = date) }
+                    val categoryReference =
+                        categoryRepository.saveData(dateAdjustedCategory, onError)
                     categoryReferences.add(categoryReference)
-                    categoryNames.add(category.name)
+                    categoryNames.add(dateAdjustedCategory.name)
                     //TODO category ref is empty in firestore. fix.
-                    val budgetItems = itemList.map { newBudgetItem ->
+                    val budgetItems = dateAdjustedItems.map { newBudgetItem ->
                         newBudgetItem.copy(
                             id = budgetItemRepository.saveData(
                                 item = newBudgetItem.copy(
@@ -140,10 +162,10 @@ class UserRepository @Inject constructor(
                     }
                     val budgetItemRefs = budgetItems.map { it.id }
                     totalItemReferences.addAll(budgetItemRefs)
-                    budgetItemNames.addAll(budgetItems.map{ it.name })
+                    budgetItemNames.addAll(budgetItems.map { it.name })
 
                     categoryRepository.updateData(
-                        item = category.copy(
+                        item = dateAdjustedCategory.copy(
                             id = categoryReference,
                             budgetItemsRef = budgetItemRefs
                         ),
@@ -177,6 +199,16 @@ class UserRepository @Inject constructor(
         Log.d(TAG, "budget items: $totalItemReferences")
         Log.d(TAG, "User: $currentUser")
     }
+
+    private suspend fun generateDefaultDataFromMap(onError: (Exception) -> Unit) = coroutineScope {
+        generateDefaultDataFromMap(LocalDate.now(),onError)
+    }
+
+    fun getCategoryNames(): List<String> = currentUser!!.categoryNames
+
+    fun getAccountNames(): List<String> = currentUser!!.accountNames
+
+    fun getBudgetItemNames():List<String> = currentUser!!.budgetItemNames
 
 //__________________________________________________________________    
 

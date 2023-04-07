@@ -79,10 +79,10 @@ class TransactionDataSource @Inject constructor(
         return FirestoreTransaction(
             id = item.id,
             amount = item.amount.toString(),
-            category = item.category,
             date = item.date.toString(),
             memo = item.memo,
-            accountRef = item.assignedRef
+            accountRef = item.accountRef,
+            assignedTo_Ref = item.assignedTo_Ref
         )
     }
 
@@ -90,10 +90,10 @@ class TransactionDataSource @Inject constructor(
         return Transaction(
             id = item.id,
             amount = item.amount.toBigDecimal(),
-            category = item.category,
             date = LocalDate.parse(item.date),
             memo = item.memo,
-            assignedRef = item.accountRef
+            accountRef = item.accountRef,
+            assignedTo_Ref = item.assignedTo_Ref
         )
     }
 }

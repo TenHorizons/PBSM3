@@ -64,8 +64,8 @@ class CurrencyAmountInputVisualTransformation(
         )
 
         val offsetMapping = FixedCursorOffsetMapping(
-            contentLength = inputText.length,
-            formattedContentLength = displayedText.length
+            inputLength = inputText.length,
+            displayedLength = displayedText.length
         )
 
         return TransformedText(newText, offsetMapping)
@@ -74,12 +74,12 @@ class CurrencyAmountInputVisualTransformation(
     /*Android Developer Documentation explaining cursor offsetting:
     * https://developer.android.com/reference/kotlin/androidx/compose/ui/text/input/VisualTransformation*/
     private class FixedCursorOffsetMapping(
-        private val contentLength: Int,
-        private val formattedContentLength: Int,
+        private val inputLength: Int,
+        private val displayedLength: Int,
     ) : OffsetMapping {
         override fun originalToTransformed(offset: Int): Int =
-            formattedContentLength
+            displayedLength
 
-        override fun transformedToOriginal(offset: Int): Int = contentLength
+        override fun transformedToOriginal(offset: Int): Int = inputLength
     }
 }

@@ -82,11 +82,9 @@ val defaultTransactions: List<Transaction> =
     defaultAccounts.map {
         listOf(
             Transaction(
-                category = "Groceries&Laundry",
                 date = LocalDate.now()
             ),
             Transaction(
-                category = "Rent/Mortgage",
                 date = LocalDate.now().minusDays(1)
             )
         )

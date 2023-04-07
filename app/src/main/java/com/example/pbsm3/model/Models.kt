@@ -13,19 +13,20 @@ data class SignUser(
     val accountRefs:List<String> = listOf(),
     val budgetItemRefs:List<String> = listOf(),
     val transactionRefs:List<String> = listOf(),
+    val availableRefs:List<String> = listOf(),
     val accountNames:List<String> = listOf(),
     val categoryNames:List<String> = listOf(),
-    val budgetItemNames:List<String> = listOf(),
-    val availableRefs:List<String> = listOf()
+    val budgetItemNames:List<String> = listOf()
 )
 
+/**assignedTo_Ref should be a budget item or unassigned.*/
 data class Transaction(
     @DocumentId val id:String = "",
     val amount: BigDecimal = BigDecimal("0"),
-    val category:String = "",
     val date:LocalDate = LocalDate.now(),
     val memo:String = "",
-    val assignedRef:String = ""
+    val accountRef:String = "",
+    val assignedTo_Ref:String = ""
 )
 data class Account(
     @DocumentId val id:String = "",
@@ -59,17 +60,17 @@ data class NewBudgetItem(
     val totalCarryover:BigDecimal = BigDecimal("0"),
     val totalExpenses:BigDecimal = BigDecimal("0"),
     val totalBudgeted:BigDecimal = BigDecimal("0"),
-    val date:LocalDate = LocalDate.now(),
+    var date:LocalDate = LocalDate.now(),
     val categoryRef: String = ""
 )
 
 data class FirestoreTransaction(
     @DocumentId val id:String = "",
     val amount: String = "",
-    val category:String = "",
     val date:String = LocalDate.now().toString(),
     val memo:String = "",
-    val accountRef:String = ""
+    val accountRef:String = "",
+    val assignedTo_Ref:String = ""
 )
 
 data class FirestoreUnassigned(
