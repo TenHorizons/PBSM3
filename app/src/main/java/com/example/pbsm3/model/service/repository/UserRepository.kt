@@ -17,7 +17,7 @@ class UserRepository @Inject constructor(
     private val accountRepository: Repository<Account>,
     private val transactionRepository: Repository<Transaction>,
     private val budgetItemRepository: Repository<NewBudgetItem>,
-    private val availableRepository: Repository<Available>
+    private val unassignedRepository: Repository<Unassigned>
 ) {
     var currentUser: SignUser? = null
 
@@ -65,7 +65,7 @@ class UserRepository @Inject constructor(
                 Log.d(TAG, "availableRefs is empty. Generating default data.")
                 generateDefaultAvailable(onError = onError)
             }else{
-                availableRepository.loadData(currentUser!!.availableRefs, onError = onError)
+                unassignedRepository.loadData(currentUser!!.availableRefs, onError = onError)
             }
             //Currently, overwrites category and budget item refs if any one is empty.
             if ((currentUser!!.categoryRefs).isEmpty() || (currentUser!!.budgetItemRefs).isEmpty()) {
@@ -88,9 +88,9 @@ class UserRepository @Inject constructor(
         val availableReferences: MutableList<String> = mutableListOf()
         withContext(NonCancellable) {
             async{
-                val availableReference =
-                    availableRepository.saveData(Available(), onError)
-                availableReferences.add(availableReference)
+                val unassignedReference =
+                    unassignedRepository.saveData(Unassigned(), onError)
+                availableReferences.add(unassignedReference)
 
                 //save a copy of auto-generated references to local, then to Firestore for safekeeping
                 currentUser = currentUser!!.copy(
@@ -106,7 +106,7 @@ class UserRepository @Inject constructor(
                 //save a copy to repository
                 //using references to not expose local copy in repository
                 //also checks if it's saved to firestore correctly
-                availableRepository.loadData(availableReferences,onError)
+                unassignedRepository.loadData(availableReferences,onError)
             }
         }.await()
     }

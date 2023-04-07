@@ -34,7 +34,8 @@ data class Account(
     val transactionRefs:List<String> = listOf()
 )
 
-data class Available(
+/**Previous name was Available. If found any change it.*/
+data class Unassigned(
     @DocumentId val id: String = "",
     val totalCarryover:BigDecimal = BigDecimal("0"),
     val totalExpenses:BigDecimal = BigDecimal("0"),
@@ -71,7 +72,7 @@ data class FirestoreTransaction(
     val accountRef:String = ""
 )
 
-data class FirestoreAvailable(
+data class FirestoreUnassigned(
     @DocumentId val id: String = "",
     val totalCarryover:String = "",
     val totalExpenses:String = "",

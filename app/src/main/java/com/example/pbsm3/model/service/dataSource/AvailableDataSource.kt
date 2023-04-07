@@ -1,7 +1,7 @@
 package com.example.pbsm3.model.service.dataSource
 
-import com.example.pbsm3.model.Available
-import com.example.pbsm3.model.FirestoreAvailable
+import com.example.pbsm3.model.Unassigned
+import com.example.pbsm3.model.FirestoreUnassigned
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -14,14 +14,14 @@ import kotlin.coroutines.suspendCoroutine
 
 class AvailableDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
-) : DataSource<Available> {
-    override suspend fun get(id: String): Available =
+) : DataSource<Unassigned> {
+    override suspend fun get(id: String): Unassigned =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().document(id).get()
                     .addOnSuccessListener { document ->
-                        val available: FirestoreAvailable? =
-                            document.toObject(FirestoreAvailable::class.java)
+                        val available: FirestoreUnassigned? =
+                            document.toObject(FirestoreUnassigned::class.java)
                         if (available == null) continuation.resumeWithException(
                             NoSuchElementException("Available not found")
                         )
@@ -46,7 +46,7 @@ class AvailableDataSource @Inject constructor(
             }
         }
 
-    override suspend fun update(item: Available) =
+    override suspend fun update(item: Unassigned) =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().document(item.id).set(toFirestoreAvailable(item))
@@ -59,7 +59,7 @@ class AvailableDataSource @Inject constructor(
             }
         }
 
-    override suspend fun save(item: Available): String  =
+    override suspend fun save(item: Unassigned): String  =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().add(toFirestoreAvailable(item))
@@ -75,8 +75,8 @@ class AvailableDataSource @Inject constructor(
     private fun getCollection(): CollectionReference =
         firestore.collection(AVAILABLE_COLLECTION)
 
-    private fun toFirestoreAvailable(item: Available): FirestoreAvailable {
-        return FirestoreAvailable(
+    private fun toFirestoreAvailable(item: Unassigned): FirestoreUnassigned {
+        return FirestoreUnassigned(
             id = item.id,
             totalCarryover = item.totalCarryover.toString(),
             totalExpenses = item.totalExpenses.toString(),
@@ -85,8 +85,8 @@ class AvailableDataSource @Inject constructor(
         )
     }
 
-    private fun toAvailable(item: FirestoreAvailable): Available {
-        return Available(
+    private fun toAvailable(item: FirestoreUnassigned): Unassigned {
+        return Unassigned(
             id = item.id,
             totalCarryover = item.totalCarryover.toBigDecimal(),
             totalExpenses = item.totalExpenses.toBigDecimal(),

@@ -33,7 +33,7 @@ abstract class ServiceModule {
     @Binds
     abstract fun provideBudgetItemDataSource(itemDS:BudgetItemDataSource):DataSource<NewBudgetItem>
     @Binds
-    abstract fun provideAvailableDataSource(avaDS:AvailableDataSource):DataSource<Available>
+    abstract fun provideAvailableDataSource(avaDS:AvailableDataSource):DataSource<Unassigned>
 
     @Binds
     abstract fun provideAccountRepository(accRepo:AccountRepository):Repository<Account>
@@ -44,7 +44,7 @@ abstract class ServiceModule {
     @Binds
     abstract fun provideBudgetItemRepository(itemRepo:BudgetItemRepository):Repository<NewBudgetItem>
     @Binds
-    abstract fun provideAvailableRepository(avaRepo:AvailableRepository):Repository<Available>
+    abstract fun provideAvailableRepository(avaRepo:AvailableRepository):Repository<Unassigned>
 
     /*@Binds
     abstract fun provideConfigurationService(impl: ConfigurationServiceImpl): ConfigurationService*/

@@ -1,7 +1,7 @@
 package com.example.pbsm3.model.service.repository
 
 import android.util.Log
-import com.example.pbsm3.model.Available
+import com.example.pbsm3.model.Unassigned
 import com.example.pbsm3.model.service.dataSource.DataSource
 import java.time.LocalDate
 import javax.inject.Inject
@@ -11,10 +11,10 @@ private const val TAG = "AvailableRepository"
 
 @Singleton
 class AvailableRepository @Inject constructor(
-    private val availableDataSource: DataSource<Available>
-):Repository<Available> {
+    private val unassignedDataSource: DataSource<Unassigned>
+):Repository<Unassigned> {
 
-    var available:MutableList<Available> = mutableListOf()
+    var unassigned:MutableList<Unassigned> = mutableListOf()
 
     override suspend fun loadData(docRefs: List<String>, onError: (Exception) -> Unit) {
         if(docRefs.isEmpty()) {
@@ -23,8 +23,8 @@ class AvailableRepository @Inject constructor(
         }
         for(docRef in docRefs){
             try{
-                val ava = availableDataSource.get(docRef)
-                available.add(ava)
+                val ava = unassignedDataSource.get(docRef)
+                unassigned.add(ava)
             }
             catch (ex:Exception){
                 Log.d(TAG, "error at AvailableRepository::loadData")
@@ -32,42 +32,42 @@ class AvailableRepository @Inject constructor(
                 onError(ex)
             }
         }
-        Log.d(TAG, "available loaded. available: $available")
+        Log.d(TAG, "available loaded. available: $unassigned")
     }
 
     override suspend fun saveData() {
         TODO("Not yet implemented")
     }
 
-    override fun updateLocalData(item: Available) {
+    override fun updateLocalData(item: Unassigned) {
         val oldAva = getByRef(item.id)
-        val oldAvaIndex = available.indexOf(oldAva)
-        available[oldAvaIndex] = item
+        val oldAvaIndex = unassigned.indexOf(oldAva)
+        unassigned[oldAvaIndex] = item
     }
 
-    override fun getListByDate(date: LocalDate): List<Available> {
-        return available.filter {
+    override fun getListByDate(date: LocalDate): List<Unassigned> {
+        return unassigned.filter {
             it.date.month == date.month &&
                     it.date.year == date.year
         }
     }
 
-    override fun getByRef(ref: String): Available {
-        return available.first { it.id == ref }
+    override fun getByRef(ref: String): Unassigned {
+        return unassigned.first { it.id == ref }
     }
 
-    override suspend fun updateData(item: Available, onError: (Exception) -> Unit) {
+    override suspend fun updateData(item: Unassigned, onError: (Exception) -> Unit) {
         try {
-            availableDataSource.update(item)
+            unassignedDataSource.update(item)
         } catch (ex: Exception) {
             Log.d(TAG, "error at AvailableRepository::updateData")
             onError(ex)
         }
     }
 
-    override suspend fun saveData(item: Available, onError: (Exception) -> Unit): String =
+    override suspend fun saveData(item: Unassigned, onError: (Exception) -> Unit): String =
         try {
-            availableDataSource.save(item)
+            unassignedDataSource.save(item)
         }catch (ex:Exception){
             Log.d(TAG, "error at AvailableRepository::saveData:String")
             onError(ex)
