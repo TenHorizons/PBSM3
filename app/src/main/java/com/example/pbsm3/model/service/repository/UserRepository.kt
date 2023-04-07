@@ -16,7 +16,8 @@ class UserRepository @Inject constructor(
     private val categoryRepository: Repository<NewCategory>,
     private val accountRepository: Repository<Account>,
     private val transactionRepository: Repository<Transaction>,
-    private val budgetItemRepository: Repository<NewBudgetItem>
+    private val budgetItemRepository: Repository<NewBudgetItem>,
+    private val availableRepository: Repository<Available>
 ) {
     var currentUser: SignUser? = null
 
@@ -39,7 +40,6 @@ class UserRepository @Inject constructor(
     }
 
     suspend fun signUp(username: String, password: String, onError: () -> Unit) {
-        //TODO something wrong with signUp, error updating when auto-generating data. check.
         try {
             currentUser = userDataSource.signUpUser(username, password)
             Log.d(TAG, "signed up. user: $currentUser")
@@ -61,6 +61,12 @@ class UserRepository @Inject constructor(
             accountRepository.loadData(currentUser!!.accountRefs, onError = onError)
             transactionRepository.loadData(currentUser!!.transactionRefs, onError = onError)
 
+            if(currentUser!!.availableRefs.isEmpty()){
+                Log.d(TAG, "availableRefs is empty. Generating default data.")
+                generateDefaultAvailable(onError = onError)
+            }else{
+                availableRepository.loadData(currentUser!!.availableRefs, onError = onError)
+            }
             //Currently, overwrites category and budget item refs if any one is empty.
             if ((currentUser!!.categoryRefs).isEmpty() || (currentUser!!.budgetItemRefs).isEmpty()) {
                 Log.d(TAG, "categoryRefs or budgetItemRefs are empty. Generating default data.")
@@ -69,9 +75,40 @@ class UserRepository @Inject constructor(
                 categoryRepository.loadData(currentUser!!.categoryRefs, onError = onError)
                 budgetItemRepository.loadData(currentUser!!.budgetItemRefs, onError = onError)
             }
+
+
         } catch (ex: Exception) {
+            Log.d(TAG, "error at UserRepository::loadUserData")
+            Log.d(TAG, "error: $ex")
             onError(ex)
         }
+    }
+
+    private suspend fun generateDefaultAvailable(onError: (Exception) -> Unit) {
+        val availableReferences: MutableList<String> = mutableListOf()
+        withContext(NonCancellable) {
+            async{
+                val availableReference =
+                    availableRepository.saveData(Available(), onError)
+                availableReferences.add(availableReference)
+
+                //save a copy of auto-generated references to local, then to Firestore for safekeeping
+                currentUser = currentUser!!.copy(
+                    availableRefs = availableReferences
+                )
+                try{
+                    userDataSource.updateUser(currentUser!!)
+                }catch (ex: Exception){
+                    Log.d(TAG, "error at UserRepository::userDataSource.updateUser()")
+                    onError(ex)
+                }
+
+                //save a copy to repository
+                //using references to not expose local copy in repository
+                //also checks if it's saved to firestore correctly
+                availableRepository.loadData(availableReferences,onError)
+            }
+        }.await()
     }
 
     /**Generates default data. Should only be called with user's category and

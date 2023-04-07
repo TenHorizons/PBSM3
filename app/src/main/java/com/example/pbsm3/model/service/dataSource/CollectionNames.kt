@@ -5,6 +5,7 @@ const val ACCOUNT_COLLECTION = "accounts"
 const val CATEGORY_COLLECTION = "categories"
 const val TRANSACTION_COLLECTION = "transactions"
 const val BUDGET_ITEM_COLLECTION = "budgetItems"
+const val AVAILABLE_COLLECTION = "available"
 
 //const val SAVE_TRANSACTION_TRACE = "saveTransaction"
 //const val UPDATE_TRANSACTION_TRACE = "updateTransaction"

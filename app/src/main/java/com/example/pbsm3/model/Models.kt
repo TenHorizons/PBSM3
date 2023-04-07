@@ -15,7 +15,8 @@ data class SignUser(
     val transactionRefs:List<String> = listOf(),
     val accountNames:List<String> = listOf(),
     val categoryNames:List<String> = listOf(),
-    val budgetItemNames:List<String> = listOf()
+    val budgetItemNames:List<String> = listOf(),
+    val availableRefs:List<String> = listOf()
 )
 
 data class Transaction(
@@ -24,13 +25,21 @@ data class Transaction(
     val category:String = "",
     val date:LocalDate = LocalDate.now(),
     val memo:String = "",
-    val accountRef:String = ""
+    val assignedRef:String = ""
 )
 data class Account(
     @DocumentId val id:String = "",
     val name:String = "",
     val balance:BigDecimal = BigDecimal("0"),
     val transactionRefs:List<String> = listOf()
+)
+
+data class Available(
+    @DocumentId val id: String = "",
+    val totalCarryover:BigDecimal = BigDecimal("0"),
+    val totalExpenses:BigDecimal = BigDecimal("0"),
+    val totalBudgeted:BigDecimal = BigDecimal("0"),
+    val date:LocalDate = LocalDate.now()
 )
 
 data class NewCategory(
@@ -60,6 +69,14 @@ data class FirestoreTransaction(
     val date:String = LocalDate.now().toString(),
     val memo:String = "",
     val accountRef:String = ""
+)
+
+data class FirestoreAvailable(
+    @DocumentId val id: String = "",
+    val totalCarryover:String = "",
+    val totalExpenses:String = "",
+    val totalBudgeted:String = "",
+    val date:String = LocalDate.now().toString(),
 )
 
 data class FirestoreCategory(

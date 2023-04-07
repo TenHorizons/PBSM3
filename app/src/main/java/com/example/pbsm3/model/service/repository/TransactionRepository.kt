@@ -3,10 +3,13 @@ package com.example.pbsm3.model.service.repository
 import android.util.Log
 import com.example.pbsm3.model.Transaction
 import com.example.pbsm3.model.service.dataSource.DataSource
+import java.time.LocalDate
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val TAG = "TransactionRepository"
 
+@Singleton
 class TransactionRepository @Inject constructor(
     private val transactionDataSource: DataSource<Transaction>
 ):Repository<Transaction> {
@@ -40,6 +43,12 @@ class TransactionRepository @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    override fun updateLocalData(item: Transaction) {
+        val oldTrans = getByRef(item.id)
+        val oldTransIndex = transactions.indexOf(oldTrans)
+        transactions[oldTransIndex] = item
+    }
+
     override suspend fun updateData(item: Transaction, onError:(Exception)->Unit) =
         transactionDataSource.update(item)
 
@@ -52,5 +61,11 @@ class TransactionRepository @Inject constructor(
             ""
         }
 
+    override fun getListByDate(date: LocalDate): List<Transaction> {
+        return transactions.filter { it.date.month == date.month && it.date.year == date.year }
+    }
 
+    override fun getByRef(ref: String): Transaction {
+        return transactions.first { it.id == ref }
+    }
 }

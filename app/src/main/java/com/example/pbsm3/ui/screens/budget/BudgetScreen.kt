@@ -22,14 +22,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.pbsm3.data.defaultBudget
-import com.example.pbsm3.data.getFirstDayOfMonth
-import com.example.pbsm3.model.Budget
-import com.example.pbsm3.model.BudgetItem
-import com.example.pbsm3.model.Category
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.pbsm3.data.*
+import com.example.pbsm3.model.NewBudgetItem
+import com.example.pbsm3.model.NewCategory
 import com.example.pbsm3.theme.PBSM3Theme
 import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
+import java.math.BigDecimal
 import java.time.LocalDate
 
 
@@ -38,36 +37,41 @@ private const val TAG = "BudgetScreen"
 @Composable
 fun BudgetScreen(
     modifier: Modifier = Modifier,
-    budget: Budget,
-    date: LocalDate,
-    viewModel: BudgetScreenViewModel = viewModel(),
-    onItemClicked: (Category, BudgetItem) -> Unit = { _, _ -> },
+    selectedDate: LocalDate,
+    viewModel: BudgetScreenViewModel = hiltViewModel(),
+    onItemClicked: (NewCategory, NewBudgetItem) -> Unit = { _, _ -> },
     onBackPressed: () -> Unit = {}
 ) {
+//TODO deal with budget name eventually
+    Log.d(TAG, "BudgetScreen start. Budget Name: ")
+
     BackHandler(onBack = onBackPressed)
-    val uiState by viewModel.uiState.collectAsState()
-    Log.d(
-        TAG, "BudgetScreen start. old budget equals new: " +
-                "${uiState.budget == defaultBudget}")
+
+    LaunchedEffect(selectedDate){
+        viewModel.setSelectedDate(selectedDate)
+        viewModel.getRepositoryData(selectedDate)
+    }
+
+    val uiState by viewModel.uiState
+
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.padding(horizontal = 8.dp)
     ) {
         AvailableToBudgetRow(
-            //TODO: configure available to budget after Transaction Screen completed.
-            availableToBudget = 0.0,
+            availableToBudget = viewModel.getAvailableValueToDisplay(),
             modifier = Modifier.padding(top = 8.dp))
         LazyColumn(Modifier.fillMaxWidth()) {
-            items(viewModel.getCategoriesByDate(date)) {
+            items(uiState.displayedCategories) {
                 CategoryCard(
                     category = it,
                     onItemClicked = onItemClicked,
-                    onItemChanged = { category, item, index ->
-                        viewModel.updateBudgetItem(category, item, index)
-                        Log.d(
-                            TAG, "updateBudgetItem. old budget equals new: " +
-                                    "${uiState.budget == defaultBudget}")
-                    })
+                    onItemChanged = { category, item ->
+                        viewModel.updateBudgetItem(category, item)
+                    },
+                onGettingCategoryItems = {category ->
+                    uiState.categoryItemMapping[category]?: listOf()
+                })
             }
         }
     }
@@ -75,7 +79,7 @@ fun BudgetScreen(
 
 @Composable
 fun AvailableToBudgetRow(
-    availableToBudget: Double,
+    availableToBudget: BigDecimal,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -90,7 +94,7 @@ fun AvailableToBudgetRow(
             Text(text = "Available to Budget: ")
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = String.format("RM%.2f", availableToBudget),
+                text = "RM${availableToBudget.displayTwoDecimal()}",
                 color = colorScheme.onTertiaryContainer,
                 style = TextStyle.Default.copy(
                     fontSize = 36.sp,
@@ -102,9 +106,10 @@ fun AvailableToBudgetRow(
 
 @Composable
 fun CategoryCard(
-    category: Category,
-    onItemClicked: (Category, BudgetItem) -> Unit,
-    onItemChanged: (Category, BudgetItem, Int) -> Unit,
+    category: NewCategory,
+    onItemClicked: (NewCategory, NewBudgetItem) -> Unit,
+    onItemChanged: (NewCategory, NewBudgetItem) -> Unit,
+    onGettingCategoryItems: (NewCategory) -> List<NewBudgetItem>
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -133,14 +138,14 @@ fun CategoryCard(
                     Text(text = "Budgeted")
                     Text(
                         text =
-                        "RM${String.format("%.2f", category.totalBudgeted)}",
+                        "RM${category.totalBudgeted.displayTwoDecimal()}",
                         textAlign = TextAlign.End)
                 }
                 Column(Modifier.weight(0.25f)) {
                     Text(text = "Available")
                     Text(
                         text =
-                        "RM${String.format("%.2f", category.totalAvailable)}",
+                        "RM${category.getAvailable().displayTwoDecimal()}",
                         textAlign = TextAlign.End)
                 }
                 Icon(
@@ -150,10 +155,10 @@ fun CategoryCard(
                     contentDescription = null,
                     Modifier.weight(0.05f))
             }
-            if (true) {
+            if (expanded) {
                 BudgetItemRow(
-                    category.items,
-                    onBudgetItemChanged = { item, index -> onItemChanged(category, item, index) },
+                    onGettingCategoryItems(category),
+                    onBudgetItemChanged = { item -> onItemChanged(category, item) },
                     onItemClicked = { onItemClicked(category, it) }
                 )
             }
@@ -164,9 +169,9 @@ fun CategoryCard(
 
 @Composable
 fun BudgetItemRow(
-    budgetItems: List<BudgetItem>,
-    onBudgetItemChanged: (BudgetItem, Int) -> Unit,
-    onItemClicked: (BudgetItem) -> Unit
+    budgetItems: List<NewBudgetItem>,
+    onBudgetItemChanged: (NewBudgetItem) -> Unit,
+    onItemClicked: (NewBudgetItem) -> Unit
 ) {
     for (item in budgetItems) {
         Card {
@@ -183,13 +188,15 @@ fun BudgetItemRow(
                 )
                 CurrencyTextField(
                     value =
-                    if (item.budgeted == 0.0) ""
-                    else String.format("%.0f", item.budgeted * 100),
+                    if (item.totalBudgeted.isZero()) ""
+                    else item.totalBudgeted.toDigitString(),
                     onValueChange = {
                         onBudgetItemChanged(
-                            if (it == "") item.copy(budgeted = 0.0)
-                            else item.copy(budgeted = it.toDouble() / 100),
-                            budgetItems.indexOf(item)
+                            //currencyTextField seems to remove a few decimal places,
+                            //making it less accurate, but it probably wouldn't
+                            //be an issue.
+                            if (it == "") item.copy(totalBudgeted = BigDecimal.ZERO)
+                            else item.copy(totalBudgeted = it.fromDigitString())
                         )
                     },
                     background = colorScheme.surfaceVariant,
@@ -200,11 +207,11 @@ fun BudgetItemRow(
                         textAlign = TextAlign.Start
                     )
                 )
-                //TODO: adjust text field color to match text composable
+                //TODO: make into a small color-changing composable eventually
                 Text(
                     text =
-                    (if (item.available < 0) "-RM" else "RM")
-                            + String.format("%.2f", item.available),
+                    (if (item.getAvailable().isLessThanZero()) "-RM" else "RM")
+                            + (item.getAvailable().displayTwoDecimal()),
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                     modifier = Modifier.weight(0.25f),
                     softWrap = false
@@ -220,6 +227,6 @@ fun BudgetItemRow(
 @Composable
 private fun BudgetScreenLightThemePreview() {
     PBSM3Theme {
-        BudgetScreen(budget = defaultBudget, date = getFirstDayOfMonth())
+        BudgetScreen(selectedDate = LocalDate.now())
     }
 }

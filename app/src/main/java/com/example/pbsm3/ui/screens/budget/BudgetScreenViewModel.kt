@@ -1,57 +1,102 @@
 package com.example.pbsm3.ui.screens.budget
 
-import androidx.lifecycle.ViewModel
-import com.example.pbsm3.data.defaultCategories
-import com.example.pbsm3.model.Budget
-import com.example.pbsm3.model.BudgetItem
-import com.example.pbsm3.model.Category
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import com.example.pbsm3.model.Available
+import com.example.pbsm3.model.NewBudgetItem
+import com.example.pbsm3.model.NewCategory
+import com.example.pbsm3.model.service.LogService
+import com.example.pbsm3.model.service.repository.Repository
+import com.example.pbsm3.ui.screens.CommonViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import java.math.BigDecimal
 import java.time.LocalDate
+import javax.inject.Inject
 
-class BudgetScreenViewModel: ViewModel() {
-    private val _uiState = MutableStateFlow(BudgetScreenState())
-    val uiState: StateFlow<BudgetScreenState> = _uiState.asStateFlow()
-    fun updateBudget(budget:Budget){
-        _uiState.update { currentState ->
-            currentState.copy(budget = budget)
+
+private const val TAG = "BudgetScreenViewModel"
+
+@HiltViewModel
+class BudgetScreenViewModel @Inject constructor(
+    private val categoryRepository: Repository<NewCategory>,
+    private val budgetItemRepository: Repository<NewBudgetItem>,
+    private val availableRepository: Repository<Available>,
+    logService: LogService
+) : CommonViewModel(logService) {
+    var uiState = mutableStateOf(BudgetScreenState())
+        private set
+
+    fun setSelectedDate(selectedDate: LocalDate) {
+        uiState.value = uiState.value.copy(
+            selectedDate = selectedDate
+        )
+    }
+    fun getRepositoryData(selectedDate: LocalDate) {
+        val categoryList = categoryRepository.getListByDate(selectedDate)
+        val itemList = budgetItemRepository.getListByDate(selectedDate)
+        val availableList = availableRepository.getListByDate(selectedDate)
+
+        Log.d(TAG, "Getting repository data in budget screen view model.")
+        Log.d(TAG, "categoryList: $categoryList")
+        Log.d(TAG, "itemList: $itemList")
+        Log.d(TAG, "availableList: $availableList")
+
+        if(availableList.size > 1){
+            Log.d(TAG, "Error: Available list size large than 1 in $TAG.")
         }
-    }
 
-    fun updateDate(date: LocalDate) {
-        _uiState.update { currentState ->
-            currentState.copy(selectedDate = date)
+        for (category in categoryList) {
+            val relatedItems = itemList.filter { it.categoryRef == category.id }
+            uiState.value.categoryItemMapping[category] = relatedItems
         }
+
+        //add just in case. might remove later in favor of memory
+        uiState.value = uiState.value.copy(
+            displayedCategories = categoryList,
+            displayedBudgetItems = itemList,
+            available = availableList.first()
+        )
     }
 
-    fun getCategoriesByDate(date: LocalDate):List<Category> {
-        return _uiState.value.budget.monthlyBudgets[date] ?: defaultCategories
+    fun getAvailableValueToDisplay(): BigDecimal =
+        uiState.value.available.totalCarryover
+            .plus(uiState.value.available.totalBudgeted)
+            //using plus, but value stored in expenses should be negative.
+            .plus(uiState.value.available.totalExpenses)
+
+    //returning function for now to see new values in log.
+    fun updateBudgetItem(category: NewCategory, item: NewBudgetItem) {
+        Log.d(TAG, "updateBudgetItem starting.")
+        Log.d(TAG, "oldItem: $item,")
+        Log.d(TAG, "category:$category,")
+        Log.d(TAG, "available: ${uiState.value.available}")
+
+        val oldBudgeted = budgetItemRepository.getByRef(item.id)
+        //(new - old) to get change to be reflected in category and available.
+        val changeInBudgeted = item.totalBudgeted.minus(oldBudgeted.totalBudgeted)
+        budgetItemRepository.updateLocalData(item)
+
+        val oldCatBudgeted = category.totalBudgeted
+        //TODO do I need to check for negative here? most likely,
+        // or just show red in available.
+        val newCatBudgeted = oldCatBudgeted.plus(changeInBudgeted)
+        val updatedCategory = category.copy(totalBudgeted = newCatBudgeted)
+        categoryRepository.updateLocalData(category)
+
+        val oldAvaBudgeted = uiState.value.available.totalBudgeted
+        val newAvaBudgeted = oldAvaBudgeted.plus(changeInBudgeted)
+        val updatedAvailable = uiState.value.available.copy(totalBudgeted = newAvaBudgeted)
+        uiState.value = uiState.value.copy(available = updatedAvailable)
+        availableRepository.updateLocalData(updatedAvailable)
+
+        Log.d(TAG, "updateBudgetItem completed.")
+        Log.d(TAG, "oldItem: $item,")
+        Log.d(TAG, "category:$category,")
+        Log.d(TAG, "available: ${uiState.value.available}")
     }
 
-    fun updateBudgetItem(category:Category, newItem:BudgetItem, itemIndex:Int){
-        //not-null assertion operator should succeed.
-        //If not, check why budget for selected date was not generated
-        val budget = _uiState.value.budget
-        //budget.monthlyBudgets as MutableMap doesn't work here:
-        //https://stackoverflow.com/questions/69850726/unsupportedoperationexception-when-adding-to-a-map-in-kotlin
-        val monthlyBudgets = budget.monthlyBudgets.toMutableMap()
-        val selectedDate = _uiState.value.selectedDate
-        val budgetCategories = monthlyBudgets[selectedDate]!! as MutableList
-        var oldCategory = budgetCategories[budgetCategories.indexOf(category)]
-        val items = oldCategory.items as MutableList
 
-        items[itemIndex] = newItem
-        oldCategory = oldCategory.copy(items = items.toList())
-        budgetCategories[budgetCategories.indexOf(category)] = oldCategory
-        monthlyBudgets[selectedDate] = budgetCategories.toList()
-        _uiState.update {currentState ->
-            currentState.copy(
-                budget = currentState.budget.copy(
-                    monthlyBudgets = monthlyBudgets.toMap()
-                )
-            )
-        }
-    }
+//    fun onSelectedDateChange(date: LocalDate) {
+//        getRepositoryData(date)
+//    }
 }

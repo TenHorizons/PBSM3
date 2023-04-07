@@ -3,6 +3,7 @@ package com.example.pbsm3.model.service.repository
 import android.util.Log
 import com.example.pbsm3.model.Account
 import com.example.pbsm3.model.service.dataSource.DataSource
+import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,6 +38,12 @@ class AccountRepository @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    override fun updateLocalData(item: Account) {
+        val oldAcc = getByRef(item.id)
+        val oldAccIndex = accounts.indexOf(oldAcc)
+        accounts[oldAccIndex] = item
+    }
+
     override suspend fun updateData(item: Account, onError:(Exception)->Unit) =
         accountDataSource.update(item)
 
@@ -48,4 +55,15 @@ class AccountRepository @Inject constructor(
             onError(ex)
             ""
         }
+
+    override fun getListByDate(date: LocalDate): List<Account> {
+        Log.d(TAG,"AccountRepository::getListByDate shouldn't be called.")
+        Log.d(TAG,"Returning full account list anyway since most uses need full list.")
+        Log.d(TAG,"Regretting using repository interface...")
+        return accounts
+    }
+
+    override fun getByRef(ref: String): Account {
+        return accounts.first { it.id == ref }
+    }
 }

@@ -3,6 +3,7 @@ package com.example.pbsm3.model.service.repository
 import android.util.Log
 import com.example.pbsm3.model.NewCategory
 import com.example.pbsm3.model.service.dataSource.DataSource
+import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,11 +40,17 @@ class CategoryRepository @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    override fun updateLocalData(item: NewCategory) {
+        val oldCat = getByRef(item.id)
+        val oldCatIndex = categories.indexOf(oldCat)
+        categories[oldCatIndex] = item
+    }
+
     override suspend fun updateData(item: NewCategory, onError:(Exception)->Unit) {
         try {
             categoryDataSource.update(item)
         } catch (ex: Exception) {
-            Log.d(TAG, "error at CategoryRepository::saveData:String")
+            Log.d(TAG, "error at CategoryRepository::updateData")
             onError(ex)
         }
     }
@@ -56,4 +63,12 @@ class CategoryRepository @Inject constructor(
             onError(ex)
             ""
         }
+
+    override fun getListByDate(date: LocalDate): List<NewCategory> {
+        return categories.filter { it.date.month == date.month && it.date.year == date.year }
+    }
+
+    override fun getByRef(ref: String): NewCategory {
+        return categories.first { it.id == ref }
+    }
 }

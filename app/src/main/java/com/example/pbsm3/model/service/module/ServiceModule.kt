@@ -1,9 +1,6 @@
 package com.example.pbsm3.model.service.module
 
-import com.example.pbsm3.model.Account
-import com.example.pbsm3.model.NewBudgetItem
-import com.example.pbsm3.model.NewCategory
-import com.example.pbsm3.model.Transaction
+import com.example.pbsm3.model.*
 import com.example.pbsm3.model.service.*
 import com.example.pbsm3.model.service.dataSource.*
 import com.example.pbsm3.model.service.implementation.AccountServiceImpl
@@ -35,6 +32,8 @@ abstract class ServiceModule {
     abstract fun provideTransactionDataSource(transDS:TransactionDataSource):DataSource<Transaction>
     @Binds
     abstract fun provideBudgetItemDataSource(itemDS:BudgetItemDataSource):DataSource<NewBudgetItem>
+    @Binds
+    abstract fun provideAvailableDataSource(avaDS:AvailableDataSource):DataSource<Available>
 
     @Binds
     abstract fun provideAccountRepository(accRepo:AccountRepository):Repository<Account>
@@ -44,6 +43,8 @@ abstract class ServiceModule {
     abstract fun provideTransactionRepository(transRepo:TransactionRepository):Repository<Transaction>
     @Binds
     abstract fun provideBudgetItemRepository(itemRepo:BudgetItemRepository):Repository<NewBudgetItem>
+    @Binds
+    abstract fun provideAvailableRepository(avaRepo:AvailableRepository):Repository<Available>
 
     /*@Binds
     abstract fun provideConfigurationService(impl: ConfigurationServiceImpl): ConfigurationService*/

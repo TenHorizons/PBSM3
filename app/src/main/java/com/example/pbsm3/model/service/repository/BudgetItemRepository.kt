@@ -3,6 +3,7 @@ package com.example.pbsm3.model.service.repository
 import android.util.Log
 import com.example.pbsm3.model.NewBudgetItem
 import com.example.pbsm3.model.service.dataSource.DataSource
+import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,6 +39,12 @@ class BudgetItemRepository @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    override fun updateLocalData(item: NewBudgetItem) {
+        val oldItem = getByRef(item.id)
+        val oldItemIndex = budgetItems.indexOf(oldItem)
+        budgetItems[oldItemIndex] = item
+    }
+
     override suspend fun updateData(item: NewBudgetItem, onError:(Exception)->Unit) =
         budgetItemDataSource.update(item)
 
@@ -49,4 +56,12 @@ class BudgetItemRepository @Inject constructor(
             onError(ex)
             ""
         }
+
+    override fun getListByDate(date: LocalDate): List<NewBudgetItem> {
+        return budgetItems.filter { it.date.month == date.month && it.date.year == date.year }
+    }
+
+    override fun getByRef(ref: String): NewBudgetItem {
+        return budgetItems.first { it.id == ref }
+    }
 }

@@ -7,9 +7,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
 
-@HiltAndroidApp
-//https://stackoverflow.com/questions/71239101/how-to-listen-for-lifecycle-in-jetpack-compose
 
+//https://stackoverflow.com/questions/71239101/how-to-listen-for-lifecycle-in-jetpack-compose
+@HiltAndroidApp
 class HiltApp : Application(), LifecycleObserver{
     override fun onCreate() {
         super.onCreate()

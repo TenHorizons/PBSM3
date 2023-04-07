@@ -1,6 +1,8 @@
 package com.example.pbsm3.data
 
 import com.example.pbsm3.model.*
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 
@@ -12,6 +14,21 @@ fun getFirstDayOfMonth(date: LocalDate): LocalDate {
     return date.with(TemporalAdjusters.firstDayOfMonth())
 }
 
+/**Meant for displaying purposes only.*/
+fun BigDecimal.displayTwoDecimal(): BigDecimal =
+    this.setScale(2, RoundingMode.HALF_UP)
+fun NewCategory.getAvailable():BigDecimal =
+    this.totalCarryover.plus(this.totalBudgeted).plus(this.totalExpenses)
+fun NewBudgetItem.getAvailable():BigDecimal =
+    this.totalCarryover.plus(this.totalBudgeted).plus(this.totalExpenses)
+fun BigDecimal.isZero():Boolean =
+    this.compareTo(BigDecimal.ZERO)==0
+fun BigDecimal.isLessThanZero(): Boolean =
+    this.compareTo(BigDecimal.ZERO)==-1
+fun BigDecimal.toDigitString():String =
+    this.multiply(BigDecimal("100")).toInt().toString()
+fun String.fromDigitString():BigDecimal =
+    BigDecimal(this).divide(BigDecimal("100"))
 
 val defaultAccount = Account(name = "Maybank")
 

@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.pbsm3.data.defaultBudget
 import com.example.pbsm3.ui.screens.accountTransactions.AccountTransactionsScreen
 import com.example.pbsm3.ui.screens.accounts.AccountsScreen
 import com.example.pbsm3.ui.screens.addAccount.AddAccountScreen
@@ -67,8 +66,7 @@ fun NavHostBuilder(
         }
         composable(route = Screen.Budget.name) {
             BudgetScreen(
-                budget = defaultBudget,
-                date = selectedDate,
+                selectedDate = selectedDate,
                 onItemClicked = { _, budgetItem ->
                     onTopBarChange(budgetItem.name)
                     onScreenChange(Screen.BudgetItem)
