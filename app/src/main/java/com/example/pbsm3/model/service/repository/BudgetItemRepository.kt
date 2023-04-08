@@ -1,7 +1,7 @@
 package com.example.pbsm3.model.service.repository
 
 import android.util.Log
-import com.example.pbsm3.model.NewBudgetItem
+import com.example.pbsm3.model.BudgetItem
 import com.example.pbsm3.model.service.dataSource.DataSource
 import java.time.LocalDate
 import javax.inject.Inject
@@ -11,9 +11,9 @@ private const val TAG = "BudgetItemRepository"
 
 @Singleton
 class BudgetItemRepository @Inject constructor(
-    private val budgetItemDataSource: DataSource<NewBudgetItem>
-):Repository<NewBudgetItem> {
-    var budgetItems:MutableList<NewBudgetItem> = mutableListOf()
+    private val budgetItemDataSource: DataSource<BudgetItem>
+):Repository<BudgetItem> {
+    var budgetItems:MutableList<BudgetItem> = mutableListOf()
 
     override suspend fun loadData(docRefs:List<String>, onError:(Exception)->Unit){
         if(docRefs.isEmpty()) {
@@ -39,16 +39,22 @@ class BudgetItemRepository @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    override fun updateLocalData(item: NewBudgetItem) {
+    override suspend fun saveLocalData(item: BudgetItem) {
+        budgetItems.add(item)
+        //TODO add a whole bunch of algorithms
+    }
+
+    override suspend fun updateLocalData(item: BudgetItem) {
         val oldItem = getByRef(item.id)
         val oldItemIndex = budgetItems.indexOf(oldItem)
         budgetItems[oldItemIndex] = item
+        //TODO add a whole bunch of algorithms
     }
 
-    override suspend fun updateData(item: NewBudgetItem, onError:(Exception)->Unit) =
+    override suspend fun updateData(item: BudgetItem, onError:(Exception)->Unit) =
         budgetItemDataSource.update(item)
 
-    override suspend fun saveData(item: NewBudgetItem, onError: (Exception) -> Unit): String =
+    override suspend fun saveData(item: BudgetItem, onError: (Exception) -> Unit): String =
         try {
             budgetItemDataSource.save(item)
         }catch (ex:Exception){
@@ -57,11 +63,11 @@ class BudgetItemRepository @Inject constructor(
             ""
         }
 
-    override fun getListByDate(date: LocalDate): List<NewBudgetItem> {
+    override fun getListByDate(date: LocalDate): List<BudgetItem> {
         return budgetItems.filter { it.date.month == date.month && it.date.year == date.year }
     }
 
-    override fun getByRef(ref: String): NewBudgetItem {
+    override fun getByRef(ref: String): BudgetItem {
         return budgetItems.first { it.id == ref }
     }
 }

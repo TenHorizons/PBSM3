@@ -22,7 +22,7 @@ class AccountDataSource @Inject constructor(
                     .addOnSuccessListener { document ->
                         val account: FirestoreAccount? = document.toObject(FirestoreAccount::class.java)
                         if (account == null) continuation.resumeWithException(
-                            NoSuchElementException("User not found"))
+                            NoSuchElementException("Account not found"))
                         else continuation.resume(toAccount(account))
                     }
                     .addOnFailureListener {

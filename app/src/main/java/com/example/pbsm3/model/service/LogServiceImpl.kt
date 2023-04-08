@@ -1,4 +1,4 @@
-package com.example.pbsm3.model.service.implementation
+package com.example.pbsm3.model.service
 
 import com.example.pbsm3.model.service.LogService
 import com.google.firebase.crashlytics.ktx.crashlytics

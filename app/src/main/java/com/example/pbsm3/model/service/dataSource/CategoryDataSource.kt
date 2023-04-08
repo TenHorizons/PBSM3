@@ -1,7 +1,7 @@
 package com.example.pbsm3.model.service.dataSource
 
 import com.example.pbsm3.model.FirestoreCategory
-import com.example.pbsm3.model.NewCategory
+import com.example.pbsm3.model.Category
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -14,8 +14,8 @@ import kotlin.coroutines.suspendCoroutine
 
 class CategoryDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
-) : DataSource<NewCategory> {
-    override suspend fun get(id: String): NewCategory =
+) : DataSource<Category> {
+    override suspend fun get(id: String): Category =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().document(id).get()
@@ -32,7 +32,7 @@ class CategoryDataSource @Inject constructor(
             }
         }
 
-    override suspend fun save(item: NewCategory): String =
+    override suspend fun save(item: Category): String =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().add(toFirestoreCategory(item))
@@ -45,7 +45,7 @@ class CategoryDataSource @Inject constructor(
             }
         }
 
-    override suspend fun update(item: NewCategory): Unit =
+    override suspend fun update(item: Category): Unit =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().document(item.id).set(toFirestoreCategory(item))
@@ -74,7 +74,7 @@ class CategoryDataSource @Inject constructor(
     private fun getCollection(): CollectionReference =
         firestore.collection(CATEGORY_COLLECTION)
 
-    private fun toFirestoreCategory(item: NewCategory): FirestoreCategory {
+    private fun toFirestoreCategory(item: Category): FirestoreCategory {
         return FirestoreCategory(
             id = item.id,
             name = item.name,
@@ -86,8 +86,8 @@ class CategoryDataSource @Inject constructor(
         )
     }
 
-    private fun toNewCategory(item: FirestoreCategory): NewCategory {
-        return NewCategory(
+    private fun toNewCategory(item: FirestoreCategory): Category {
+        return Category(
             id = item.id,
             name = item.name,
             totalCarryover = item.totalCarryover.toBigDecimal(),

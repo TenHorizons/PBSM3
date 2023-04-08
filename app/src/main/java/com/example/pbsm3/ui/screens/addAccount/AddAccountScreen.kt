@@ -13,9 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pbsm3.theme.PBSM3Theme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,8 +26,8 @@ fun AddAccountScreen(
 
     val uiState:AddAccountScreenState by viewModel.uiState
     var isError by remember { mutableStateOf(false) }
-    var errorType by remember { mutableStateOf("")}
-    val coroutineScope = rememberCoroutineScope()
+    var isAdded by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("")}
 
     Column(
         modifier = modifier.padding(12.dp),
@@ -73,37 +70,50 @@ fun AddAccountScreen(
             modifier = Modifier.fillMaxWidth() ,
             horizontalArrangement = Arrangement.End
         ){
+            var isInProgress by remember { mutableStateOf(false) }
             Button(onClick = {
-                if(uiState.accountName == "" ||
-                    (uiState.accountBalance.compareTo(BigDecimal("0")))==0){
-                    //TODO add snackbar "please input", or add animation
-                    coroutineScope.launch {
+                isInProgress = true
+                viewModel.onAddAccount(
+                    onError = {
                         isError = true
-                        errorType = "Please input values for account name and balance."
-                        delay(2000)
-                        isError = false
-                        errorType = ""
+                        errorMessage = it.toString()
+                        isInProgress = false
+                    },
+                    onComplete = {
+                        isInProgress = false
+                        isAdded = true
                     }
-                }else {
-                    viewModel.onAddAccount()
-                    onAddAccountComplete()
-                }
+                )
             }) {
-                Text("Add Account")
+                if(isInProgress){
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.background)
+                }else {
+                    Text("Add Account")
+                }
             }
         }
-        //TODO remove once snackbar added
-        if(isError){
-            Spacer(Modifier.height(8.dp))
+        if (isError || isAdded) {
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
+                colors =
+                CardDefaults.cardColors(
+                    containerColor =
+                    if (isError) MaterialTheme.colorScheme.errorContainer
+                    else MaterialTheme.colorScheme.tertiaryContainer
                 )
             ) {
-                Row(Modifier.padding(8.dp)) {
-                    Text(errorType)
+                Row(modifier = Modifier.padding(8.dp)) {
+                    Text(
+                        text =
+                        if (isError) "Error! Error Message:\n$errorMessage"
+                        else "Account Added!"
+                    )
                 }
+                viewModel.hideAfterDelay(onComplete = {
+                    if(isAdded) onAddAccountComplete()
+                    isError = false
+                    isAdded = false
+                    errorMessage = ""
+                })
             }
         }
     }

@@ -2,9 +2,9 @@ package com.example.pbsm3.ui.screens.budget
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import com.example.pbsm3.model.BudgetItem
+import com.example.pbsm3.model.Category
 import com.example.pbsm3.model.Unassigned
-import com.example.pbsm3.model.NewBudgetItem
-import com.example.pbsm3.model.NewCategory
 import com.example.pbsm3.model.service.LogService
 import com.example.pbsm3.model.service.repository.Repository
 import com.example.pbsm3.ui.screens.CommonViewModel
@@ -18,8 +18,8 @@ private const val TAG = "BudgetScreenViewModel"
 
 @HiltViewModel
 class BudgetScreenViewModel @Inject constructor(
-    private val categoryRepository: Repository<NewCategory>,
-    private val budgetItemRepository: Repository<NewBudgetItem>,
+    private val categoryRepository: Repository<Category>,
+    private val budgetItemRepository: Repository<BudgetItem>,
     private val unassignedRepository: Repository<Unassigned>,
     logService: LogService
 ) : CommonViewModel(logService) {
@@ -65,29 +65,29 @@ class BudgetScreenViewModel @Inject constructor(
             .plus(uiState.value.unassigned.totalExpenses)
 
     //returning function for now to see new values in log.
-    fun updateBudgetItem(category: NewCategory, item: NewBudgetItem) {
+    fun updateBudgetItem(category: Category, item: BudgetItem) {
         Log.d(TAG, "updateBudgetItem starting.")
         Log.d(TAG, "oldItem: $item,")
         Log.d(TAG, "category:$category,")
         Log.d(TAG, "available: ${uiState.value.unassigned}")
 
-        val oldBudgeted = budgetItemRepository.getByRef(item.id)
-        //(new - old) to get change to be reflected in category and available.
-        val changeInBudgeted = item.totalBudgeted.minus(oldBudgeted.totalBudgeted)
-        budgetItemRepository.updateLocalData(item)
-
-        val oldCatBudgeted = category.totalBudgeted
-        //TODO do I need to check for negative here? most likely,
-        // or just show red in available.
-        val newCatBudgeted = oldCatBudgeted.plus(changeInBudgeted)
-        val updatedCategory = category.copy(totalBudgeted = newCatBudgeted)
-        categoryRepository.updateLocalData(category)
-
-        val oldAvaBudgeted = uiState.value.unassigned.totalBudgeted
-        val newAvaBudgeted = oldAvaBudgeted.plus(changeInBudgeted)
-        val updatedAvailable = uiState.value.unassigned.copy(totalBudgeted = newAvaBudgeted)
-        uiState.value = uiState.value.copy(unassigned = updatedAvailable)
-        unassignedRepository.updateLocalData(updatedAvailable)
+//        val oldBudgeted = budgetItemRepository.getByRef(item.id)
+//        //(new - old) to get change to be reflected in category and available.
+//        val changeInBudgeted = item.totalBudgeted.minus(oldBudgeted.totalBudgeted)
+//        budgetItemRepository.updateLocalData(item)
+//
+//        val oldCatBudgeted = category.totalBudgeted
+//        //TODO do I need to check for negative here? most likely,
+//        // or just show red in available.
+//        val newCatBudgeted = oldCatBudgeted.plus(changeInBudgeted)
+//        val updatedCategory = category.copy(totalBudgeted = newCatBudgeted)
+//        categoryRepository.updateLocalData(category)
+//
+//        val oldAvaBudgeted = uiState.value.unassigned.totalBudgeted
+//        val newAvaBudgeted = oldAvaBudgeted.plus(changeInBudgeted)
+//        val updatedAvailable = uiState.value.unassigned.copy(totalBudgeted = newAvaBudgeted)
+//        uiState.value = uiState.value.copy(unassigned = updatedAvailable)
+//        unassignedRepository.updateLocalData(updatedAvailable)
 
         Log.d(TAG, "updateBudgetItem completed.")
         Log.d(TAG, "oldItem: $item,")

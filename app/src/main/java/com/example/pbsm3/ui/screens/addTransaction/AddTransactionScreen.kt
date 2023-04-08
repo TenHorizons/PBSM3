@@ -77,14 +77,19 @@ fun AddTransactionScreen(
                             isError = true
                             errorMessage = it.toString()
                             isInProgress = false
+                        },
+                        onComplete = {
+                            isInProgress = false
+                            isAdded = true
                         }
-                    ) {
-                        isInProgress = false
-                        isAdded = true
-                    }
+                    )
                 }
             ) {
-                Text(text = "Add Transaction")
+                if(isInProgress){
+                    CircularProgressIndicator(color = colorScheme.background)
+                }else{
+                    Text(text = "Add Transaction")
+                }
             }
         }
         if (isError || isAdded) {
@@ -93,7 +98,7 @@ fun AddTransactionScreen(
                 CardDefaults.cardColors(
                     containerColor =
                     if (isError) colorScheme.errorContainer
-                    else Green
+                    else colorScheme.tertiaryContainer
                 )
             ) {
                 Row(modifier = Modifier.padding(8.dp)) {

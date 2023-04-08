@@ -14,13 +14,13 @@ private const val TAG = "UserRepository"
 @Singleton
 class UserRepository @Inject constructor(
     private val userDataSource: UserDataSource,
-    private val categoryRepository: Repository<NewCategory>,
+    private val categoryRepository: Repository<Category>,
     private val accountRepository: Repository<Account>,
     private val transactionRepository: Repository<Transaction>,
-    private val budgetItemRepository: Repository<NewBudgetItem>,
+    private val budgetItemRepository: Repository<BudgetItem>,
     private val unassignedRepository: Repository<Unassigned>
 ) {
-    var currentUser: SignUser? = null
+    var currentUser: User? = null
 
     suspend fun isUsernameExists(username: String): Boolean {
         return userDataSource.checkIfUsernameExists(username)
@@ -139,7 +139,7 @@ class UserRepository @Inject constructor(
         val budgetItemNames:MutableList<String> = mutableListOf()
 
         withContext(NonCancellable) {
-            defaultCategoryToBudgetItemsMap.map { (category: NewCategory, itemList: List<NewBudgetItem>) ->
+            defaultCategoryToBudgetItemsMap.map { (category: Category, itemList: List<BudgetItem>) ->
                 async {
                     val dateAdjustedCategory = category.copy(date = date)
                     val dateAdjustedItems = itemList.toMutableList()
@@ -148,7 +148,6 @@ class UserRepository @Inject constructor(
                         categoryRepository.saveData(dateAdjustedCategory, onError)
                     categoryReferences.add(categoryReference)
                     categoryNames.add(dateAdjustedCategory.name)
-                    //TODO category ref is empty in firestore. fix.
                     val budgetItems = dateAdjustedItems.map { newBudgetItem ->
                         newBudgetItem.copy(
                             id = budgetItemRepository.saveData(
@@ -185,7 +184,7 @@ class UserRepository @Inject constructor(
         try{
             userDataSource.updateUser(currentUser!!)
         }catch (ex: Exception){
-            Log.d(TAG, "error at UserRepository::userDataSource.updateUser()")
+            Log.e(TAG, "error at UserRepository::userDataSource.updateUser()")
             onError(ex)
         }
 
@@ -209,6 +208,13 @@ class UserRepository @Inject constructor(
     fun getAccountNames(): List<String> = currentUser!!.accountNames
 
     fun getBudgetItemNames():List<String> = currentUser!!.budgetItemNames
+    suspend fun addNewAccount(account: Account) {
+        currentUser = currentUser!!.copy(
+            accountRefs = currentUser!!.accountRefs + account.id,
+            accountNames = currentUser!!.accountNames + account.name
+        )
+        userDataSource.updateUser(currentUser!!)
+    }
 
 //__________________________________________________________________    
 

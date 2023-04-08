@@ -1,7 +1,7 @@
 package com.example.pbsm3.model.service.dataSource
 
 import com.example.pbsm3.model.FirestoreBudgetItem
-import com.example.pbsm3.model.NewBudgetItem
+import com.example.pbsm3.model.BudgetItem
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -14,8 +14,8 @@ import kotlin.coroutines.suspendCoroutine
 
 class BudgetItemDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
-): DataSource<NewBudgetItem> {
-    override suspend fun get(id: String): NewBudgetItem =
+): DataSource<BudgetItem> {
+    override suspend fun get(id: String): BudgetItem =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().document(id).get()
@@ -34,7 +34,7 @@ class BudgetItemDataSource @Inject constructor(
             }
         }
 
-    override suspend fun save(item: NewBudgetItem): String =
+    override suspend fun save(item: BudgetItem): String =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().add(toFirestoreBudgetItem(item))
@@ -47,7 +47,7 @@ class BudgetItemDataSource @Inject constructor(
             }
         }
 
-    override suspend fun update(item: NewBudgetItem): Unit =
+    override suspend fun update(item: BudgetItem): Unit =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().document(item.id).set(toFirestoreBudgetItem(item))
@@ -76,7 +76,7 @@ class BudgetItemDataSource @Inject constructor(
     private fun getCollection(): CollectionReference =
         firestore.collection(BUDGET_ITEM_COLLECTION)
 
-    private fun toFirestoreBudgetItem(item:NewBudgetItem):FirestoreBudgetItem{
+    private fun toFirestoreBudgetItem(item:BudgetItem):FirestoreBudgetItem{
         return FirestoreBudgetItem(
             id = item.id,
             name = item.name,
@@ -88,8 +88,8 @@ class BudgetItemDataSource @Inject constructor(
         )
     }
 
-    private fun toNewBudgetItem(item:FirestoreBudgetItem):NewBudgetItem{
-        return NewBudgetItem(
+    private fun toNewBudgetItem(item:FirestoreBudgetItem):BudgetItem{
+        return BudgetItem(
             id = item.id,
             name = item.name,
             totalCarryover = item.totalCarryover.toBigDecimal(),

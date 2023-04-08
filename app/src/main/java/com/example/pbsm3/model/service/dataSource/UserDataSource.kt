@@ -1,7 +1,7 @@
 package com.example.pbsm3.model.service.dataSource
 
 import android.util.Log
-import com.example.pbsm3.model.SignUser
+import com.example.pbsm3.model.User
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +23,7 @@ class UserDataSource @Inject constructor(
                 try {
                     getCollection().whereEqualTo("username", username).get()
                         .addOnSuccessListener { documents ->
-                            val list: List<SignUser> = documents.toObjects(SignUser::class.java)
+                            val list: List<User> = documents.toObjects(User::class.java)
                             Log.d(TAG, "users: $list")
                             if (list.isNotEmpty()) {
                                 continuation.resume(true)
@@ -40,14 +40,14 @@ class UserDataSource @Inject constructor(
             }
         }
 
-    suspend fun signInUser(username: String, password: String): SignUser =
+    suspend fun signInUser(username: String, password: String): User =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().whereEqualTo("username", username)
                     .whereEqualTo("password", password)
                     .get()
                     .addOnSuccessListener { documents ->
-                        val list: List<SignUser> = documents.toObjects(SignUser::class.java)
+                        val list: List<User> = documents.toObjects(User::class.java)
                         Log.d(TAG, "users: $list")
                         if (list.isNotEmpty()) {
                             continuation.resume(list[0])
@@ -62,10 +62,10 @@ class UserDataSource @Inject constructor(
             }
         }
 
-    suspend fun signUpUser(username: String, password: String): SignUser =
+    suspend fun signUpUser(username: String, password: String): User =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
-                val user = SignUser(
+                val user = User(
                     username = username,
                     password = password
                 )
@@ -81,7 +81,7 @@ class UserDataSource @Inject constructor(
             }
         }
 
-    suspend fun updateUser(currentUser: SignUser) =
+    suspend fun updateUser(currentUser: User) =
         withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
                 getCollection().document(currentUser.id).set(currentUser)

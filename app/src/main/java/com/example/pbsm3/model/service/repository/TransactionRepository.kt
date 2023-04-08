@@ -43,10 +43,16 @@ class TransactionRepository @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    override fun updateLocalData(item: Transaction) {
+    override suspend fun saveLocalData(item: Transaction) {
+        transactions.add(item)
+        //TODO add a whole bunch of algorithm
+    }
+
+    override suspend fun updateLocalData(item: Transaction) {
         val oldTrans = getByRef(item.id)
         val oldTransIndex = transactions.indexOf(oldTrans)
         transactions[oldTransIndex] = item
+        //TODO add a whole bunch of algorithm
     }
 
     override suspend fun updateData(item: Transaction, onError:(Exception)->Unit) =

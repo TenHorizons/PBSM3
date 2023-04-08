@@ -26,8 +26,8 @@ class AccountRepository @Inject constructor(
                 accounts.add(account)
             }
             catch (ex:Exception){
-                Log.d(TAG, "error at AccountRepository::loadAccounts")
-                Log.d(TAG, "Exception: $ex")
+                Log.e(TAG, "error at AccountRepository::loadAccounts")
+                Log.e(TAG, "Exception: $ex")
                 onError(ex)
             }
         }
@@ -38,7 +38,11 @@ class AccountRepository @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    override fun updateLocalData(item: Account) {
+    override suspend fun saveLocalData(item: Account) {
+        accounts.add(item)
+    }
+
+    override suspend fun updateLocalData(item: Account) {
         val oldAcc = getByRef(item.id)
         val oldAccIndex = accounts.indexOf(oldAcc)
         accounts[oldAccIndex] = item
@@ -51,7 +55,7 @@ class AccountRepository @Inject constructor(
         try {
             accountDataSource.save(item)
         }catch (ex:Exception){
-            Log.d(TAG, "error at CategoryRepository::saveData:String")
+            Log.e(TAG, "error at CategoryRepository::saveData:String")
             onError(ex)
             ""
         }

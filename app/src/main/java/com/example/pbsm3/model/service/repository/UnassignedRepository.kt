@@ -1,6 +1,7 @@
 package com.example.pbsm3.model.service.repository
 
 import android.util.Log
+import com.example.pbsm3.data.getCarryover
 import com.example.pbsm3.model.Unassigned
 import com.example.pbsm3.model.service.dataSource.DataSource
 import java.time.LocalDate
@@ -12,7 +13,7 @@ private const val TAG = "AvailableRepository"
 @Singleton
 class UnassignedRepository @Inject constructor(
     private val unassignedDataSource: DataSource<Unassigned>
-):Repository<Unassigned> {
+):Repository<Unassigned>,Carryover<Unassigned> {
 
     var unassigned:MutableList<Unassigned> = mutableListOf()
 
@@ -39,10 +40,15 @@ class UnassignedRepository @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    override fun updateLocalData(item: Unassigned) {
+    override suspend fun saveLocalData(item: Unassigned) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateLocalData(item: Unassigned) {
         val oldAva = getByRef(item.id)
         val oldAvaIndex = unassigned.indexOf(oldAva)
         unassigned[oldAvaIndex] = item
+        //TODO add a whole bunch of algorithm
     }
 
     override fun getListByDate(date: LocalDate): List<Unassigned> {
@@ -74,4 +80,60 @@ class UnassignedRepository @Inject constructor(
             ""
         }
 
+    override suspend fun createNewItem(item: Unassigned) {
+        val list: MutableList<Unassigned> = unassigned.toMutableList()
+        if (list.any { it.date == item.date })
+            throw IllegalStateException("Unassigned already exists!")
+        list.sortBy { it.date }
+        val lastDate = list.last().date
+        if (lastDate > item.date)
+            throw IllegalStateException(
+                "latest Unassigned has newer date!"
+            )
+        val updatedUnassigned = item.linkItems(lastDate)
+        saveData(updatedUnassigned, onError = {
+            throw java.lang.RuntimeException(
+                "could not save updated Unassigned to database."
+            )
+        })
+    }
+
+    override suspend fun processModifiedItem(item: Unassigned) {
+        TODO("Not yet implemented")
+    }
+
+    private suspend fun Unassigned.linkItems(
+        lastDate: LocalDate
+    ):Unassigned {
+        var lastD = lastDate
+        lastD = lastD.plusMonths(1)
+        while (lastD < this.date) {
+            val unassigned = Unassigned(date = lastD).calculateCarryover()
+            saveData(unassigned, onError = {
+                throw RuntimeException(
+                    "failed to save unassigned to firestore."
+                )
+            })
+            lastD.plusMonths(1)
+        }
+        return this.getRefBySaving().calculateCarryover()
+    }
+
+    private suspend fun Unassigned.getRefBySaving():Unassigned{
+        val unassignedRef = saveData(this, onError = {
+            throw RuntimeException(
+                "failed to save unassigned to firestore."
+            )
+        })
+        return this.copy(id = unassignedRef)
+    }
+
+    private suspend fun Unassigned.calculateCarryover():Unassigned{
+        val list = unassigned
+        list.sortBy { it.date }
+        val oldCarryover = this.totalCarryover
+        val lastCarryover = list.last().getCarryover()
+        val updatedCarryover = oldCarryover.plus(lastCarryover)
+        return this.copy(totalCarryover = updatedCarryover)
+    }
 }

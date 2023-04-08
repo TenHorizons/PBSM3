@@ -1,34 +1,86 @@
 package com.example.pbsm3.data
 
-import com.example.pbsm3.model.*
-import java.math.BigDecimal
-import java.math.RoundingMode
+import com.example.pbsm3.model.Account
+import com.example.pbsm3.model.BudgetItem
+import com.example.pbsm3.model.Category
+import com.example.pbsm3.model.Transaction
 import java.time.LocalDate
-import java.time.temporal.TemporalAdjusters
 
-fun getFirstDayOfMonth(): LocalDate {
-    return LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
-}
+val defaultCategoryNames = listOf(
+    "Immediate Obligations",
+    "True Expenses",
+    "Debt Payments",
+    "Quality of Life Goals",
+    "Just for Fun"
+)
 
-fun getFirstDayOfMonth(date: LocalDate): LocalDate {
-    return date.with(TemporalAdjusters.firstDayOfMonth())
-}
+val defaultBudgetItemNames = listOf(
+    "Groceries&Laundry", "Internet",
+    "Electric", "Water",
+    "Rent/Mortgage", "Monthly Software Subscriptions", "Interest & Fees",
 
-/**Meant for displaying purposes only.*/
-fun BigDecimal.displayTwoDecimal(): BigDecimal =
-    this.setScale(2, RoundingMode.HALF_UP)
-fun NewCategory.getAvailable():BigDecimal =
-    this.totalCarryover.plus(this.totalBudgeted).plus(this.totalExpenses)
-fun NewBudgetItem.getAvailable():BigDecimal =
-    this.totalCarryover.plus(this.totalBudgeted).plus(this.totalExpenses)
-fun BigDecimal.isZero():Boolean =
-    this.compareTo(BigDecimal.ZERO)==0
-fun BigDecimal.isLessThanZero(): Boolean =
-    this.compareTo(BigDecimal.ZERO)==-1
-fun BigDecimal.toDigitString():String =
-    this.multiply(BigDecimal("100")).toInt().toString()
-fun String.fromDigitString():BigDecimal =
-    BigDecimal(this).divide(BigDecimal("100"))
+    "Emergency Fund", "Auto Maintenance",
+    "Home Maintenance", "Renter's/Home Insurance",
+    "Medical", "Clothing",
+    "Gifts", "Computer Replacement",
+    "Annual Software Subscriptions",
+    "Stuff I Forgot to Budget For",
+
+    "Student Loan", "Auto Loan",
+
+    "Investments", "Vacation",
+    "Fitness", "Education",
+
+    "Dining Out", "Gaming",
+    "Music", "Fun Money"
+)
+
+/**Double check if correct*/
+val defaultCategoryToItemNamesMap = mapOf(
+    defaultCategoryNames[0] to listOf(
+        defaultBudgetItemNames[0],
+        defaultBudgetItemNames[1],
+        defaultBudgetItemNames[2],
+        defaultBudgetItemNames[3],
+        defaultBudgetItemNames[4],
+        defaultBudgetItemNames[5],
+        defaultBudgetItemNames[6]
+    ),
+    defaultCategoryNames[1] to listOf(
+        defaultBudgetItemNames[7],
+        defaultBudgetItemNames[8],
+        defaultBudgetItemNames[9],
+        defaultBudgetItemNames[10],
+        defaultBudgetItemNames[11],
+        defaultBudgetItemNames[12],
+        defaultBudgetItemNames[13],
+        defaultBudgetItemNames[14],
+        defaultBudgetItemNames[15],
+        defaultBudgetItemNames[16]
+    ),
+    defaultCategoryNames[2] to listOf(
+        defaultBudgetItemNames[17],
+        defaultBudgetItemNames[18]
+    ),
+    defaultCategoryNames[3] to listOf(
+        defaultBudgetItemNames[19],
+        defaultBudgetItemNames[20],
+        defaultBudgetItemNames[21],
+        defaultBudgetItemNames[22]
+    ),
+    defaultCategoryNames[4] to listOf(
+        defaultBudgetItemNames[23],
+        defaultBudgetItemNames[24],
+        defaultBudgetItemNames[25],
+        defaultBudgetItemNames[26]
+    )
+)
+
+const val ALL_ACCOUNTS = "All Account"
+
+const val UNASSIGNED = "Unassigned"
+
+//to remove___________________________________________
 
 val defaultAccount = Account(name = "Maybank")
 
@@ -37,46 +89,7 @@ val defaultAccounts = listOf(
     Account(name = "CIMB Bank"),
     Account(name = "Public Bank")
 )
-val defaultNewCategory = NewCategory(name = "Immediate Obligations")
-val defaultNewCategories = listOf(
-    defaultNewCategory,
-    NewCategory(name = "True Expenses", ),
-    NewCategory(name = "Debt Payments"),
-    NewCategory(name = "Quality of Life Goals"),
-    NewCategory(name = "Just for Fun")
-)
 
-val defaultNewBudgetItem = NewBudgetItem(name = "Groceries&Laundry")
-
-val defaultNewBudgetItems = listOf(
-    defaultNewBudgetItem,
-    NewBudgetItem(name = "Internet"),
-    NewBudgetItem(name = "Electric"),
-    NewBudgetItem(name = "Water"),
-    NewBudgetItem(name = "Rent/Mortgage"),
-    NewBudgetItem(name = "Monthly Software Subscriptions"),
-    NewBudgetItem(name = "Interest & Fees"),
-    NewBudgetItem(name = "Emergency Fund"),
-    NewBudgetItem(name = "Auto Maintenance"),
-    NewBudgetItem(name = "Home Maintenance"),
-    NewBudgetItem(name = "Renter's/Home Insurance"),
-    NewBudgetItem(name = "Medical"),
-    NewBudgetItem(name = "Clothing"),
-    NewBudgetItem(name = "Gifts"),
-    NewBudgetItem(name = "Computer Replacement"),
-    NewBudgetItem(name = "Annual Software Subscriptions"),
-    NewBudgetItem(name = "Stuff I Forgot to Budget For"),
-    NewBudgetItem(name = "Student Loan"),
-    NewBudgetItem(name = "Auto Loan"),
-    NewBudgetItem(name = "Investments"),
-    NewBudgetItem(name = "Vacation"),
-    NewBudgetItem(name = "Fitness"),
-    NewBudgetItem(name = "Education"),
-    NewBudgetItem(name = "Dining Out"),
-    NewBudgetItem(name = "Gaming"),
-    NewBudgetItem(name = "Music"),
-    NewBudgetItem(name = "Fun Money")
-)
 
 val defaultTransactions: List<Transaction> =
     defaultAccounts.map {
@@ -91,131 +104,81 @@ val defaultTransactions: List<Transaction> =
     }.flatten()
 
 
-//There shouldn't be a default map, because user
-// shouldn't have default accounts nor transactions.
-//val defaultAccountsToTransactionsMap = mapOf(
-//    defaultAccounts[0] to listOf(defaultTransactions[0],defaultTransactions[1]),
-//    defaultAccounts[1] to listOf(defaultTransactions[2],defaultTransactions[3]),
-//    defaultAccounts[2] to listOf(defaultTransactions[4],defaultTransactions[5])
-//)
+val defaultCategory = Category(name = "Immediate Obligations")
+val defaultNewCategories = listOf(
+    defaultCategory,
+    Category(name = "True Expenses"),
+    Category(name = "Debt Payments"),
+    Category(name = "Quality of Life Goals"),
+    Category(name = "Just for Fun")
+)
+val defaultBudgetItem = BudgetItem(name = "Groceries&Laundry")
+val defaultBudgetItems = listOf(
+    defaultBudgetItem,
+    BudgetItem(name = "Internet"),
+    BudgetItem(name = "Electric"),
+    BudgetItem(name = "Water"),
+    BudgetItem(name = "Rent/Mortgage"),
+    BudgetItem(name = "Monthly Software Subscriptions"),
+    BudgetItem(name = "Interest & Fees"),
+    BudgetItem(name = "Emergency Fund"),
+    BudgetItem(name = "Auto Maintenance"),
+    BudgetItem(name = "Home Maintenance"),
+    BudgetItem(name = "Renter's/Home Insurance"),
+    BudgetItem(name = "Medical"),
+    BudgetItem(name = "Clothing"),
+    BudgetItem(name = "Gifts"),
+    BudgetItem(name = "Computer Replacement"),
+    BudgetItem(name = "Annual Software Subscriptions"),
+    BudgetItem(name = "Stuff I Forgot to Budget For"),
+    BudgetItem(name = "Student Loan"),
+    BudgetItem(name = "Auto Loan"),
+    BudgetItem(name = "Investments"),
+    BudgetItem(name = "Vacation"),
+    BudgetItem(name = "Fitness"),
+    BudgetItem(name = "Education"),
+    BudgetItem(name = "Dining Out"),
+    BudgetItem(name = "Gaming"),
+    BudgetItem(name = "Music"),
+    BudgetItem(name = "Fun Money")
+)
 
-val defaultCategoryToBudgetItemsMap:Map<NewCategory,List<NewBudgetItem>> = mapOf(
+val defaultCategoryToBudgetItemsMap:Map<Category,List<BudgetItem>> = mapOf(
     defaultNewCategories[0] to listOf(
-        defaultNewBudgetItems[0],
-        defaultNewBudgetItems[1],
-        defaultNewBudgetItems[2],
-        defaultNewBudgetItems[3],
-        defaultNewBudgetItems[4],
-        defaultNewBudgetItems[5],
-        defaultNewBudgetItems[6]
+        defaultBudgetItems[0],
+        defaultBudgetItems[1],
+        defaultBudgetItems[2],
+        defaultBudgetItems[3],
+        defaultBudgetItems[4],
+        defaultBudgetItems[5],
+        defaultBudgetItems[6]
     ),
     defaultNewCategories[1] to listOf(
-        defaultNewBudgetItems[7],
-        defaultNewBudgetItems[8],
-        defaultNewBudgetItems[9],
-        defaultNewBudgetItems[10],
-        defaultNewBudgetItems[11],
-        defaultNewBudgetItems[12],
-        defaultNewBudgetItems[13],
-        defaultNewBudgetItems[14],
-        defaultNewBudgetItems[15],
-        defaultNewBudgetItems[16]
+        defaultBudgetItems[7],
+        defaultBudgetItems[8],
+        defaultBudgetItems[9],
+        defaultBudgetItems[10],
+        defaultBudgetItems[11],
+        defaultBudgetItems[12],
+        defaultBudgetItems[13],
+        defaultBudgetItems[14],
+        defaultBudgetItems[15],
+        defaultBudgetItems[16]
     ),
     defaultNewCategories[2] to listOf(
-        defaultNewBudgetItems[17],
-        defaultNewBudgetItems[18]
+        defaultBudgetItems[17],
+        defaultBudgetItems[18]
     ),
     defaultNewCategories[3] to listOf(
-        defaultNewBudgetItems[19],
-        defaultNewBudgetItems[20],
-        defaultNewBudgetItems[21],
-        defaultNewBudgetItems[22]
+        defaultBudgetItems[19],
+        defaultBudgetItems[20],
+        defaultBudgetItems[21],
+        defaultBudgetItems[22]
     ),
     defaultNewCategories[4] to listOf(
-        defaultNewBudgetItems[23],
-        defaultNewBudgetItems[24],
-        defaultNewBudgetItems[25],
-        defaultNewBudgetItems[26]
+        defaultBudgetItems[23],
+        defaultBudgetItems[24],
+        defaultBudgetItems[25],
+        defaultBudgetItems[26]
     ),
 )
-
-//_______________________________________________________________________
-
-fun setDate(oldDate: LocalDate, newDate: LocalDate): LocalDate {
-    return oldDate
-        .withYear(newDate.year)
-        .withMonth(newDate.monthValue)
-        .withDayOfMonth(newDate.dayOfMonth)
-}
-
-val defaultBudgetItem = BudgetItem("Groceries&Laundry")
-
-val defaultCategories = listOf(
-    Category(
-        name = "Immediate Obligations",
-        items = listOf(
-            BudgetItem("Groceries&Laundry"),
-            BudgetItem("Internet"),
-            BudgetItem("Electric"),
-            BudgetItem("Water"),
-            BudgetItem("Rent/Mortgage"),
-            BudgetItem("Monthly Software Subscriptions"),
-            BudgetItem("Interest & Fees")
-        )
-    ),
-    Category(
-        name = "True Expenses",
-        items = listOf(
-            BudgetItem("Emergency Fund"),
-            BudgetItem("Auto Maintenance"),
-            BudgetItem("Home Maintenance"),
-            BudgetItem("Renter's/Home Insurance"),
-            BudgetItem("Medical"),
-            BudgetItem("Clothing"),
-            BudgetItem("Gifts"),
-            BudgetItem("Computer Replacement"),
-            BudgetItem("Annual Software Subscriptions"),
-            BudgetItem("Stuff I Forgot to Budget For"),
-        )
-    ),
-    Category(
-        name = "Debt Payments",
-        items = listOf(
-            BudgetItem("Student Loan"),
-            BudgetItem("Auto Loan")
-        )
-    ),
-    Category(
-        name = "Quality of Life Goals",
-        items = listOf(
-            BudgetItem("Investments"),
-            BudgetItem("Vacation"),
-            BudgetItem("Fitness"),
-            BudgetItem("Education")
-        )
-    ),
-    Category(
-        name = "Just for Fun",
-        items = listOf(
-            BudgetItem("Dining Out"),
-            BudgetItem("Gaming"),
-            BudgetItem("Music"),
-            BudgetItem("Fun Money")
-        )
-    )
-)
-
-/**Remember to check if current month exists
- * before using default monthly budget*/
-val defaultMonthlyBudget = mapOf(
-    getFirstDayOfMonth() to defaultCategories
-)
-
-/**Ensure budget names do not repeat in an account.*/
-val defaultBudget = Budget(
-    name = "Default Budget",
-    monthlyBudgets = defaultMonthlyBudget
-)
-
-
-const val ALL_ACCOUNTS = "All Account"

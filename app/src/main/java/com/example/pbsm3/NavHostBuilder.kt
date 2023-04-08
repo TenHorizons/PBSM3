@@ -94,21 +94,20 @@ fun NavHostBuilder(
 
         composable(route = Screen.Accounts.name) {
             AccountsScreen(
-                onAccountClicked = { name ->
-                    onTopBarChange(name)
+                onAccountClicked = { account ->
+                    onTopBarChange(account.name)
                     onScreenChange(Screen.AccountTransactions)
-                    appState.navigate("${Screen.AccountTransactions.name}/$name")
+                    appState.navigate("${Screen.AccountTransactions.name}/${account.id}")
                 },
                 onBackPressed = { appState.onBackPressed(Screen.Accounts, onScreenChange) }
             )
         }
 
         composable(
-            //TODO: convert to Firebase doc ID
-            route = "${Screen.AccountTransactions.name}/{accountName}"
+            route = "${Screen.AccountTransactions.name}/{accountRef}"
         ) {
             AccountTransactionsScreen(
-                accountName = it.arguments?.getString("accountName") ?: "",
+                accountRef = it.arguments?.getString("accountRef") ?: "",
                 onBackPressed = {
                     appState.onBackPressed(
                         Screen.AccountTransactions, onScreenChange)
@@ -119,7 +118,10 @@ fun NavHostBuilder(
         composable(route = Screen.AddAccountScreen.name) {
             AddAccountScreen(
                 onBackPressed = { appState.onBackPressed(Screen.AddAccountScreen, onScreenChange) },
-                onAddAccountComplete = { appState.navigate(Screen.Accounts.name) }
+                onAddAccountComplete = {
+                    onScreenChange(Screen.Accounts)
+                    appState.navigate(Screen.Accounts.name)
+                }
             )
         }
     }

@@ -7,8 +7,9 @@ interface Repository<T> {
     suspend fun saveData()
     /**Saves a single item to Firebase. Return document reference id.*/
     suspend fun saveData(item:T, onError:(Exception)->Unit):String
+    suspend fun saveLocalData(item:T)
     suspend fun updateData(item:T, onError:(Exception)->Unit)
-    fun updateLocalData(item:T)
+    suspend fun updateLocalData(item:T)
     /**Returns a list of items of type T for the repository.
      * For available, should only return 1 element. Check and
      * handle exception if this is not the case.*/

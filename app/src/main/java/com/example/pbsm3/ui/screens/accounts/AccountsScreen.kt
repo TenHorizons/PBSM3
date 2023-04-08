@@ -7,14 +7,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pbsm3.data.ALL_ACCOUNTS
+import com.example.pbsm3.data.displayTwoDecimal
 import com.example.pbsm3.model.Account
 import com.example.pbsm3.theme.PBSM3Theme
 import com.maxkeppeker.sheets.core.icons.filled.ChevronRight
@@ -25,11 +28,32 @@ private const val TAG = "AccountsScreen"
 fun AccountsScreen(
     modifier: Modifier = Modifier,
     viewModel: AccountScreenViewModel = hiltViewModel(),
-    onAccountClicked:(String)->Unit = {},
+    onAccountClicked:(Account)->Unit = {},
     onBackPressed:()->Unit ={}
 ) {
     BackHandler(onBack = onBackPressed)
+    Log.d(TAG,"account screen starting. loading accounts.")
+    viewModel.readAccountRepository()
+    Log.d(TAG,"accounts loaded: ${viewModel.uiState.value.accounts}")
     val uiState by viewModel.uiState
+    if(uiState.accounts.isEmpty()){
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.fillMaxHeight(0.3F))
+            Text(
+                modifier = Modifier
+                    .padding(12.dp)
+                    .fillMaxSize(),
+                text = "No Accounts!\nAdd Account Now!",
+                style = typography.headlineMedium,
+                textAlign = TextAlign.Center
+            )
+        }
+        return
+    }
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.padding(8.dp)
@@ -37,7 +61,10 @@ fun AccountsScreen(
         item {
             AllAccountTransactions(onClick = {
                 Log.d(TAG, "All accounts card/button clicked.")
-                onAccountClicked(ALL_ACCOUNTS)
+                onAccountClicked(Account(
+                    id = ALL_ACCOUNTS,
+                    name = ALL_ACCOUNTS
+                ))
             })
         }
         items(viewModel.getAccounts()) {
@@ -45,8 +72,8 @@ fun AccountsScreen(
                 account = it,
                 onClick = { account ->
                     Log.d(TAG, "account ${account.name} card/button clicked.")
-                    //TODO: convert this to Firebase doc ID
-                    onAccountClicked(account.name)
+
+                    onAccountClicked(account)
                 }
             )
         }
@@ -103,9 +130,7 @@ fun IndividualAccount(
             Column {
                 Text("Balance:")
                 Text(
-                    text = "RM${
-                        String.format("%.2f",account.balance)
-                    }")
+                    text = "RM${account.balance.displayTwoDecimal()}")
             }
             Spacer(Modifier.padding(horizontal = 8.dp))
             FilledIconButton(

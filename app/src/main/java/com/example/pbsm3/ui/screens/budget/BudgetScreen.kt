@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pbsm3.data.*
-import com.example.pbsm3.model.NewBudgetItem
-import com.example.pbsm3.model.NewCategory
+import com.example.pbsm3.model.BudgetItem
+import com.example.pbsm3.model.Category
 import com.example.pbsm3.theme.PBSM3Theme
 import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import java.math.BigDecimal
@@ -39,7 +39,7 @@ fun BudgetScreen(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     viewModel: BudgetScreenViewModel = hiltViewModel(),
-    onItemClicked: (NewCategory, NewBudgetItem) -> Unit = { _, _ -> },
+    onItemClicked: (Category, BudgetItem) -> Unit = { _, _ -> },
     onBackPressed: () -> Unit = {}
 ) {
 //TODO deal with budget name eventually
@@ -106,10 +106,10 @@ fun AvailableToBudgetRow(
 
 @Composable
 fun CategoryCard(
-    category: NewCategory,
-    onItemClicked: (NewCategory, NewBudgetItem) -> Unit,
-    onItemChanged: (NewCategory, NewBudgetItem) -> Unit,
-    onGettingCategoryItems: (NewCategory) -> List<NewBudgetItem>
+    category: Category,
+    onItemClicked: (Category, BudgetItem) -> Unit,
+    onItemChanged: (Category, BudgetItem) -> Unit,
+    onGettingCategoryItems: (Category) -> List<BudgetItem>
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -169,9 +169,9 @@ fun CategoryCard(
 
 @Composable
 fun BudgetItemRow(
-    budgetItems: List<NewBudgetItem>,
-    onBudgetItemChanged: (NewBudgetItem) -> Unit,
-    onItemClicked: (NewBudgetItem) -> Unit
+    budgetItems: List<BudgetItem>,
+    onBudgetItemChanged: (BudgetItem) -> Unit,
+    onItemClicked: (BudgetItem) -> Unit
 ) {
     for (item in budgetItems) {
         Card {
