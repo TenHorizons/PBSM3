@@ -4,6 +4,8 @@ import com.google.firebase.firestore.DocumentId
 import java.math.BigDecimal
 import java.time.LocalDate
 
+interface PBSObject{}
+
 data class User(
     @DocumentId val id: String = "",
     val username:String = "",
@@ -26,13 +28,13 @@ data class Transaction(
     val memo:String = "",
     val accountRef:String = "",
     val assignedTo_Ref:String = ""
-)
+):PBSObject
 data class Account(
     @DocumentId val id:String = "",
     val name:String = "",
     val balance:BigDecimal = BigDecimal("0"),
     val transactionRefs:List<String> = listOf()
-)
+):PBSObject
 
 /**Previous name was Available. If found any change it.*/
 data class Unassigned(
@@ -41,7 +43,7 @@ data class Unassigned(
     val totalExpenses:BigDecimal = BigDecimal("0"),
     val totalBudgeted:BigDecimal = BigDecimal("0"),
     val date:LocalDate = LocalDate.now()
-)
+):PBSObject
 
 data class Category(
     @DocumentId val id: String = "",
@@ -51,7 +53,7 @@ data class Category(
     val totalBudgeted:BigDecimal = BigDecimal("0"),
     val date:LocalDate = LocalDate.now(),
     val budgetItemsRef:List<String> = listOf()
-)
+):PBSObject
 
 data class BudgetItem(
     @DocumentId val id: String = "",
@@ -61,7 +63,7 @@ data class BudgetItem(
     val totalBudgeted:BigDecimal = BigDecimal("0"),
     var date:LocalDate = LocalDate.now(),
     val categoryRef: String = ""
-)
+):PBSObject
 
 data class FirestoreTransaction(
     @DocumentId val id:String = "",

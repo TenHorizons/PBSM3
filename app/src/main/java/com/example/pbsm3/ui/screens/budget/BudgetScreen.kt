@@ -145,7 +145,7 @@ fun CategoryCard(
                     Text(text = "Available")
                     Text(
                         text =
-                        "RM${category.getAvailable().displayTwoDecimal()}",
+                        "RM${category.getCarryover().displayTwoDecimal()}",
                         textAlign = TextAlign.End)
                 }
                 Icon(
@@ -210,8 +210,8 @@ fun BudgetItemRow(
                 //TODO: make into a small color-changing composable eventually
                 Text(
                     text =
-                    (if (item.getAvailable().isLessThanZero()) "-RM" else "RM")
-                            + (item.getAvailable().displayTwoDecimal()),
+                    (if (item.getCarryover().isLessThanZero()) "-RM" else "RM")
+                            + (item.getCarryover().displayTwoDecimal()),
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                     modifier = Modifier.weight(0.25f),
                     softWrap = false

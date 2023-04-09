@@ -1,5 +1,6 @@
 package com.example.pbsm3.model.service.module
 
+import com.example.pbsm3.model.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -13,7 +14,9 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 object FirebaseModule {
-    @Provides fun auth(): FirebaseAuth = Firebase.auth
+    @Provides
+    fun auth(): FirebaseAuth = Firebase.auth
 
-    @Provides fun firestore(): FirebaseFirestore = Firebase.firestore
+    @Provides
+    fun firestore(): FirebaseFirestore = Firebase.firestore
 }

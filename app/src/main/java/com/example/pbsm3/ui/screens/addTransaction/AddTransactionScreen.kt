@@ -43,6 +43,29 @@ fun AddTransactionScreen(
     var errorMessage by remember { mutableStateOf("") }
 
     Column(modifier = modifier) {
+        if (isError || isAdded) {
+            Card(
+                colors =
+                CardDefaults.cardColors(
+                    containerColor =
+                    if (isError) colorScheme.errorContainer
+                    else colorScheme.tertiaryContainer
+                )
+            ) {
+                Row(modifier = Modifier.padding(8.dp)) {
+                    Text(
+                        text =
+                        if (isError) "Error! Error Message:\n$errorMessage"
+                        else "Transaction Added!"
+                    )
+                }
+                viewModel.hideAfterDelay(onComplete = {
+                    isError = false
+                    isAdded = false
+                    errorMessage = ""
+                })
+            }
+        }
         AmountRow(
             onAmountChange = { amount, switchGreen ->
                 viewModel.onAmountChange(amount, switchGreen)
@@ -90,29 +113,6 @@ fun AddTransactionScreen(
                 }else{
                     Text(text = "Add Transaction")
                 }
-            }
-        }
-        if (isError || isAdded) {
-            Card(
-                colors =
-                CardDefaults.cardColors(
-                    containerColor =
-                    if (isError) colorScheme.errorContainer
-                    else colorScheme.tertiaryContainer
-                )
-            ) {
-                Row(modifier = Modifier.padding(8.dp)) {
-                    Text(
-                        text =
-                        if (isError) "Error! Error Message:\n$errorMessage"
-                        else "Transaction Added!"
-                    )
-                }
-                viewModel.hideAfterDelay(onComplete = {
-                    isError = false
-                    isAdded = false
-                    errorMessage = ""
-                })
             }
         }
     }

@@ -44,8 +44,10 @@ class AccountRepository @Inject constructor(
 
     override suspend fun updateLocalData(item: Account) {
         val oldAcc = getByRef(item.id)
+        Log.i(TAG,"account update start.Before update:\n$oldAcc\nupdated item:\n$item")
         val oldAccIndex = accounts.indexOf(oldAcc)
         accounts[oldAccIndex] = item
+        Log.i(TAG,"account updated.\nindex: $oldAccIndex\nlist: \n$accounts")
     }
 
     override suspend fun updateData(item: Account, onError:(Exception)->Unit) =

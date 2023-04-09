@@ -73,7 +73,7 @@ class TransactionDataSource @Inject constructor(
         }
 
     private fun getCollection(): CollectionReference =
-        firestore.collection(BUDGET_ITEM_COLLECTION)
+        firestore.collection(TRANSACTION_COLLECTION)
 
     private fun toFirestoreTransaction(item: Transaction): FirestoreTransaction {
         return FirestoreTransaction(

@@ -19,7 +19,7 @@ class UserRepository @Inject constructor(
     private val transactionRepository: Repository<Transaction>,
     private val budgetItemRepository: Repository<BudgetItem>,
     private val unassignedRepository: Repository<Unassigned>
-) {
+):ProvideUser {
     var currentUser: User? = null
 
     suspend fun isUsernameExists(username: String): Boolean {
@@ -208,12 +208,73 @@ class UserRepository @Inject constructor(
     fun getAccountNames(): List<String> = currentUser!!.accountNames
 
     fun getBudgetItemNames():List<String> = currentUser!!.budgetItemNames
-    suspend fun addNewAccount(account: Account) {
-        currentUser = currentUser!!.copy(
-            accountRefs = currentUser!!.accountRefs + account.id,
-            accountNames = currentUser!!.accountNames + account.name
-        )
-        userDataSource.updateUser(currentUser!!)
+
+    override fun addReference(item: PBSObject) {
+        when(item){
+            is Account -> {
+                currentUser = currentUser!!.copy(
+                    accountNames = currentUser!!.accountNames + item.name,
+                    accountRefs = currentUser!!.accountRefs + item.id
+                )
+            }
+            is Transaction -> {
+                currentUser = currentUser!!.copy(
+                    transactionRefs = currentUser!!.transactionRefs + item.id
+                )
+            }
+            is Category -> {
+                currentUser = currentUser!!.copy(
+                    categoryNames = currentUser!!.categoryNames + item.name,
+                    categoryRefs = currentUser!!.categoryRefs + item.id
+                )
+            }
+            is BudgetItem -> {
+                currentUser = currentUser!!.copy(
+                    budgetItemNames = currentUser!!.budgetItemNames + item.name,
+                    budgetItemRefs = currentUser!!.budgetItemRefs + item.id
+                )
+            }
+            is Unassigned -> {
+                currentUser = currentUser!!.copy(
+                    availableRefs = currentUser!!.availableRefs + item.id
+                )
+            }
+            else -> throw IllegalStateException("item isn't PBSObject! item: $item")
+        }
+    }
+
+    override fun removeReference(item: PBSObject) {
+        when(item){
+            is Account -> {
+                currentUser = currentUser!!.copy(
+                    accountNames = currentUser!!.accountNames - item.name,
+                    accountRefs = currentUser!!.accountRefs - item.id
+                )
+            }
+            is Transaction -> {
+                currentUser = currentUser!!.copy(
+                    transactionRefs = currentUser!!.transactionRefs - item.id
+                )
+            }
+            is Category -> {
+                currentUser = currentUser!!.copy(
+                    categoryNames = currentUser!!.categoryNames - item.name,
+                    categoryRefs = currentUser!!.categoryRefs - item.id
+                )
+            }
+            is BudgetItem -> {
+                currentUser = currentUser!!.copy(
+                    budgetItemNames = currentUser!!.budgetItemNames - item.name,
+                    budgetItemRefs = currentUser!!.budgetItemRefs - item.id
+                )
+            }
+            is Unassigned -> {
+                currentUser = currentUser!!.copy(
+                    availableRefs = currentUser!!.availableRefs - item.id
+                )
+            }
+            else -> throw IllegalStateException("item isn't PBSObject! item: $item")
+        }
     }
 
 //__________________________________________________________________    

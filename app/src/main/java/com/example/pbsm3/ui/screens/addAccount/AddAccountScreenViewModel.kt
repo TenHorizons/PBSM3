@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.pbsm3.data.isZero
 import com.example.pbsm3.model.Account
 import com.example.pbsm3.model.service.LogService
+import com.example.pbsm3.model.service.repository.ProvideUser
 import com.example.pbsm3.model.service.repository.Repository
-import com.example.pbsm3.model.service.repository.UserRepository
 import com.example.pbsm3.ui.screens.CommonViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
@@ -15,17 +15,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import javax.inject.Inject
+import javax.inject.Provider
 
 private const val TAG = "AddAccountScreenViewModel"
 
 @HiltViewModel
 class AddAccountScreenViewModel @Inject constructor(
     private val accountRepository: Repository<Account>,
-    private val userRepository: UserRepository,
+    private val userRepo: Provider<ProvideUser>,
     logService: LogService
 ) : CommonViewModel(logService) {
     var uiState = mutableStateOf(AddAccountScreenState())
-
+    private val userRepository:ProvideUser
+    get() = userRepo.get()
     fun getAccountBalance(): String {
         val balance = uiState.value.accountBalance
         return if(balance.isZero()) ""
@@ -51,7 +53,7 @@ class AddAccountScreenViewModel @Inject constructor(
             val accountRef = accountRepository.saveData(newAccount, onError = onError)
             val firestoredAccount = newAccount.copy(id=accountRef)
             accountRepository.saveLocalData(firestoredAccount)
-            userRepository.addNewAccount(firestoredAccount)
+            userRepository.addReference(firestoredAccount)
             onComplete()
         }
     }

@@ -6,17 +6,20 @@ import com.example.pbsm3.model.Unassigned
 import com.example.pbsm3.model.service.dataSource.DataSource
 import java.time.LocalDate
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 
 private const val TAG = "AvailableRepository"
 
 @Singleton
 class UnassignedRepository @Inject constructor(
-    private val unassignedDataSource: DataSource<Unassigned>
+    private val unassignedDataSource: DataSource<Unassigned>,
+    private val userRepo: Provider<ProvideUser>
 ):Repository<Unassigned>,Carryover<Unassigned> {
 
     var unassigned:MutableList<Unassigned> = mutableListOf()
-
+    private val userRepository:ProvideUser
+    get() = userRepo.get()
     override suspend fun loadData(docRefs: List<String>, onError: (Exception) -> Unit) {
         if(docRefs.isEmpty()) {
             Log.d(TAG, "No 'Available's to retrieve.")
@@ -48,7 +51,8 @@ class UnassignedRepository @Inject constructor(
         val oldAva = getByRef(item.id)
         val oldAvaIndex = unassigned.indexOf(oldAva)
         unassigned[oldAvaIndex] = item
-        //TODO add a whole bunch of algorithm
+        Log.i(TAG,"unassigned added.\nindex: $oldAvaIndex\nlist: $unassigned")
+        processModifiedItem(item)
     }
 
     override fun getListByDate(date: LocalDate): List<Unassigned> {
@@ -80,60 +84,88 @@ class UnassignedRepository @Inject constructor(
             ""
         }
 
-    override suspend fun createNewItem(item: Unassigned) {
-        val list: MutableList<Unassigned> = unassigned.toMutableList()
-        if (list.any { it.date == item.date })
+    //TODO to test when implementing multiple month budget.
+    override suspend fun createAndSaveNewItem(item: Unassigned) {
+        if (unassigned.any { it.date == item.date })
             throw IllegalStateException("Unassigned already exists!")
-        list.sortBy { it.date }
-        val lastDate = list.last().date
+        unassigned.sortBy { it.date }
+        val lastDate = unassigned.last().date
         if (lastDate > item.date)
             throw IllegalStateException(
                 "latest Unassigned has newer date!"
             )
-        val updatedUnassigned = item.linkItems(lastDate)
-        saveData(updatedUnassigned, onError = {
-            throw java.lang.RuntimeException(
-                "could not save updated Unassigned to database."
-            )
-        })
+        item.linkItems(lastDate)
     }
 
     override suspend fun processModifiedItem(item: Unassigned) {
-        TODO("Not yet implemented")
+        Log.i(TAG,"processModifiedItem called. Start.")
+        val beforeModify = unassigned.first { it.date == item.date }
+        if(beforeModify.totalCarryover != item.totalCarryover)
+            throw IllegalStateException(
+                "carryover was modified outside repository"
+            )
+        unassigned.sortBy { it.date }
+        val indexOfModified = unassigned.indexOf(beforeModify)
+        Log.i(TAG,
+            "processModifiedItem before modify:\n" +
+                    "${unassigned[indexOfModified]}\n" +
+                    "item: $item"
+        )
+        unassigned[indexOfModified] = item
+        Log.i(TAG,"Item modified. updated:\n${unassigned[indexOfModified]}")
+        var indexToRecalculate = indexOfModified+1
+        while(indexToRecalculate < unassigned.size){
+            Log.i(TAG,"recalculating. before recalculate: ${unassigned[indexToRecalculate]}")
+            val recalculated = unassigned[indexToRecalculate]
+                .calculateCarryover()
+            updateLocalData(recalculated)
+            Log.i(TAG,"after recalculate: ${unassigned[indexToRecalculate]}")
+            indexToRecalculate++
+        }
     }
 
     private suspend fun Unassigned.linkItems(
         lastDate: LocalDate
     ):Unassigned {
+        Log.i(TAG,"linking items start.")
         var lastD = lastDate
         lastD = lastD.plusMonths(1)
         while (lastD < this.date) {
-            val unassigned = Unassigned(date = lastD).calculateCarryover()
-            saveData(unassigned, onError = {
-                throw RuntimeException(
-                    "failed to save unassigned to firestore."
-                )
-            })
+            Log.i(TAG,"create new unassigned of date $lastD")
+            Unassigned(date = lastD)
+                .calculateCarryover()
+                .saveLocalAndUpdateWithRef()
             lastD.plusMonths(1)
         }
-        return this.getRefBySaving().calculateCarryover()
+        Log.i(TAG,"linking items end.")
+        return this.calculateCarryover().saveLocalAndUpdateWithRef()
     }
 
-    private suspend fun Unassigned.getRefBySaving():Unassigned{
+    private suspend fun Unassigned.saveLocalAndUpdateWithRef():Unassigned{
+        Log.i(TAG,"saving unassigned start.")
         val unassignedRef = saveData(this, onError = {
             throw RuntimeException(
                 "failed to save unassigned to firestore."
             )
         })
-        return this.copy(id = unassignedRef)
+        Log.i(TAG,"saving unassigned complete. adding ref to user")
+        val updatedUnassigned = this.copy(id = unassignedRef)
+        userRepository.addReference(updatedUnassigned)
+        Log.i(TAG,"ref update complete.")
+        return updatedUnassigned
     }
 
-    private suspend fun Unassigned.calculateCarryover():Unassigned{
-        val list = unassigned
-        list.sortBy { it.date }
-        val oldCarryover = this.totalCarryover
-        val lastCarryover = list.last().getCarryover()
-        val updatedCarryover = oldCarryover.plus(lastCarryover)
+    private fun Unassigned.calculateCarryover():Unassigned{
+        val lastMonth = this.getPreviousMonthUnassigned()
+        val currentCarryover = this.totalCarryover
+        val lastMonthCarryover = lastMonth.getCarryover()
+        val updatedCarryover = currentCarryover.plus(lastMonthCarryover)
         return this.copy(totalCarryover = updatedCarryover)
+    }
+
+    private fun Unassigned.getPreviousMonthUnassigned():Unassigned{
+        return unassigned.first {
+            it.date == this.date.minusMonths(1)
+        }
     }
 }
