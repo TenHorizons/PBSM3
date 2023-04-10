@@ -146,12 +146,18 @@ class AddTransactionScreenViewModel @Inject constructor(
 
     private fun Transaction.getUiStateValues(
         uiState: MutableState<AddTransactionScreenState>
-    ): Transaction =
-        this.copy(
-            amount = uiState.value.amount,
+    ): Transaction {
+        val amount = if(uiState.value.isSwitchGreen){
+            uiState.value.amount
+        }else{
+            uiState.value.amount.multiply(BigDecimal("-1"))
+        }
+        return this.copy(
+            amount = amount,
             date = uiState.value.selectedDate,
             memo = uiState.value.memoText
         )
+    }
 
     private suspend fun Transaction.getTransactionRefBySaving(
         transRepo: Repository<Transaction>
@@ -270,6 +276,10 @@ class AddTransactionScreenViewModel @Inject constructor(
         )
         unassignedRepository.updateLocalData(updatedUnassigned)
         Log.i(TAG,"addTransaction processUnassigned completed. updatedUnassigned: $updatedUnassigned")
+    }
+
+    fun onIsSwitchGreenChanged(newValue:Boolean){
+        uiState.value = uiState.value.copy(isSwitchGreen = newValue)
     }
 
     fun onAmountChange(newValue: String, switchGreen: Boolean): String {

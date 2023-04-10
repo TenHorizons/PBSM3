@@ -99,22 +99,26 @@ class BudgetItemRepository @Inject constructor(
             throw IllegalStateException(
                 "carryover was modified outside repository"
             )
-        budgetItems.sortBy { it.date }
-        val indexOfModified = budgetItems.indexOf(beforeModify)
+        val sameNameItems = budgetItems.filter { it.name == item.name }.toMutableList()
+        sameNameItems.sortBy { it.date }
+        val indexOfModifiedInFullList = budgetItems.indexOf(beforeModify)
+        val indexOfModifiedInSameNameItems = sameNameItems.indexOf(beforeModify)
         Log.i(TAG,
             "processModifiedItem before modify:\n" +
-                    "${budgetItems[indexOfModified]}\n" +
+                    "${budgetItems[indexOfModifiedInFullList]}\n" +
                     "item: $item"
         )
-        budgetItems[indexOfModified] = item
-        Log.i(TAG,"Item modified. updated:\n${budgetItems[indexOfModified]}")
-        var indexToRecalculate = indexOfModified+1
-        while(indexToRecalculate < budgetItems.size){
-            Log.i(TAG,"recalculating. before recalculate: ${budgetItems[indexToRecalculate]}")
-            val recalculated = budgetItems[indexToRecalculate]
+        budgetItems[indexOfModifiedInFullList] = item
+        Log.i(TAG,"Item modified. updated:\n${budgetItems[indexOfModifiedInSameNameItems]}")
+        var indexToRecalculate = indexOfModifiedInSameNameItems+1
+        while(indexToRecalculate < sameNameItems.size){
+            val itemToRecalculate = sameNameItems[indexToRecalculate]
+            val indexInFullList = budgetItems.indexOf((getByRef(itemToRecalculate.id)))
+            Log.i(TAG,"recalculating. before recalculate: ${sameNameItems[indexToRecalculate]}")
+            val recalculated = sameNameItems[indexToRecalculate]
                 .calculateCarryover()
-            updateLocalData(recalculated)
-            Log.i(TAG,"after recalculate: ${budgetItems[indexToRecalculate]}")
+            budgetItems[indexInFullList] = recalculated
+            Log.i(TAG,"after recalculate: ${budgetItems[indexInFullList]}")
             indexToRecalculate++
         }
     }

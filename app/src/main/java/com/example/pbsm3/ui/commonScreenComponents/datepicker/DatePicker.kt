@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pbsm3.Screen
-import com.example.pbsm3.data.getFirstDayOfMonth
 import com.example.pbsm3.theme.PBSM3Theme
 import com.maxkeppeker.sheets.core.icons.filled.ChevronLeft
 import com.maxkeppeker.sheets.core.icons.filled.ChevronRight
@@ -51,8 +50,8 @@ fun PBSDatePicker(
                 MonthPicker(
                     withDialog = false,
                     onClick = { selectedDate ->
-                        viewModel.setSelectedDate(getFirstDayOfMonth(selectedDate))
-                        onDateSelected(getFirstDayOfMonth(selectedDate))
+                        viewModel.setSelectedDate(selectedDate)
+                        onDateSelected(selectedDate)
                     }, onCancel = { expanded = false })
             }
             Screen.AddTransaction -> {

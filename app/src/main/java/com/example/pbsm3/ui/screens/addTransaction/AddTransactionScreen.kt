@@ -67,6 +67,8 @@ fun AddTransactionScreen(
             }
         }
         AmountRow(
+            uiState = uiState,
+            onSwitchGreenChanged = { viewModel.onIsSwitchGreenChanged(it) },
             onAmountChange = { amount, switchGreen ->
                 viewModel.onAmountChange(amount, switchGreen)
             }
@@ -120,10 +122,12 @@ fun AddTransactionScreen(
 
 @Composable
 fun AmountRow(
+    uiState:AddTransactionScreenState,
+    onSwitchGreenChanged: (Boolean)->Unit,
     onAmountChange: (String, Boolean) -> String
 ) {
     var displayedAmount by remember { mutableStateOf("") }
-    var switchGreen by remember { mutableStateOf(true) }
+    val switchGreen = uiState.isSwitchGreen
     Card(
         modifier = Modifier.padding(8.dp),
         colors = CardDefaults.cardColors(
@@ -132,16 +136,18 @@ fun AmountRow(
             else colorScheme.errorContainer
         )
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Switch(
                 checked = switchGreen,
-                onCheckedChange = { switchGreen = !switchGreen },
+                onCheckedChange = onSwitchGreenChanged,
                 colors = SwitchDefaults.colors(
                     checkedTrackColor = Green,
                     uncheckedTrackColor = Red
                 ),
                 modifier = Modifier
-                    .padding(start = 8.dp)
                     .testTag(stringResource(R.string.amount_switch))
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -158,7 +164,8 @@ fun AmountRow(
                 textStyle = LocalTextStyle.current.copy(
                     fontSize = 36.sp,
                     textAlign = TextAlign.End,
-                    shadow = Shadow(Color.Black, blurRadius = 0.3f)
+                    shadow = Shadow(Color.Black, blurRadius = 0.3f),
+                    color = colorScheme.onSurface
                 )
             )
         }

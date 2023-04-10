@@ -10,6 +10,7 @@ data class User(
     @DocumentId val id: String = "",
     val username:String = "",
     val password:String = "",
+    val budgetName:String = "",
     val categoryRefs:List<String> = listOf(),
     val categoryNames:List<String> = listOf(),
     val accountRefs:List<String> = listOf(),
@@ -17,9 +18,15 @@ data class User(
     val budgetItemRefs:List<String> = listOf(),
     val budgetItemNames:List<String> = listOf(),
     val transactionRefs:List<String> = listOf(),
-    val availableRefs:List<String> = listOf()
+    val unassignedRefs:List<String> = listOf()
 )
 
+data class Account(
+    @DocumentId val id:String = "",
+    val name:String = "",
+    val balance:BigDecimal = BigDecimal("0"),
+    val transactionRefs:List<String> = listOf()
+):PBSObject
 /**assignedTo_Ref should be a budget item or unassigned.*/
 data class Transaction(
     @DocumentId val id:String = "",
@@ -28,12 +35,6 @@ data class Transaction(
     val memo:String = "",
     val accountRef:String = "",
     val assignedTo_Ref:String = ""
-):PBSObject
-data class Account(
-    @DocumentId val id:String = "",
-    val name:String = "",
-    val balance:BigDecimal = BigDecimal("0"),
-    val transactionRefs:List<String> = listOf()
 ):PBSObject
 
 /**Previous name was Available. If found any change it.*/

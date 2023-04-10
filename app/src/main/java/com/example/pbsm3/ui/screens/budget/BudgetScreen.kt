@@ -14,9 +14,11 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,7 +49,7 @@ fun BudgetScreen(
 
     BackHandler(onBack = onBackPressed)
 
-    LaunchedEffect(selectedDate){
+    LaunchedEffect(selectedDate) {
         viewModel.setSelectedDate(selectedDate)
         viewModel.getRepositoryData(selectedDate)
     }
@@ -69,9 +71,9 @@ fun BudgetScreen(
                     onItemChanged = { category, item ->
                         viewModel.updateBudgetItem(category, item)
                     },
-                onGettingCategoryItems = {category ->
-                    uiState.categoryItemMapping[category]?: listOf()
-                })
+                    onGettingCategoryItems = { category ->
+                        uiState.categoryItemMapping[category] ?: listOf()
+                    })
             }
         }
     }
@@ -203,8 +205,9 @@ fun BudgetItemRow(
                     isPositiveValue = true,
                     modifier = Modifier.weight(0.25f),
                     textStyle = LocalTextStyle.current.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                        textAlign = TextAlign.Start
+                        fontSize = typography.bodyLarge.fontSize,
+                        textAlign = TextAlign.Start,
+                        color = colorScheme.onSurface
                     )
                 )
                 //TODO: make into a small color-changing composable eventually
@@ -212,7 +215,14 @@ fun BudgetItemRow(
                     text =
                     (if (item.getCarryover().isLessThanZero()) "-RM" else "RM")
                             + (item.getCarryover().displayTwoDecimal()),
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    color =
+                    if (item.getCarryover().isLessThanZero())
+                        Color.Red
+                    else if (item.getCarryover().isZero())
+                        typography.bodyLarge.color
+                    else
+                        Color.Green,
+                    fontSize = typography.bodyLarge.fontSize,
                     modifier = Modifier.weight(0.25f),
                     softWrap = false
                 )

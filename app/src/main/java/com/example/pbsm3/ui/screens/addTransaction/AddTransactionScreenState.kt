@@ -4,6 +4,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 data class AddTransactionScreenState(
+    val isSwitchGreen:Boolean = true,
     val amount: BigDecimal = BigDecimal.ZERO,
     val selectedCategoryName: String = "",
     val categoryOptions:List<String> = listOf(),

@@ -62,11 +62,11 @@ class UserRepository @Inject constructor(
             accountRepository.loadData(currentUser!!.accountRefs, onError = onError)
             transactionRepository.loadData(currentUser!!.transactionRefs, onError = onError)
 
-            if(currentUser!!.availableRefs.isEmpty()){
+            if(currentUser!!.unassignedRefs.isEmpty()){
                 Log.d(TAG, "availableRefs is empty. Generating default data.")
                 generateDefaultUnassigned(onError = onError)
             }else{
-                unassignedRepository.loadData(currentUser!!.availableRefs, onError = onError)
+                unassignedRepository.loadData(currentUser!!.unassignedRefs, onError = onError)
             }
             //Currently, overwrites category and budget item refs if any one is empty.
             if ((currentUser!!.categoryRefs).isEmpty() || (currentUser!!.budgetItemRefs).isEmpty()) {
@@ -94,7 +94,7 @@ class UserRepository @Inject constructor(
             return
         }
 
-        val availableReferences: MutableList<String> = currentUser!!.availableRefs.toMutableList()
+        val availableReferences: MutableList<String> = currentUser!!.unassignedRefs.toMutableList()
         withContext(NonCancellable) {
             async{
                 val unassignedReference =
@@ -103,7 +103,7 @@ class UserRepository @Inject constructor(
 
                 //save a copy of auto-generated references to local, then to Firestore for safekeeping
                 currentUser = currentUser!!.copy(
-                    availableRefs = availableReferences
+                    unassignedRefs = availableReferences
                 )
                 try{
                     userDataSource.updateUser(currentUser!!)
@@ -236,7 +236,7 @@ class UserRepository @Inject constructor(
             }
             is Unassigned -> {
                 currentUser = currentUser!!.copy(
-                    availableRefs = currentUser!!.availableRefs + item.id
+                    unassignedRefs = currentUser!!.unassignedRefs + item.id
                 )
             }
             else -> throw IllegalStateException("item isn't PBSObject! item: $item")
@@ -270,7 +270,7 @@ class UserRepository @Inject constructor(
             }
             is Unassigned -> {
                 currentUser = currentUser!!.copy(
-                    availableRefs = currentUser!!.availableRefs - item.id
+                    unassignedRefs = currentUser!!.unassignedRefs - item.id
                 )
             }
             else -> throw IllegalStateException("item isn't PBSObject! item: $item")
