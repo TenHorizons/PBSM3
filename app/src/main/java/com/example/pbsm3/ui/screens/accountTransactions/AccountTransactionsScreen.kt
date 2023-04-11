@@ -6,7 +6,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pbsm3.data.ALL_ACCOUNTS
 import com.example.pbsm3.data.displayTwoDecimal
+import com.example.pbsm3.data.isLessThanZero
 import com.example.pbsm3.model.Transaction
 import com.example.pbsm3.theme.PBSM3Theme
 
@@ -30,7 +33,10 @@ fun AccountTransactionsScreen(
 ) {
     BackHandler(onBack = onBackPressed)
 
-    viewModel.loadTransactions(accountRef)
+    LaunchedEffect(accountRef){
+        viewModel.loadTransactions(accountRef)
+        viewModel.addListeners()
+    }
 
     val uiState by viewModel.uiState
 
@@ -64,6 +70,9 @@ fun AccountTransactionsScreen(
                 accountRef =  accountRef,
                 onGetAccountNameByRef = {
                     viewModel.getAccountNameByRef(it)
+                },
+                getAssignedToNameByRef = {
+                    viewModel.getAssignedToNameByRef(it)
                 }
             )
         }
@@ -74,7 +83,8 @@ fun AccountTransactionsScreen(
 fun TransactionRow(
     transaction: Transaction,
     accountRef: String,
-    onGetAccountNameByRef: (String) -> String
+    onGetAccountNameByRef: (String) -> String,
+    getAssignedToNameByRef: (String) -> String
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -88,22 +98,28 @@ fun TransactionRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(
-                    text = transaction.date.toString(),
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize)
                 if(accountRef == ALL_ACCOUNTS){
                     Text(
                         text = onGetAccountNameByRef(transaction.accountRef),
                         fontSize = MaterialTheme.typography.bodySmall.fontSize)
                 }
+                Text(
+                    text = transaction.date.toString(),
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize)
+                Text(
+                    text = getAssignedToNameByRef(transaction.assignedTo_Ref),
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize)
             }
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "RM${transaction.amount.displayTwoDecimal()}",
+                text =
+                (if(transaction.amount.isLessThanZero())"-RM"
+                else "RM") +
+                        "${transaction.amount.displayTwoDecimal().abs()}",
                 fontSize = MaterialTheme.typography.titleLarge.fontSize
             )
         }
-        Divider()
+        Divider(color = colorScheme.outline)
     }
 }
 

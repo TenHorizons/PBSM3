@@ -119,30 +119,7 @@ class AddTransactionScreenViewModel @Inject constructor(
                     "transaction constructed. processing start. transaction: \n$newTransaction"
                 )
                 viewModelScope.launch(Dispatchers.Default + NonCancellable) {
-                    try {
-                        transactionRepository.saveLocalData(newTransaction!!)
-                        val processAccount = async(Dispatchers.Default) {
-                            processAccount(newTransaction!!, account, onError)
-                        }
-                        val processAssignedTo = when (assignedToObject) {
-                            is Unassigned -> async(Dispatchers.Default) {
-                                processUnassigned(
-                                    newTransaction!!, assignedToObject as Unassigned, onError)
-                            }
-                            is BudgetItem -> async(Dispatchers.Default) {
-                                processBudgetItem(
-                                    newTransaction!!, assignedToObject as BudgetItem, onError)
-                            }
-                            else -> throw IllegalStateException(
-                                "assignedToObject incorrect state! obj: $assignedToObject"
-                            )
-                        }
-                        awaitAll(processAccount, processAssignedTo)
-                    } catch (ex: Exception) {
-                        Log.e(TAG,"error processing transaction. error:\n$ex")
-                        onError(ex)
-                    }
-
+                    transactionRepository.saveLocalData(newTransaction!!)
                 }.invokeOnCompletion { onComplete() }
             }
         }
@@ -240,46 +217,6 @@ class AddTransactionScreenViewModel @Inject constructor(
         }
         Log.i(TAG,"addTransaction getBudgetItem completed. Item: ${budgetItems.first()}")
         return budgetItems.first()
-    }
-
-    private suspend fun processAccount(
-        newTransaction: Transaction,
-        account: Account,
-        onError: (Exception) -> Unit
-    ) {
-        Log.i(TAG,"addTransaction processAccount start.")
-        val updatedAccount = account.copy(
-            balance = account.balance.plus(newTransaction.amount),
-            transactionRefs = account.transactionRefs + newTransaction.id
-        )
-        accountRepository.updateLocalData(updatedAccount)
-        Log.i(TAG,"addTransaction processAccount completed. updated account:\n$updatedAccount")
-    }
-
-    private suspend fun processBudgetItem(
-        newTransaction: Transaction,
-        budgetItem: BudgetItem,
-        onError: (Exception) -> Unit
-    ) {
-        Log.i(TAG,"addTransaction processBudgetItem start.")
-        val updatedBudgetItem = budgetItem.copy(
-            totalExpenses = budgetItem.totalExpenses.plus(newTransaction.amount)
-        )
-        budgetItemRepository.updateLocalData(updatedBudgetItem)
-        Log.i(TAG,"addTransaction processBudgetItem completed. updatedBudgetItem: $updatedBudgetItem")
-    }
-
-    private suspend fun processUnassigned(
-        newTransaction: Transaction,
-        unassigned: Unassigned,
-        onError: (Exception) -> Unit
-    ) {
-        Log.i(TAG,"addTransaction processUnassigned start.")
-        val updatedUnassigned = unassigned.copy(
-            totalExpenses = unassigned.totalExpenses.plus(newTransaction.amount)
-        )
-        unassignedRepository.updateLocalData(updatedUnassigned)
-        Log.i(TAG,"addTransaction processUnassigned completed. updatedUnassigned: $updatedUnassigned")
     }
 
     fun onIsSwitchGreenChanged(newValue:Boolean){

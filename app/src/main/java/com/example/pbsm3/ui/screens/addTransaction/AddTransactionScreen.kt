@@ -198,7 +198,7 @@ fun TransactionInfo(
                 onCategorySelected(it)
             },
             options = categoryOptions)
-        Divider()
+        Divider(color = colorScheme.outline)
         TransactionInfoItemWithMenu(
             title = "Account", selectedOption = selectedAccount,
             onSelectedChange = {
@@ -206,7 +206,7 @@ fun TransactionInfo(
                 onAccountSelected(it)
             },
             options = accountOptions)
-        Divider()
+        Divider(color = colorScheme.outline)
         Row(
             Modifier.padding(start = 8.dp),
             verticalAlignment = Alignment.CenterVertically

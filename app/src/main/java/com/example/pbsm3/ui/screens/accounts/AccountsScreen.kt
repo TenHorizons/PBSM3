@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pbsm3.data.ALL_ACCOUNTS
 import com.example.pbsm3.data.displayTwoDecimal
+import com.example.pbsm3.data.isLessThanZero
 import com.example.pbsm3.model.Account
 import com.example.pbsm3.theme.PBSM3Theme
 import com.maxkeppeker.sheets.core.icons.filled.ChevronRight
@@ -31,9 +33,16 @@ fun AccountsScreen(
     onAccountClicked:(Account)->Unit = {},
     onBackPressed:()->Unit ={}
 ) {
-    BackHandler(onBack = onBackPressed)
     Log.d(TAG,"account screen starting. loading accounts.")
-    viewModel.readAccountRepository()
+
+    BackHandler(onBack = onBackPressed)
+
+    LaunchedEffect(true){
+        viewModel.readAccountRepository()
+        viewModel.registerListeners()
+    }
+
+
     Log.d(TAG,"accounts loaded: ${viewModel.uiState.value.accounts}")
     val uiState by viewModel.uiState
     if(uiState.accounts.isEmpty()){
@@ -130,7 +139,10 @@ fun IndividualAccount(
             Column {
                 Text("Balance:")
                 Text(
-                    text = "RM${account.balance.displayTwoDecimal()}")
+                    text =
+                    (if(account.balance.isLessThanZero())"-RM"
+                    else "RM") +
+                            "${account.balance.displayTwoDecimal().abs()}")
             }
             Spacer(Modifier.padding(horizontal = 8.dp))
             FilledIconButton(

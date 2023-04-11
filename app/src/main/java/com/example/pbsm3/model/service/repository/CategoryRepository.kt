@@ -84,6 +84,15 @@ class CategoryRepository @Inject constructor(
         return categories.first { it.id == ref }
     }
 
+    override fun getListByRef(ref: String): List<Category> {
+        //not supposed to return by ref. return entire list
+        return categories
+    }
+
+    override fun getAll(): List<Category> {
+        return categories
+    }
+
     override fun onItemsChanged(callback: (List<Category>) -> Unit):()->Unit {
         listeners.add(callback)
         return {listeners.remove(callback)}

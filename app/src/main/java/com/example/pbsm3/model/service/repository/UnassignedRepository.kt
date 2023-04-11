@@ -76,6 +76,14 @@ class UnassignedRepository @Inject constructor(
         return unassigned.first { it.id == ref }
     }
 
+    override fun getListByRef(ref: String): List<Unassigned> {
+        return unassigned.filter { it.id == ref }
+    }
+
+    override fun getAll(): List<Unassigned> {
+        return unassigned
+    }
+
     override fun onItemsChanged(callback: (List<Unassigned>) -> Unit):()->Unit {
         listeners.add(callback)
         return {listeners.remove(callback)}

@@ -72,13 +72,6 @@ class BudgetItemRepository @Inject constructor(
     }
 
     override suspend fun updateLocalData(item: BudgetItem) {
-        val oldItem = getByRef(item.id)
-        Log.i(TAG,"budget item update start.Before update:\n$oldItem\nupdated item:\n$item")
-        val oldItemIndex = budgetItems.indexOf(oldItem)
-        val list = budgetItems.toMutableList()
-        list[oldItemIndex] = item
-        budgetItems = list
-        Log.i(TAG,"budget item added.\nindex: $oldItemIndex\nlist: \n$budgetItems")
         processModifiedItem(item)
     }
 
@@ -102,6 +95,14 @@ class BudgetItemRepository @Inject constructor(
         return budgetItems.first { it.id == ref }
     }
 
+    override fun getListByRef(ref: String): List<BudgetItem> {
+        return budgetItems.filter { it.categoryRef == ref }
+    }
+
+    override fun getAll(): List<BudgetItem> {
+        return budgetItems
+    }
+
     override fun onItemsChanged(callback: (List<BudgetItem>) -> Unit):()->Unit {
         listeners.add(callback)
         return {listeners.remove(callback)}
@@ -122,9 +123,7 @@ class BudgetItemRepository @Inject constructor(
 
     override suspend fun processModifiedItem(item: BudgetItem) {
         Log.i(TAG,"processModifiedItem called. Start.")
-        val beforeModify = budgetItems.first {
-            it.date == item.date && it.name == item.name
-        }
+        val beforeModify = getByRef(item.id)
         if(beforeModify.totalCarryover != item.totalCarryover)
             throw IllegalStateException(
                 "carryover was modified outside repository"
@@ -159,29 +158,27 @@ class BudgetItemRepository @Inject constructor(
     }
 
     private suspend fun updateCategory(beforeModify:BudgetItem, modifiedItem:BudgetItem){
-        Log.i(TAG,"updateCategory start. beforeModify:\n$beforeModify\n" +
-                "modifiedItem:\n$modifiedItem")
         val categoryList = categoryRepository.getListByDate(modifiedItem.date)
         var category = categoryList.first { it.budgetItemsRef.contains(modifiedItem.id) }
         val oldBudgeted = category.totalBudgeted
-        Log.i(TAG,"category oldBudgeted: $oldBudgeted")
-        val changeInValue = (modifiedItem.totalBudgeted).minus(beforeModify.totalBudgeted)
-        Log.i(TAG,"category newValue: ${oldBudgeted.plus(changeInValue)}")
-        category = category.copy(totalBudgeted = oldBudgeted.plus(changeInValue))
+        val oldExpenses = category.totalExpenses
+        val changeInBudgeted = (modifiedItem.totalBudgeted).minus(beforeModify.totalBudgeted)
+        val changeInExpenses = (modifiedItem.totalExpenses).minus(beforeModify.totalExpenses)
+        category = category.copy(
+            totalBudgeted = oldBudgeted.plus(changeInBudgeted),
+            totalExpenses = oldExpenses.plus(changeInExpenses)
+        )
         categoryCarryover.processModifiedItem(category)
     }
 
     private suspend fun updateUnassigned(beforeModify:BudgetItem, modifiedItem:BudgetItem){
-        Log.i(TAG,"updateUnassigned start. beforeModify:\n$beforeModify\n" +
-                "modifiedItem:\n$modifiedItem")
         val unassignedList = unassignedRepository.getListByDate(modifiedItem.date)
-        Log.i(TAG,"unassignedList: $unassignedList")
         var unassigned = unassignedList.first()
         val oldBudgeted = unassigned.totalBudgeted
-        Log.i(TAG,"unassigned oldBudgeted: $oldBudgeted")
-        val changeInValue = (modifiedItem.totalBudgeted).minus(beforeModify.totalBudgeted)
-        Log.i(TAG,"unassigned newValue: ${oldBudgeted.minus(changeInValue)}")
-        unassigned = unassigned.copy(totalBudgeted = oldBudgeted.minus(changeInValue))
+        val changeInBudgeted = (modifiedItem.totalBudgeted).minus(beforeModify.totalBudgeted)
+        unassigned = unassigned.copy(
+            totalBudgeted = oldBudgeted.minus(changeInBudgeted)
+        )
         unassignedCarryover.processModifiedItem(unassigned)
     }
 

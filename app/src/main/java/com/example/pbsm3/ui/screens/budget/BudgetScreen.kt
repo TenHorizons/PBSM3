@@ -21,7 +21,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -55,6 +54,7 @@ fun BudgetScreen(
 
     LaunchedEffect(true) {
         viewModel.registerListeners()
+        viewModel.setSelectedDate(selectedDate)
     }
     LaunchedEffect(selectedDate) {
         viewModel.setSelectedDate(selectedDate)
@@ -242,18 +242,18 @@ fun BudgetItemRow(
                             + (item.getCarryover().displayTwoDecimal()),
                     color =
                     if (item.getCarryover().isLessThanZero())
-                        Color.Red
+                        colorScheme.onErrorContainer
                     else if (item.getCarryover().isZero())
-                        typography.bodyLarge.color
+                        colorScheme.onSurface
                     else
-                        Color.Green,
+                        colorScheme.onTertiaryContainer,
                     fontSize = typography.bodyLarge.fontSize,
                     modifier = Modifier.weight(0.25f),
                     softWrap = false
                 )
                 Spacer(Modifier.weight(0.05f))
             }
-            Divider()
+            Divider(color = colorScheme.outline)
         }
     }
 }
