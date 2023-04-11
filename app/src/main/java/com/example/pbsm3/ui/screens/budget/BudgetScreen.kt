@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package com.example.pbsm3.ui.screens.budget
 
 import android.util.Log
@@ -17,8 +19,10 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,30 +53,38 @@ fun BudgetScreen(
 
     BackHandler(onBack = onBackPressed)
 
+    LaunchedEffect(true) {
+        viewModel.registerListeners()
+    }
     LaunchedEffect(selectedDate) {
         viewModel.setSelectedDate(selectedDate)
-        viewModel.getRepositoryData(selectedDate)
     }
-
     val uiState by viewModel.uiState
+
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.padding(horizontal = 8.dp)
     ) {
         AvailableToBudgetRow(
-            availableToBudget = viewModel.getAvailableValueToDisplay(),
+            availableToBudget = viewModel.getUnassignedValueToDisplay(),
             modifier = Modifier.padding(top = 8.dp))
         LazyColumn(Modifier.fillMaxWidth()) {
-            items(uiState.displayedCategories) {
+            items(uiState.categoryItemMapping.keys.sortedBy { it.position }) {
                 CategoryCard(
                     category = it,
                     onItemClicked = onItemClicked,
                     onItemChanged = { category, item ->
-                        viewModel.updateBudgetItem(category, item)
+                        viewModel.updateBudgetItemDisplay(category, item)
                     },
                     onGettingCategoryItems = { category ->
-                        uiState.categoryItemMapping[category] ?: listOf()
+                        uiState.categoryItemMapping[category]
+                            ?.sortedBy { item->item.position } ?: listOf()
+                    },
+                    onDone = { category, item ->
+                        keyboardController?.hide()
+                        viewModel.updateBudgetItem(category, item)
                     })
             }
         }
@@ -87,7 +99,9 @@ fun AvailableToBudgetRow(
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = colorScheme.tertiaryContainer,
+            containerColor =
+            if(availableToBudget.isLessThanZero()) colorScheme.errorContainer
+            else colorScheme.tertiaryContainer,
         )) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -96,8 +110,13 @@ fun AvailableToBudgetRow(
             Text(text = "Available to Budget: ")
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "RM${availableToBudget.displayTwoDecimal()}",
-                color = colorScheme.onTertiaryContainer,
+                text =
+                (if(availableToBudget.isLessThanZero())"-RM"
+                else "RM") +
+                "${availableToBudget.displayTwoDecimal().abs()}",
+                color =
+                if(availableToBudget.isLessThanZero()) colorScheme.onErrorContainer
+                else colorScheme.onTertiaryContainer,
                 style = TextStyle.Default.copy(
                     fontSize = 36.sp,
                     textAlign = TextAlign.End
@@ -111,7 +130,8 @@ fun CategoryCard(
     category: Category,
     onItemClicked: (Category, BudgetItem) -> Unit,
     onItemChanged: (Category, BudgetItem) -> Unit,
-    onGettingCategoryItems: (Category) -> List<BudgetItem>
+    onGettingCategoryItems: (Category) -> List<BudgetItem>,
+    onDone: (Category, BudgetItem) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -161,7 +181,8 @@ fun CategoryCard(
                 BudgetItemRow(
                     onGettingCategoryItems(category),
                     onBudgetItemChanged = { item -> onItemChanged(category, item) },
-                    onItemClicked = { onItemClicked(category, it) }
+                    onItemClicked = { onItemClicked(category, it) },
+                    onDone = { onDone(category, it) }
                 )
             }
             Divider()
@@ -173,8 +194,10 @@ fun CategoryCard(
 fun BudgetItemRow(
     budgetItems: List<BudgetItem>,
     onBudgetItemChanged: (BudgetItem) -> Unit,
-    onItemClicked: (BudgetItem) -> Unit
+    onItemClicked: (BudgetItem) -> Unit,
+    onDone: (BudgetItem) -> Unit
 ) {
+    var wasFocused by remember { mutableStateOf(false)}
     for (item in budgetItems) {
         Card {
             Row(
@@ -189,6 +212,7 @@ fun BudgetItemRow(
                     //softWrap = false
                 )
                 CurrencyTextField(
+                    modifier = Modifier.weight(0.25f),
                     value =
                     if (item.totalBudgeted.isZero()) ""
                     else item.totalBudgeted.toDigitString(),
@@ -199,11 +223,12 @@ fun BudgetItemRow(
                             //be an issue.
                             if (it == "") item.copy(totalBudgeted = BigDecimal.ZERO)
                             else item.copy(totalBudgeted = it.fromDigitString())
+
                         )
                     },
+                    onDone = { onDone(item) },
                     background = colorScheme.surfaceVariant,
                     isPositiveValue = true,
-                    modifier = Modifier.weight(0.25f),
                     textStyle = LocalTextStyle.current.copy(
                         fontSize = typography.bodyLarge.fontSize,
                         textAlign = TextAlign.Start,

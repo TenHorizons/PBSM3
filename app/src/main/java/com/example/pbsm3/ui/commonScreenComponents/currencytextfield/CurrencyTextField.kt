@@ -4,6 +4,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material3.*
@@ -13,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,7 +33,8 @@ fun CurrencyTextField(
     value: String,
     onValueChange: (String) -> Unit,
     errorCondition: Boolean = false,
-    textStyle: TextStyle = TextStyle.Default
+    textStyle: TextStyle = TextStyle.Default,
+    onDone: () -> Unit = {}
 ) {
     val visualTransformation =
         CurrencyAmountInputVisualTransformation(isPositiveValue = isPositiveValue)
@@ -45,7 +48,13 @@ fun CurrencyTextField(
         enabled = true,
         interactionSource = interactionSource,
         keyboardOptions =
-        KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+        KeyboardOptions(
+            keyboardType = KeyboardType.NumberPassword,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = { onDone() }
+        ),
         textStyle = textStyle
     ) { innerTextField ->
         TextFieldDefaults.TextFieldDecorationBox(

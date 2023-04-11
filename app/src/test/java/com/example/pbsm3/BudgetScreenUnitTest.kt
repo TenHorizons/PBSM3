@@ -1,12 +1,5 @@
 package com.example.pbsm3
 
-import com.example.pbsm3.data.defaultBudget
-import com.example.pbsm3.data.defaultCategories
-import com.example.pbsm3.data.getFirstDayOfMonth
-import com.example.pbsm3.model.BudgetItem
-import com.example.pbsm3.model.Category
-import com.example.pbsm3.ui.screens.budget.BudgetScreenViewModel
-import org.junit.Test
 
 /**
  * Example local unit test, which will execute on the development machine (host).

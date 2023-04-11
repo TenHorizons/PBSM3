@@ -1,7 +1,7 @@
 package com.example.pbsm3.model.service.dataSource
 
-import com.example.pbsm3.model.FirestoreBudgetItem
 import com.example.pbsm3.model.BudgetItem
+import com.example.pbsm3.model.FirestoreBudgetItem
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -84,7 +84,8 @@ class BudgetItemDataSource @Inject constructor(
             totalBudgeted = item.totalBudgeted.toString(),
             totalExpenses = item.totalExpenses.toString(),
             date = item.date.toString(),
-            categoryRef = item.categoryRef
+            categoryRef = item.categoryRef,
+            position = item.position
         )
     }
 
@@ -96,7 +97,8 @@ class BudgetItemDataSource @Inject constructor(
             totalBudgeted = item.totalBudgeted.toBigDecimal(),
             totalExpenses = item.totalExpenses.toBigDecimal(),
             date = LocalDate.parse(item.date),
-            categoryRef = item.categoryRef
+            categoryRef = item.categoryRef,
+            position = item.position
         )
     }
 }

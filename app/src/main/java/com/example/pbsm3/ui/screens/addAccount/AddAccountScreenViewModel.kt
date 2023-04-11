@@ -62,6 +62,7 @@ class AddAccountScreenViewModel @Inject constructor(
         uiState.value = uiState.value.copy(accountName = newName)
     }
 
+    /*TODO known error: will crash if unacceptable BigDecimal value*/
     fun onBalanceChange(newValue: String) {
         val balance = if(newValue == "") BigDecimal.ZERO
         else BigDecimal(newValue)

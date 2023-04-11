@@ -15,4 +15,6 @@ interface Repository<T> {
      * handle exception if this is not the case.*/
     fun getListByDate(date:LocalDate):List<T>
     fun getByRef(ref:String):T
+
+    fun onItemsChanged(callback: (List<T>)->Unit):()->Unit
 }

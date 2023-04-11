@@ -38,6 +38,8 @@ class AddTransactionScreenViewModel @Inject constructor(
 ) : CommonViewModel(logService) {
     var uiState = mutableStateOf(AddTransactionScreenState())
 
+    private val NO_ACCOUNTS = "No Accounts!"
+
     //TODO doing too much on main thread when loading transaction screen.
     // see what processes to optimize or move to default thread.
 
@@ -55,9 +57,11 @@ class AddTransactionScreenViewModel @Inject constructor(
 
     fun getAccountOptions(): List<String> {
         if(uiState.value.accountOptions.isEmpty()){
+            val options = userRepository.getAccountNames().toMutableList()
+            if(options.isEmpty()) options.add(NO_ACCOUNTS)
             uiState.value = uiState.value.copy(
-                accountOptions = userRepository.getAccountNames(),
-                selectedAccountName = userRepository.getAccountNames().first()
+                accountOptions = options,
+                selectedAccountName = options.first()
             )
         }
         return uiState.value.accountOptions
@@ -66,10 +70,10 @@ class AddTransactionScreenViewModel @Inject constructor(
     fun onAddTransaction(onError: (Exception) -> Unit, onComplete: () -> Unit) {
         Log.i(TAG, "adding transaction start")
         if(uiState.value.amount.isZero()){
-            onError(IllegalArgumentException("Please enter on-zero value for account!"))
+            onError(IllegalArgumentException("Please enter on-zero value for amount!"))
             return
         }
-        if (uiState.value.selectedAccountName == "No accounts!") {
+        if (uiState.value.selectedAccountName == NO_ACCOUNTS) {
             onError(IllegalArgumentException("Please add an account before adding transactions!"))
             return
         }

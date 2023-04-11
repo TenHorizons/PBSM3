@@ -78,7 +78,8 @@ class AccountDataSource @Inject constructor(
             id = item.id,
             name = item.name,
             balance = item.balance.toString(),
-            transactionRefs = item.transactionRefs
+            transactionRefs = item.transactionRefs,
+            position = item.position
         )
     }
 
@@ -87,7 +88,8 @@ class AccountDataSource @Inject constructor(
             id = item.id,
             name = item.name,
             balance = item.balance.toBigDecimal(),
-            transactionRefs = item.transactionRefs
+            transactionRefs = item.transactionRefs,
+            position = item.position
         )
     }
 }

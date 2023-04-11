@@ -14,7 +14,14 @@ class TransactionRepository @Inject constructor(
     private val transactionDataSource: DataSource<Transaction>
 ):Repository<Transaction> {
     var transactions:MutableList<Transaction> = mutableListOf()
-    private set
+        private set(value) {
+            field = value
+            for(listener in listeners){
+                listener(field)
+            }
+        }
+    private var listeners:MutableList<(List<Transaction>)->Unit> = mutableListOf()
+
 
     override suspend fun loadData(docRefs:List<String>, onError:(Exception)->Unit){
         if(docRefs.isEmpty())
@@ -73,5 +80,10 @@ class TransactionRepository @Inject constructor(
 
     override fun getByRef(ref: String): Transaction {
         return transactions.first { it.id == ref }
+    }
+
+    override fun onItemsChanged(callback: (List<Transaction>) -> Unit):()->Unit {
+        listeners.add(callback)
+        return {listeners.remove(callback)}
     }
 }

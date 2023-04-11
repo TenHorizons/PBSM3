@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package com.example.pbsm3.ui.screens.addTransaction
 
 import android.util.Log
@@ -8,12 +10,14 @@ import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +45,8 @@ fun AddTransactionScreen(
     var isError by remember { mutableStateOf(false) }
     var isAdded by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(modifier = modifier) {
         if (isError || isAdded) {
@@ -96,6 +102,7 @@ fun AddTransactionScreen(
             var isInProgress by remember { mutableStateOf(false) }
             Button(
                 onClick = {
+                    keyboardController?.hide()
                     isInProgress = true
                     viewModel.onAddTransaction(
                         onError = {

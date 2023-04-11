@@ -1,7 +1,9 @@
 package com.example.pbsm3.model.service.repository
 
 import android.util.Log
-import com.example.pbsm3.data.defaultCategoryToBudgetItemsMap
+import com.example.pbsm3.data.defaultBudgetItemNames
+import com.example.pbsm3.data.defaultCategoryNames
+import com.example.pbsm3.data.defaultCategoryToItemNamesMap
 import com.example.pbsm3.model.*
 import com.example.pbsm3.model.service.dataSource.UserDataSource
 import kotlinx.coroutines.*
@@ -19,7 +21,7 @@ class UserRepository @Inject constructor(
     private val transactionRepository: Repository<Transaction>,
     private val budgetItemRepository: Repository<BudgetItem>,
     private val unassignedRepository: Repository<Unassigned>
-):ProvideUser {
+) : ProvideUser {
     var currentUser: User? = null
 
     suspend fun isUsernameExists(username: String): Boolean {
@@ -62,16 +64,17 @@ class UserRepository @Inject constructor(
             accountRepository.loadData(currentUser!!.accountRefs, onError = onError)
             transactionRepository.loadData(currentUser!!.transactionRefs, onError = onError)
 
-            if(currentUser!!.unassignedRefs.isEmpty()){
+            if (currentUser!!.unassignedRefs.isEmpty()) {
                 Log.d(TAG, "availableRefs is empty. Generating default data.")
                 generateDefaultUnassigned(onError = onError)
-            }else{
+            } else {
                 unassignedRepository.loadData(currentUser!!.unassignedRefs, onError = onError)
             }
             //Currently, overwrites category and budget item refs if any one is empty.
             if ((currentUser!!.categoryRefs).isEmpty() || (currentUser!!.budgetItemRefs).isEmpty()) {
                 Log.d(TAG, "categoryRefs or budgetItemRefs are empty. Generating default data.")
-                generateDefaultDataFromMap(onError = onError)
+//                generateDefaultDataFromMap(onError = onError)
+                generateDefaultDataFromNameMap(onError)
             } else {
                 categoryRepository.loadData(currentUser!!.categoryRefs, onError = onError)
                 budgetItemRepository.loadData(currentUser!!.budgetItemRefs, onError = onError)
@@ -88,7 +91,7 @@ class UserRepository @Inject constructor(
 
     suspend fun generateDefaultUnassigned(date: LocalDate, onError: (Exception) -> Unit) {
         val isUnassignedExist = unassignedRepository.getListByDate(date).isNotEmpty()
-        if(isUnassignedExist){
+        if (isUnassignedExist) {
             Log.d(TAG, "unassigned already exists!")
             onError(IllegalArgumentException("unassigned already exists!"))
             return
@@ -96,7 +99,7 @@ class UserRepository @Inject constructor(
 
         val availableReferences: MutableList<String> = currentUser!!.unassignedRefs.toMutableList()
         withContext(NonCancellable) {
-            async{
+            async {
                 val unassignedReference =
                     unassignedRepository.saveData(Unassigned(date = date), onError)
                 availableReferences.add(unassignedReference)
@@ -105,9 +108,9 @@ class UserRepository @Inject constructor(
                 currentUser = currentUser!!.copy(
                     unassignedRefs = availableReferences
                 )
-                try{
+                try {
                     userDataSource.updateUser(currentUser!!)
-                }catch (ex: Exception){
+                } catch (ex: Exception) {
                     Log.d(TAG, "error at UserRepository::userDataSource.updateUser()")
                     onError(ex)
                 }
@@ -115,102 +118,154 @@ class UserRepository @Inject constructor(
                 //save a copy to repository
                 //using references to not expose local copy in repository
                 //also checks if it's saved to firestore correctly
-                unassignedRepository.loadData(availableReferences,onError)
+                unassignedRepository.loadData(availableReferences, onError)
             }
         }.await()
     }
 
     private suspend fun generateDefaultUnassigned(onError: (Exception) -> Unit) {
-        generateDefaultUnassigned(LocalDate.now(),onError)
+        generateDefaultUnassigned(LocalDate.now(), onError)
     }
 
-    suspend fun generateDefaultDataFromMap(date: LocalDate, onError: (Exception) -> Unit) = coroutineScope {
-        val isEmptyCategory = categoryRepository.getListByDate(date).isNotEmpty()
-        if(isEmptyCategory){
+    /*suspend fun generateDefaultDataFromMap(date: LocalDate, onError: (Exception) -> Unit) =
+        coroutineScope {
+            val isNotEmptyCategory = categoryRepository.getListByDate(date).isNotEmpty()
+            if (isNotEmptyCategory) {
+                Log.d(TAG, "category already exists!")
+                onError(IllegalArgumentException("category already exists!"))
+                this.cancel()
+            }
+
+            val categoryReferences: MutableList<String> = mutableListOf()
+            val totalItemReferences: MutableList<String> = mutableListOf()
+
+            val categoryNames: MutableList<String> = mutableListOf()
+            val budgetItemNames: MutableList<String> = mutableListOf()
+
+            withContext(NonCancellable) {
+                defaultCategoryToBudgetItemsMap.map { (category: Category, itemList: List<BudgetItem>) ->
+                    async {
+                        val adjustedCategory = category.copy(date = date)
+                        val adjustedItems = itemList.toMutableList()
+                            .map { it.copy(date = date) }
+                        val categoryReference =
+                            categoryRepository.saveData(adjustedCategory, onError)
+                        categoryReferences.add(categoryReference)
+                        categoryNames.add(adjustedCategory.name)
+                        val budgetItems = adjustedItems.map { newBudgetItem ->
+                            newBudgetItem.copy(
+                                id = budgetItemRepository.saveData(
+                                    item = newBudgetItem.copy(
+                                        categoryRef = categoryReference
+                                    ),
+                                    onError = onError
+                                ),
+                                categoryRef = categoryReference
+                            )
+                        }
+                        val budgetItemRefs = budgetItems.map { it.id }
+                        totalItemReferences.addAll(budgetItemRefs)
+                        budgetItemNames.addAll(budgetItems.map { it.name })
+
+                        categoryRepository.updateData(
+                            item = adjustedCategory.copy(
+                                id = categoryReference,
+                                budgetItemsRef = budgetItemRefs
+                            ),
+                            onError = onError
+                        )
+                    }
+                }.awaitAll()
+            }
+
+            //save a copy of auto-generated references to local, then to Firestore for safekeeping
+            currentUser = currentUser!!.copy(
+                categoryRefs = categoryReferences,
+                budgetItemRefs = totalItemReferences,
+                categoryNames = categoryNames,
+                budgetItemNames = budgetItemNames
+            )
+            try {
+                userDataSource.updateUser(currentUser!!)
+            } catch (ex: Exception) {
+                Log.e(TAG, "error at UserRepository::userDataSource.updateUser()")
+                onError(ex)
+            }
+
+            //saves a copy to repositories
+            //using references to not expose local copy in repository
+            categoryRepository.loadData(categoryReferences, onError = onError)
+            budgetItemRepository.loadData(totalItemReferences, onError = onError)
+
+            Log.d(TAG, "default categories and budget items generated.")
+            Log.d(TAG, "categories: $categoryReferences")
+            Log.d(TAG, "budget items: $totalItemReferences")
+            Log.d(TAG, "User: $currentUser")
+        }
+
+    private suspend fun generateDefaultDataFromMap(onError: (Exception) -> Unit) = coroutineScope {
+        generateDefaultDataFromMap(LocalDate.now(), onError)
+    }*/
+
+    private suspend fun generateDefaultDataFromNameMap(
+        date: LocalDate, onError: (Exception) -> Unit
+    ) = coroutineScope {
+        val isNotEmptyCategory = categoryRepository.getListByDate(date).isNotEmpty()
+        if (isNotEmptyCategory) {
             Log.d(TAG, "category already exists!")
             onError(IllegalArgumentException("category already exists!"))
             this.cancel()
         }
 
         val categoryReferences: MutableList<String> = mutableListOf()
-        val totalItemReferences: MutableList<String> = mutableListOf()
+        val itemReferences: MutableList<String> = mutableListOf()
 
-        val categoryNames:MutableList<String> = mutableListOf()
-        val budgetItemNames:MutableList<String> = mutableListOf()
-
-        withContext(NonCancellable) {
-            defaultCategoryToBudgetItemsMap.map { (category: Category, itemList: List<BudgetItem>) ->
+        withContext(Dispatchers.Default + NonCancellable) {
+            defaultCategoryToItemNamesMap.map { (categoryName, itemNames) ->
                 async {
-                    val dateAdjustedCategory = category.copy(date = date)
-                    val dateAdjustedItems = itemList.toMutableList()
-                        .map { it.copy(date = date) }
-                    val categoryReference =
-                        categoryRepository.saveData(dateAdjustedCategory, onError)
-                    categoryReferences.add(categoryReference)
-                    categoryNames.add(dateAdjustedCategory.name)
-                    val budgetItems = dateAdjustedItems.map { newBudgetItem ->
-                        newBudgetItem.copy(
-                            id = budgetItemRepository.saveData(
-                                item = newBudgetItem.copy(
-                                    categoryRef = categoryReference
-                                ),
-                                onError = onError
-                            ),
-                            categoryRef = categoryReference
-                        )
-                    }
-                    val budgetItemRefs = budgetItems.map { it.id }
-                    totalItemReferences.addAll(budgetItemRefs)
-                    budgetItemNames.addAll(budgetItems.map { it.name })
-
-                    categoryRepository.updateData(
-                        item = dateAdjustedCategory.copy(
-                            id = categoryReference,
-                            budgetItemsRef = budgetItemRefs
-                        ),
-                        onError = onError
-                    )
+                    val adjustedCategory =
+                        categoryName.createCategoryFromDefault()
+                    val adjustedItems =
+                        itemNames.createItemsFromDefault()
+                    val firestoredCategoryRef =
+                        categoryRepository.saveData(adjustedCategory, onError)
+                    categoryReferences.add(firestoredCategoryRef)
+                    val firestoredItems =
+                        adjustedItems.buildFirestoredItems(firestoredCategoryRef, onError)
+                    val itemRefs =
+                        firestoredItems.map { it.id }
+                    itemReferences.addAll(itemRefs)
+                    adjustedCategory.updateFirestoredCategory(firestoredCategoryRef, itemRefs, onError)
                 }
             }.awaitAll()
+
+            updateCurrentUser(categoryReferences, itemReferences, onError)
+
+            //saves a copy to repositories
+            //using references to not expose local copy in repository
+            categoryRepository.loadData(categoryReferences, onError = onError)
+            budgetItemRepository.loadData(itemReferences, onError = onError)
+
+            Log.d(TAG, "default categories and budget items generated.")
+            Log.d(TAG, "categories: $categoryReferences")
+            Log.d(TAG, "budget items: $itemReferences")
+            Log.d(TAG, "User: $currentUser")
         }
-
-        //save a copy of auto-generated references to local, then to Firestore for safekeeping
-        currentUser = currentUser!!.copy(
-            categoryRefs = categoryReferences,
-            budgetItemRefs = totalItemReferences,
-            categoryNames = categoryNames,
-            budgetItemNames = budgetItemNames
-        )
-        try{
-            userDataSource.updateUser(currentUser!!)
-        }catch (ex: Exception){
-            Log.e(TAG, "error at UserRepository::userDataSource.updateUser()")
-            onError(ex)
-        }
-
-        //saves a copy to repositories
-        //using references to not expose local copy in repository
-        categoryRepository.loadData(categoryReferences, onError = onError)
-        budgetItemRepository.loadData(totalItemReferences, onError = onError)
-
-        Log.d(TAG, "default categories and budget items generated.")
-        Log.d(TAG, "categories: $categoryReferences")
-        Log.d(TAG, "budget items: $totalItemReferences")
-        Log.d(TAG, "User: $currentUser")
     }
 
-    private suspend fun generateDefaultDataFromMap(onError: (Exception) -> Unit) = coroutineScope {
-        generateDefaultDataFromMap(LocalDate.now(),onError)
-    }
+    private suspend fun generateDefaultDataFromNameMap(onError: (Exception) -> Unit) =
+        coroutineScope {
+            generateDefaultDataFromNameMap(LocalDate.now(), onError)
+        }
 
     fun getCategoryNames(): List<String> = currentUser!!.categoryNames
 
     fun getAccountNames(): List<String> = currentUser!!.accountNames
 
-    fun getBudgetItemNames():List<String> = currentUser!!.budgetItemNames
+    fun getBudgetItemNames(): List<String> = currentUser!!.budgetItemNames
 
     override fun addReference(item: PBSObject) {
-        when(item){
+        when (item) {
             is Account -> {
                 currentUser = currentUser!!.copy(
                     accountNames = currentUser!!.accountNames + item.name,
@@ -244,7 +299,7 @@ class UserRepository @Inject constructor(
     }
 
     override fun removeReference(item: PBSObject) {
-        when(item){
+        when (item) {
             is Account -> {
                 currentUser = currentUser!!.copy(
                     accountNames = currentUser!!.accountNames - item.name,
@@ -277,7 +332,59 @@ class UserRepository @Inject constructor(
         }
     }
 
-//__________________________________________________________________    
+    private fun String.createCategoryFromDefault(): Category =
+        Category(
+            name = this,
+            position = defaultCategoryNames.indexOf(this)
+        )
+
+    private fun List<String>.createItemsFromDefault(): List<BudgetItem> =
+        this.map { name ->
+            BudgetItem(
+                name = name,
+                position = this.indexOf(name)
+            )
+        }
+
+    private suspend fun List<BudgetItem>.buildFirestoredItems(
+        categoryRef: String, onError: (Exception) -> Unit
+    ):List<BudgetItem> =
+        this.map { item ->
+            val itemToFirestore = item.copy(categoryRef = categoryRef)
+            val ref = budgetItemRepository.saveData(itemToFirestore, onError)
+            itemToFirestore.copy(id = ref)
+        }
+
+    private suspend fun Category.updateFirestoredCategory(
+        categoryRef: String, itemRefs: List<String>, onError: (Exception) -> Unit
+    ) {
+        val categoryToUpdate = this.copy(
+            id = categoryRef,
+            budgetItemsRef = itemRefs
+        )
+        categoryRepository.updateData(categoryToUpdate, onError)
+    }
+
+    private suspend fun updateCurrentUser(
+        categoryReferences: List<String>,
+        itemReferences: List<String>, onError: (Exception) -> Unit
+    ) {
+        currentUser = currentUser!!.copy(
+            categoryRefs = categoryReferences,
+            budgetItemRefs = itemReferences,
+            categoryNames = defaultCategoryNames,
+            budgetItemNames = defaultBudgetItemNames
+        )
+
+        try {
+            userDataSource.updateUser(currentUser!!)
+        } catch (ex: Exception) {
+            Log.e(TAG, "error at UserRepository::userDataSource.updateUser()")
+            onError(ex)
+        }
+    }
+
+//__________________________________________________________________
 
 
     //var currentUser:User? = null

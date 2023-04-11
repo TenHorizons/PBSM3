@@ -25,7 +25,8 @@ data class Account(
     @DocumentId val id:String = "",
     val name:String = "",
     val balance:BigDecimal = BigDecimal("0"),
-    val transactionRefs:List<String> = listOf()
+    val transactionRefs:List<String> = listOf(),
+    val position:Int = 0
 ):PBSObject
 /**assignedTo_Ref should be a budget item or unassigned.*/
 data class Transaction(
@@ -53,7 +54,8 @@ data class Category(
     val totalExpenses:BigDecimal = BigDecimal("0"),
     val totalBudgeted:BigDecimal = BigDecimal("0"),
     val date:LocalDate = LocalDate.now(),
-    val budgetItemsRef:List<String> = listOf()
+    val budgetItemsRef:List<String> = listOf(),
+    val position: Int = 0
 ):PBSObject
 
 data class BudgetItem(
@@ -63,7 +65,8 @@ data class BudgetItem(
     val totalExpenses:BigDecimal = BigDecimal("0"),
     val totalBudgeted:BigDecimal = BigDecimal("0"),
     var date:LocalDate = LocalDate.now(),
-    val categoryRef: String = ""
+    val categoryRef: String = "",
+    val position: Int = 0
 ):PBSObject
 
 data class FirestoreTransaction(
@@ -90,14 +93,16 @@ data class FirestoreCategory(
     val totalExpenses:String = "",
     val totalBudgeted:String = "",
     val date:String = LocalDate.now().toString(),
-    val budgetItemsRef:List<String> = listOf()
+    val budgetItemsRef:List<String> = listOf(),
+    val position: Int = 0
 )
 
 data class FirestoreAccount(
     @DocumentId val id:String = "",
     val name:String = "",
     val balance:String = "",
-    val transactionRefs:List<String> = listOf()
+    val transactionRefs:List<String> = listOf(),
+    val position: Int = 0
 )
 
 data class FirestoreBudgetItem(
@@ -107,5 +112,6 @@ data class FirestoreBudgetItem(
     val totalExpenses:String = "",
     val totalBudgeted:String = "",
     val date:String = LocalDate.now().toString(),
-    val categoryRef: String = ""
+    val categoryRef: String = "",
+    val position: Int = 0
 )

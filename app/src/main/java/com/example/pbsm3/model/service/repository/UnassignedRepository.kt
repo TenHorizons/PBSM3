@@ -18,8 +18,18 @@ class UnassignedRepository @Inject constructor(
 ):Repository<Unassigned>,Carryover<Unassigned> {
 
     var unassigned:MutableList<Unassigned> = mutableListOf()
+        private set(value) {
+            field = value
+            for(listener in listeners){
+                listener(field)
+            }
+        }
+    private var listeners:MutableList<(List<Unassigned>)->Unit> = mutableListOf()
+
+
     private val userRepository:ProvideUser
     get() = userRepo.get()
+
     override suspend fun loadData(docRefs: List<String>, onError: (Exception) -> Unit) {
         if(docRefs.isEmpty()) {
             Log.d(TAG, "No 'Available's to retrieve.")
@@ -66,6 +76,11 @@ class UnassignedRepository @Inject constructor(
         return unassigned.first { it.id == ref }
     }
 
+    override fun onItemsChanged(callback: (List<Unassigned>) -> Unit):()->Unit {
+        listeners.add(callback)
+        return {listeners.remove(callback)}
+    }
+
     override suspend fun updateData(item: Unassigned, onError: (Exception) -> Unit) {
         try {
             unassignedDataSource.update(item)
@@ -104,24 +119,26 @@ class UnassignedRepository @Inject constructor(
             throw IllegalStateException(
                 "carryover was modified outside repository"
             )
-        unassigned.sortBy { it.date }
-        val indexOfModified = unassigned.indexOf(beforeModify)
+        val list = unassigned.toMutableList()
+        list.sortBy { it.date }
+        val indexOfModified = list.indexOf(beforeModify)
         Log.i(TAG,
             "processModifiedItem before modify:\n" +
-                    "${unassigned[indexOfModified]}\n" +
+                    "${list[indexOfModified]}\n" +
                     "item: $item"
         )
-        unassigned[indexOfModified] = item
-        Log.i(TAG,"Item modified. updated:\n${unassigned[indexOfModified]}")
+        list[indexOfModified] = item
+        Log.i(TAG,"Item modified. updated:\n${list[indexOfModified]}")
         var indexToRecalculate = indexOfModified+1
-        while(indexToRecalculate < unassigned.size){
-            Log.i(TAG,"recalculating. before recalculate: ${unassigned[indexToRecalculate]}")
-            val recalculated = unassigned[indexToRecalculate]
+        while(indexToRecalculate < list.size){
+            Log.i(TAG,"recalculating. before recalculate: ${list[indexToRecalculate]}")
+            val recalculated = list[indexToRecalculate]
                 .calculateCarryover()
-            updateLocalData(recalculated)
-            Log.i(TAG,"after recalculate: ${unassigned[indexToRecalculate]}")
+            list[indexToRecalculate] = recalculated
+            Log.i(TAG,"after recalculate: ${list[indexToRecalculate]}")
             indexToRecalculate++
         }
+        unassigned = list
     }
 
     private suspend fun Unassigned.linkItems(

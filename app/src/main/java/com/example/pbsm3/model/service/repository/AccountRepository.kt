@@ -14,6 +14,13 @@ class AccountRepository @Inject constructor(
     private val accountDataSource: DataSource<Account>
 ):Repository<Account> {
     var accounts:MutableList<Account> = mutableListOf()
+        private set(value) {
+            field = value
+            for(listener in listeners){
+                listener(field)
+            }
+        }
+    private var listeners:MutableList<(List<Account>)->Unit> = mutableListOf()
 
     override suspend fun loadData(docRefs:List<String>, onError:(Exception)->Unit){
         if(docRefs.isEmpty()) {
@@ -39,7 +46,9 @@ class AccountRepository @Inject constructor(
     }
 
     override suspend fun saveLocalData(item: Account) {
-        accounts.add(item)
+        accounts.add(item.copy(
+            position = accounts.size
+        ))
     }
 
     override suspend fun updateLocalData(item: Account) {
@@ -71,5 +80,10 @@ class AccountRepository @Inject constructor(
 
     override fun getByRef(ref: String): Account {
         return accounts.first { it.id == ref }
+    }
+
+    override fun onItemsChanged(callback: (List<Account>) -> Unit):()->Unit {
+        listeners.add(callback)
+        return {listeners.remove(callback)}
     }
 }

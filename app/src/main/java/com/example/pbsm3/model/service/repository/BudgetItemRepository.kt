@@ -3,6 +3,8 @@ package com.example.pbsm3.model.service.repository
 import android.util.Log
 import com.example.pbsm3.data.getCarryover
 import com.example.pbsm3.model.BudgetItem
+import com.example.pbsm3.model.Category
+import com.example.pbsm3.model.Unassigned
 import com.example.pbsm3.model.service.dataSource.DataSource
 import java.time.LocalDate
 import javax.inject.Inject
@@ -14,11 +16,31 @@ private const val TAG = "BudgetItemRepository"
 @Singleton
 class BudgetItemRepository @Inject constructor(
     private val budgetItemDataSource: DataSource<BudgetItem>,
-    private val userRepo: Provider<ProvideUser>
+    private val userRepo: Provider<ProvideUser>,
+    private val catRepo: Provider<Repository<Category>>,
+    private val unaRepo: Provider<Repository<Unassigned>>,
+    private val unaCarryover: Provider<Carryover<Unassigned>>,
+    private val catCarryover: Provider<Carryover<Category>>
 ):Repository<BudgetItem>,Carryover<BudgetItem> {
-    var budgetItems:MutableList<BudgetItem> = mutableListOf()
+    private var budgetItems:List<BudgetItem> = listOf()
+    private set(value) {
+        field = value
+        for(listener in listeners){
+            listener(field)
+        }
+    }
+    private var listeners:MutableList<(List<BudgetItem>)->Unit> = mutableListOf()
+
     private val userRepository:ProvideUser
     get() = userRepo.get()
+    private val unassignedRepository:Repository<Unassigned>
+        get() = unaRepo.get()
+    private val unassignedCarryover:Carryover<Unassigned>
+        get() = unaCarryover.get()
+    private val categoryRepository:Repository<Category>
+        get() = catRepo.get()
+    private val categoryCarryover:Carryover<Category>
+        get() = catCarryover.get()
 
     override suspend fun loadData(docRefs:List<String>, onError:(Exception)->Unit){
         if(docRefs.isEmpty()) {
@@ -29,7 +51,7 @@ class BudgetItemRepository @Inject constructor(
             try{
                 val item = budgetItemDataSource.get(docRef)
 
-                budgetItems.add(item)
+                budgetItems = budgetItems + item
             }
             catch (ex:Exception){
                 Log.d(TAG, "error at BudgetItemRepository::loadBudgetItems")
@@ -45,7 +67,7 @@ class BudgetItemRepository @Inject constructor(
     }
 
     override suspend fun saveLocalData(item: BudgetItem) {
-        budgetItems.add(item)
+        budgetItems = budgetItems + item
         //TODO add a whole bunch of algorithms
     }
 
@@ -53,7 +75,9 @@ class BudgetItemRepository @Inject constructor(
         val oldItem = getByRef(item.id)
         Log.i(TAG,"budget item update start.Before update:\n$oldItem\nupdated item:\n$item")
         val oldItemIndex = budgetItems.indexOf(oldItem)
-        budgetItems[oldItemIndex] = item
+        val list = budgetItems.toMutableList()
+        list[oldItemIndex] = item
+        budgetItems = list
         Log.i(TAG,"budget item added.\nindex: $oldItemIndex\nlist: \n$budgetItems")
         processModifiedItem(item)
     }
@@ -78,11 +102,17 @@ class BudgetItemRepository @Inject constructor(
         return budgetItems.first { it.id == ref }
     }
 
+    override fun onItemsChanged(callback: (List<BudgetItem>) -> Unit):()->Unit {
+        listeners.add(callback)
+        return {listeners.remove(callback)}
+    }
+
     override suspend fun createAndSaveNewItem(item: BudgetItem) {
         if (budgetItems.any { it.date == item.date })
             throw IllegalStateException("Budget Item already exists!")
-        budgetItems.sortBy { it.date }
-        val lastDate = budgetItems.last().date
+        val list = budgetItems.toMutableList()
+        list.sortBy { it.date }
+        val lastDate = list.last().date
         if (lastDate > item.date)
             throw IllegalStateException(
                 "latest Unassigned has newer date!"
@@ -108,19 +138,51 @@ class BudgetItemRepository @Inject constructor(
                     "${budgetItems[indexOfModifiedInFullList]}\n" +
                     "item: $item"
         )
-        budgetItems[indexOfModifiedInFullList] = item
-        Log.i(TAG,"Item modified. updated:\n${budgetItems[indexOfModifiedInSameNameItems]}")
+        val list = budgetItems.toMutableList()
+        list[indexOfModifiedInFullList] = item
+        Log.i(TAG,"Item modified. updated:\n${list[indexOfModifiedInFullList]}")
         var indexToRecalculate = indexOfModifiedInSameNameItems+1
         while(indexToRecalculate < sameNameItems.size){
             val itemToRecalculate = sameNameItems[indexToRecalculate]
-            val indexInFullList = budgetItems.indexOf((getByRef(itemToRecalculate.id)))
+            val indexInFullList = list.indexOf((getByRef(itemToRecalculate.id)))
             Log.i(TAG,"recalculating. before recalculate: ${sameNameItems[indexToRecalculate]}")
             val recalculated = sameNameItems[indexToRecalculate]
                 .calculateCarryover()
-            budgetItems[indexInFullList] = recalculated
-            Log.i(TAG,"after recalculate: ${budgetItems[indexInFullList]}")
+            list[indexInFullList] = recalculated
+            Log.i(TAG,"after recalculate: ${list[indexInFullList]}")
             indexToRecalculate++
         }
+        budgetItems = list
+
+        updateCategory(beforeModify,item)
+        updateUnassigned(beforeModify,item)
+    }
+
+    private suspend fun updateCategory(beforeModify:BudgetItem, modifiedItem:BudgetItem){
+        Log.i(TAG,"updateCategory start. beforeModify:\n$beforeModify\n" +
+                "modifiedItem:\n$modifiedItem")
+        val categoryList = categoryRepository.getListByDate(modifiedItem.date)
+        var category = categoryList.first { it.budgetItemsRef.contains(modifiedItem.id) }
+        val oldBudgeted = category.totalBudgeted
+        Log.i(TAG,"category oldBudgeted: $oldBudgeted")
+        val changeInValue = (modifiedItem.totalBudgeted).minus(beforeModify.totalBudgeted)
+        Log.i(TAG,"category newValue: ${oldBudgeted.plus(changeInValue)}")
+        category = category.copy(totalBudgeted = oldBudgeted.plus(changeInValue))
+        categoryCarryover.processModifiedItem(category)
+    }
+
+    private suspend fun updateUnassigned(beforeModify:BudgetItem, modifiedItem:BudgetItem){
+        Log.i(TAG,"updateUnassigned start. beforeModify:\n$beforeModify\n" +
+                "modifiedItem:\n$modifiedItem")
+        val unassignedList = unassignedRepository.getListByDate(modifiedItem.date)
+        Log.i(TAG,"unassignedList: $unassignedList")
+        var unassigned = unassignedList.first()
+        val oldBudgeted = unassigned.totalBudgeted
+        Log.i(TAG,"unassigned oldBudgeted: $oldBudgeted")
+        val changeInValue = (modifiedItem.totalBudgeted).minus(beforeModify.totalBudgeted)
+        Log.i(TAG,"unassigned newValue: ${oldBudgeted.minus(changeInValue)}")
+        unassigned = unassigned.copy(totalBudgeted = oldBudgeted.minus(changeInValue))
+        unassignedCarryover.processModifiedItem(unassigned)
     }
 
     private suspend fun BudgetItem.linkItems(

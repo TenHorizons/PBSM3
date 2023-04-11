@@ -41,6 +41,8 @@ abstract class ServiceModule {
     abstract fun provideUnassignedCarryover(unaRepo:UnassignedRepository):Carryover<Unassigned>
     @Binds
     abstract fun provideBudgetItemCarryover(biRepo:BudgetItemRepository):Carryover<BudgetItem>
+    @Binds
+    abstract fun provideCategoryCarryover(catRepo:CategoryRepository):Carryover<Category>
 
     @Binds
     abstract fun provideUserRepo(userRepo:UserRepository):ProvideUser
