@@ -2,15 +2,16 @@
 
 package com.example.pbsm3.ui.screens.budget
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -38,7 +39,7 @@ import java.time.LocalDate
 
 
 private const val TAG = "BudgetScreen"
-
+//TODO deal with budget name eventually
 @Composable
 fun BudgetScreen(
     modifier: Modifier = Modifier,
@@ -47,9 +48,6 @@ fun BudgetScreen(
     onItemClicked: (Category, BudgetItem) -> Unit = { _, _ -> },
     onBackPressed: () -> Unit = {}
 ) {
-//TODO deal with budget name eventually
-    Log.d(TAG, "BudgetScreen start. Budget Name: ")
-
     BackHandler(onBack = onBackPressed)
 
     LaunchedEffect(true) {
@@ -96,6 +94,7 @@ fun AvailableToBudgetRow(
     availableToBudget: BigDecimal,
     modifier: Modifier = Modifier
 ) {
+    val scroll = rememberScrollState(0)
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
@@ -109,7 +108,9 @@ fun AvailableToBudgetRow(
         ) {
             Text(text = "Available to Budget: ")
             Spacer(modifier = Modifier.weight(1f))
+
             Text(
+                modifier = Modifier.horizontalScroll(scroll),
                 text =
                 (if(availableToBudget.isLessThanZero())"-RM"
                 else "RM") +
@@ -120,7 +121,9 @@ fun AvailableToBudgetRow(
                 style = TextStyle.Default.copy(
                     fontSize = 36.sp,
                     textAlign = TextAlign.End
-                ))
+                ),
+                maxLines = 1
+            )
         }
     }
 }

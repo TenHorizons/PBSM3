@@ -42,7 +42,7 @@ class SplashViewModel @Inject constructor(
             errorMessage.value = "error loading user data. Error: $it."
             Log.d(TAG, "error loading user data. Error: $it.")
         })
-        Log.d(TAG, "user data loaded. User: ${userRepository.currentUser}")
+//        Log.d(TAG, "user data loaded. User: ${userRepository.currentUser}")
     }
 
  /*   /**Calls account service to create an anonymous account, then

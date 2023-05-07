@@ -8,5 +8,6 @@ data class BudgetItemScreenState(
     val totalCarryover: BigDecimal = BigDecimal("0"),
     val totalExpenses:BigDecimal = BigDecimal("0"),
     val totalBudgeted:BigDecimal = BigDecimal("0"),
-    val date:LocalDate = LocalDate.now()
+    val date:LocalDate = LocalDate.now(),
+    val memo: String = ""
 )

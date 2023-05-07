@@ -24,7 +24,7 @@ abstract class ServiceModule {
     @Binds
     abstract fun provideBudgetItemDataSource(itemDS: BudgetItemDataSource): DataSource<BudgetItem>
     @Binds
-    abstract fun provideAvailableDataSource(avaDS: AvailableDataSource): DataSource<Unassigned>
+    abstract fun provideAvailableDataSource(avaDS: UnassignedDataSource): DataSource<Unassigned>
 
     @Binds
     abstract fun provideAccountRepository(accRepo: AccountRepository): Repository<Account>

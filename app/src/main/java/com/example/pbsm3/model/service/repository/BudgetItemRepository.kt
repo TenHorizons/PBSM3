@@ -144,7 +144,10 @@ class BudgetItemRepository @Inject constructor(
         while(indexToRecalculate < sameNameItems.size){
             val itemToRecalculate = sameNameItems[indexToRecalculate]
             val indexInFullList = list.indexOf((getByRef(itemToRecalculate.id)))
-            Log.i(TAG,"recalculating. before recalculate: ${sameNameItems[indexToRecalculate]}")
+            Log.i(TAG,
+                "recalculating. before recalculate: " +
+                        "${sameNameItems[indexToRecalculate]}"
+            )
             val recalculated = sameNameItems[indexToRecalculate]
                 .calculateCarryover()
             list[indexInFullList] = recalculated

@@ -20,12 +20,13 @@ class BudgetItemDataSource @Inject constructor(
             suspendCoroutine { continuation ->
                 getCollection().document(id).get()
                     .addOnSuccessListener { document ->
-                        val item: FirestoreBudgetItem? = document.toObject(FirestoreBudgetItem::class.java)
+                        val item: FirestoreBudgetItem? =
+                            document.toObject(FirestoreBudgetItem::class.java)
                         if (item == null) continuation.resumeWithException(
                             NoSuchElementException("Category not found")
                         )
                         else {
-                            continuation.resume(toNewBudgetItem(item))
+                            continuation.resume(toBudgetItem(item))
                         }
                     }
                     .addOnFailureListener {
@@ -89,7 +90,7 @@ class BudgetItemDataSource @Inject constructor(
         )
     }
 
-    private fun toNewBudgetItem(item:FirestoreBudgetItem):BudgetItem{
+    private fun toBudgetItem(item:FirestoreBudgetItem):BudgetItem{
         return BudgetItem(
             id = item.id,
             name = item.name,

@@ -138,14 +138,14 @@ class CategoryRepository @Inject constructor(
     }
 
     private fun Category.calculateCarryover(): Category {
-        val lastMonth = this.getPreviousMonthBudgetItem()
+        val lastMonth = this.getPreviousMonthCategory()
         val currentCarryover = this.totalCarryover
         val lastMonthCarryover = lastMonth.getCarryover()
         val updatedCarryover = currentCarryover.plus(lastMonthCarryover)
         return this.copy(totalCarryover = updatedCarryover)
     }
 
-    private fun Category.getPreviousMonthBudgetItem():Category{
+    private fun Category.getPreviousMonthCategory():Category{
         return categories.first {
             it.date == this.date.minusMonths(1) &&
                     it.name == this.name

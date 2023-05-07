@@ -4,9 +4,21 @@ import android.util.Log
 import com.example.pbsm3.data.defaultBudgetItemNames
 import com.example.pbsm3.data.defaultCategoryNames
 import com.example.pbsm3.data.defaultCategoryToItemNamesMap
-import com.example.pbsm3.model.*
+import com.example.pbsm3.model.Account
+import com.example.pbsm3.model.BudgetItem
+import com.example.pbsm3.model.Category
+import com.example.pbsm3.model.PBSObject
+import com.example.pbsm3.model.Transaction
+import com.example.pbsm3.model.Unassigned
+import com.example.pbsm3.model.User
 import com.example.pbsm3.model.service.dataSource.UserDataSource
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,7 +34,7 @@ class UserRepository @Inject constructor(
     private val budgetItemRepository: Repository<BudgetItem>,
     private val unassignedRepository: Repository<Unassigned>
 ) : ProvideUser {
-    var currentUser: User? = null
+    private var currentUser: User? = null
 
     suspend fun isUsernameExists(username: String): Boolean {
         return userDataSource.checkIfUsernameExists(username)
