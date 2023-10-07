@@ -2,7 +2,6 @@
 
 package com.example.pbsm3.ui.screens.addTransaction
 
-import android.inputmethodservice.Keyboard
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
@@ -31,7 +30,6 @@ import com.example.pbsm3.Screen
 import com.example.pbsm3.theme.PBSM3Theme
 import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import com.example.pbsm3.ui.commonScreenComponents.datepicker.PBSDatePicker
-import org.w3c.dom.Text
 import java.time.LocalDate
 
 private const val TAG = "AddTransactionScreen"
@@ -60,7 +58,7 @@ fun AddTransactionScreen(
                     else colorScheme.tertiaryContainer
                 )
             ) {
-                Keyboard.Row(modifier = Modifier.padding(8.dp)) {
+                Row(modifier = Modifier.padding(8.dp)) {
                     Text(
                         text =
                         if (isError) errorMessage
