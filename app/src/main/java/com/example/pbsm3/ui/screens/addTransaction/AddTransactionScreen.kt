@@ -2,6 +2,7 @@
 
 package com.example.pbsm3.ui.screens.addTransaction
 
+import android.inputmethodservice.Keyboard
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
@@ -30,6 +31,7 @@ import com.example.pbsm3.Screen
 import com.example.pbsm3.theme.PBSM3Theme
 import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import com.example.pbsm3.ui.commonScreenComponents.datepicker.PBSDatePicker
+import org.w3c.dom.Text
 import java.time.LocalDate
 
 private const val TAG = "AddTransactionScreen"
@@ -58,10 +60,10 @@ fun AddTransactionScreen(
                     else colorScheme.tertiaryContainer
                 )
             ) {
-                Row(modifier = Modifier.padding(8.dp)) {
+                Keyboard.Row(modifier = Modifier.padding(8.dp)) {
                     Text(
                         text =
-                        if (isError) "Error! Error Message:\n$errorMessage"
+                        if (isError) errorMessage
                         else "Transaction Added!"
                     )
                 }
@@ -107,7 +109,7 @@ fun AddTransactionScreen(
                     viewModel.onAddTransaction(
                         onError = {
                             isError = true
-                            errorMessage = it.toString()
+                            errorMessage = it.message ?: it.toString()
                             isInProgress = false
                         },
                         onComplete = {
@@ -289,17 +291,21 @@ fun Memo(memoText: String, onTextChanged: (String) -> Unit) {
         modifier = Modifier.padding(8.dp)
     ) {
         Text("Memo", Modifier.padding(start = 14.dp))
+        val containerColor = colorScheme.primaryContainer//TODO check if color correct
         TextField(
             value = memoText,
             onValueChange = onTextChanged,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.3f),
-            colors = TextFieldDefaults.textFieldColors(
-                disabledIndicatorColor = Transparent,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = containerColor,
+                unfocusedContainerColor = containerColor,
+                disabledContainerColor = containerColor,
                 focusedIndicatorColor = Transparent,
                 unfocusedIndicatorColor = Transparent,
-                errorIndicatorColor = Red
+                disabledIndicatorColor = Transparent,
+                errorIndicatorColor = Red,
             ),
             label = { Text("Write notes here...") }
         )

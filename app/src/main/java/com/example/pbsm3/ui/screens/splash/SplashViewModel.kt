@@ -10,7 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val TAG = "SplashViewModel"
+private const val TAG = "SplashScreenViewModel"
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
@@ -21,6 +21,8 @@ class SplashViewModel @Inject constructor(
     val errorMessage = mutableStateOf("")
 
     fun onAppStart(onStartupComplete: () -> Unit) {
+        val start = System.currentTimeMillis()
+        Log.d(TAG,"load start: $start")
         showError.value = false
         errorMessage.value=""
         viewModelScope.launch {
@@ -31,6 +33,9 @@ class SplashViewModel @Inject constructor(
             else {
                 loadUserData()
             }
+            val end = System.currentTimeMillis()
+            Log.d(TAG,"load end: $end")
+            Log.d(TAG,"load time: ${end-start}")
             onStartupComplete()
         }
     }

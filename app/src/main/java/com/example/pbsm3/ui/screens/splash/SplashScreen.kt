@@ -1,8 +1,13 @@
 package com.example.pbsm3.ui.screens.splash
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -16,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-
+private const val TAG = "SplashScreen"
 @Composable
 fun SplashScreen(
     onStartupComplete: () -> Unit,
@@ -24,6 +29,8 @@ fun SplashScreen(
     viewModel: SplashViewModel = hiltViewModel(),
     onBackPressed:()->Unit={}
 ) {
+    val start = System.currentTimeMillis()
+    Log.d(TAG,"screen start: $start")
     BackHandler(onBack = onBackPressed)
     Column(
         modifier =
@@ -53,4 +60,8 @@ fun SplashScreen(
 //        delay(10000L)
         viewModel.onAppStart(onStartupComplete = onStartupComplete)
     }
+
+    val end = System.currentTimeMillis()
+    Log.d(TAG,"screen end: $end")
+    Log.d(TAG,"screen time: ${end-start}")
 }
