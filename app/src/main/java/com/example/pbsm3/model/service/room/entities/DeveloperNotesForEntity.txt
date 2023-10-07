@@ -1,0 +1,11 @@
+1. According to stackoverflow, room only supports 5 data types which are TEXT, INTEGER, BLOB, REAL and UNDEFINED.
+java data types of Boolean, Integer, Long will be all converted to INTEGER in SQL.
+It is also safe to assume that data types beyond primitive such as BigDecimal won't be supported either.
+Ref:
+https://stackoverflow.com/questions/54035138/create-room-entity-for-a-table-which-has-a-field-with-long-datatype-in-sqlite#:~:text=Room%20only%20supports%205%20data,converted%20to%20INTEGER%20in%20SQL.
+
+2. The solution for the above issue is to have 2 classes, the usual class and the adapter/wrapper class.
+The adapter/wrapper class converts the class into a Room-friendly format.
+Refer to Category calss for example. 2 functions are included in the class file to convert between them.
+
+3. I wrote this note so tha contributors can follow and keep the coding practice standardized.
