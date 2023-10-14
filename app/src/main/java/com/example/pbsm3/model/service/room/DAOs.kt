@@ -21,8 +21,18 @@ interface CategoryRoomDao{
     suspend fun delete(category: CategoryRoom)
 
     @Query("select * from category where id = :id")
-    fun getCategory(id: String): Flow<CategoryRoom>
+    suspend fun getCategoryById(id: String): Flow<CategoryRoom>
 
-    @Query("SELECT * from category ORDER BY date")
-    fun getAllCategory(): Flow<List<CategoryRoom>>
+    @Query("select * from category where date = :date")
+    suspend fun getCategoriesByDate(date: String): Flow<List<CategoryRoom>>
+
+    @Query("select * from category where name = :name")
+    suspend fun getCategoriesByName(name: String): Flow<List<CategoryRoom>>
 }
+
+@Dao
+interface AccountDao{
+
+}
+
+accountRepository

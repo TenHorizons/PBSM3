@@ -4,8 +4,19 @@ import android.content.res.Resources
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -29,7 +40,7 @@ fun Main() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        var currentScreen: Screen by remember { mutableStateOf(Screen.SignInScreen) }
+        var currentScreen: Screen by remember { mutableStateOf(Screen.Splash) }
         val appState = rememberAppState()
         var selectedDate: LocalDate by remember { mutableStateOf(getFirstDayOfMonth()) }
         var customTopBarText: String by remember { mutableStateOf("") }
@@ -82,7 +93,7 @@ fun Main() {
         ) { innerPadding ->
             NavHostBuilder(
                 navController = appState.navController,
-                startDestination = Screen.SignInScreen.name,
+                startDestination = Screen.Splash.name,
                 modifier = Modifier.padding(innerPadding),
                 selectedDate = selectedDate,
                 appState = appState,

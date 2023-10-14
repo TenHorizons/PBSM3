@@ -11,8 +11,6 @@ import com.example.pbsm3.ui.screens.addAccount.AddAccountScreen
 import com.example.pbsm3.ui.screens.addTransaction.AddTransactionScreen
 import com.example.pbsm3.ui.screens.budget.BudgetScreen
 import com.example.pbsm3.ui.screens.budgetItem.BudgetItemScreen
-import com.example.pbsm3.ui.screens.login.SignInScreen
-import com.example.pbsm3.ui.screens.signup.SignUpScreen
 import com.example.pbsm3.ui.screens.splash.SplashScreen
 import java.time.LocalDate
 
@@ -31,30 +29,6 @@ fun NavHostBuilder(
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        composable(route = Screen.SignInScreen.name) {
-            SignInScreen(
-                onSignUpClick = {
-                    onScreenChange(Screen.SignUpScreen)
-                    appState.navigateAndPopUp(Screen.SignUpScreen.name, Screen.SignInScreen.name)
-                },
-                onComplete = {
-                    appState.navigateAndPopUp(Screen.Splash.name, Screen.SignInScreen.name)
-                }
-            )
-        }
-        composable(route = Screen.SignUpScreen.name) {
-            SignUpScreen(
-                onComplete = {
-                    onScreenChange(Screen.Splash)
-                    appState.navigateAndPopUp(Screen.Splash.name, Screen.SignUpScreen.name)
-                },
-                onBackPressed = {
-                    onScreenChange(Screen.SignInScreen)
-                    appState.navigateAndPopUp(Screen.SignInScreen.name, Screen.SignUpScreen.name)
-                }
-            )
-        }
-
         composable(route = Screen.Splash.name) {
             SplashScreen(
                 onStartupComplete = {
@@ -124,5 +98,29 @@ fun NavHostBuilder(
                 }
             )
         }
+
+        /*composable(route = Screen.SignInScreen.name) {
+            SignInScreen(
+                onSignUpClick = {
+                    onScreenChange(Screen.SignUpScreen)
+                    appState.navigateAndPopUp(Screen.SignUpScreen.name, Screen.SignInScreen.name)
+                },
+                onComplete = {
+                    appState.navigateAndPopUp(Screen.Splash.name, Screen.SignInScreen.name)
+                }
+            )
+        }
+        composable(route = Screen.SignUpScreen.name) {
+            SignUpScreen(
+                onComplete = {
+                    onScreenChange(Screen.Splash)
+                    appState.navigateAndPopUp(Screen.Splash.name, Screen.SignUpScreen.name)
+                },
+                onBackPressed = {
+                    onScreenChange(Screen.SignInScreen)
+                    appState.navigateAndPopUp(Screen.SignInScreen.name, Screen.SignUpScreen.name)
+                }
+            )
+        }*/
     }
 }

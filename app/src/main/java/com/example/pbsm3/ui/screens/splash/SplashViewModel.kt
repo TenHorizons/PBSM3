@@ -17,25 +17,17 @@ class SplashViewModel @Inject constructor(
     private val userRepository: UserRepository,
     logService: LogService
 ) : CommonViewModel(logService) {
-    val showError = mutableStateOf(false)
-    val errorMessage = mutableStateOf("")
+    val uiState = mutableStateOf(SplashViewModelState())
 
     fun onAppStart(onStartupComplete: () -> Unit) {
         val start = System.currentTimeMillis()
-        Log.d(TAG,"load start: $start")
-        showError.value = false
-        errorMessage.value=""
+        Log.d(TAG, "load start: $start")
+        uiState.value = uiState.value.copy(showError = false)
+        uiState.value = uiState.value.copy(errorMessage = "")
+
         viewModelScope.launch {
-            if (!userRepository.hasUser()) {
-                showError.value = true
-                errorMessage.value = "user was not saved in user repository."
-            }
-            else {
-                loadUserData()
-            }
-            val end = System.currentTimeMillis()
-            Log.d(TAG,"load end: $end")
-            Log.d(TAG,"load time: ${end-start}")
+            loadUserData()
+
             onStartupComplete()
         }
     }
@@ -47,23 +39,10 @@ class SplashViewModel @Inject constructor(
             errorMessage.value = "error loading user data. Error: $it."
             Log.d(TAG, "error loading user data. Error: $it.")
         })
-//        Log.d(TAG, "user data loaded. User: ${userRepository.currentUser}")
     }
-
- /*   /**Calls account service to create an anonymous account, then
-     * saves a user document into the collection.
-     * The authentication does not add a document to the
-     * user collection, so this method also
-     * initializes the default fields in a user object*/
-    private suspend fun createAnonymousAccount() {
-        try {
-            accountService.createAnonymousAccount()
-        } catch (ex: FirebaseAuthException) {
-            showError.value = true
-            throw ex
-        } catch (exc: Exception) {
-            throw exc
-        }
-
-    }*/
 }
+
+data class SplashViewModelState(
+    val showError: Boolean = false,
+    val errorMessage: String = ""
+)

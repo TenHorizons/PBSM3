@@ -8,7 +8,7 @@ import java.time.LocalDate
 @Entity(tableName = "category")
 data class CategoryRoom(
     @PrimaryKey(autoGenerate = true)
-    val id: String = "",
+    val id: Int = -1,
     val name:String ="",
     val totalCarryover: String = "",
     val totalExpenses: String = "",
@@ -19,7 +19,7 @@ data class CategoryRoom(
 )
 
 data class CategoryBeforeRoom(
-    val id: String = "",
+    val id: Int = -1,
     val name:String ="",
     val totalCarryover: BigDecimal = BigDecimal("0"),
     val totalExpenses:BigDecimal = BigDecimal("0"),
