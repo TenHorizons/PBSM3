@@ -62,7 +62,6 @@ fun AddAccountScreen(
                 unfocusedIndicatorColor = Transparent
             ),
             keyboardOptions =
-            //TODO Upgrade to Decimal
             KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
         )
         Spacer(Modifier.height(8.dp))

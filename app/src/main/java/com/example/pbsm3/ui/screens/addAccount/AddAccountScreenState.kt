@@ -4,5 +4,5 @@ import java.math.BigDecimal
 
 data class AddAccountScreenState(
     val accountName:String="",
-    val accountBalance:BigDecimal = BigDecimal("0.0000")
+    val accountBalance:BigDecimal = BigDecimal("0")
 )

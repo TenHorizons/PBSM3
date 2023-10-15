@@ -54,7 +54,6 @@ fun NavHostBuilder(
                 }
             )
         }
-
         composable(route = Screen.Splash.name) {
             SplashScreen(
                 onStartupComplete = {

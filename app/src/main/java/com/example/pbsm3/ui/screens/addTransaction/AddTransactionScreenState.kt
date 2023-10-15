@@ -11,5 +11,5 @@ data class AddTransactionScreenState(
     val selectedAccountName: String = "",
     val accountOptions: List<String> = listOf(),
     val selectedDate:LocalDate = LocalDate.now(),
-    val memoText: String = "",
+    val memoText: String = ""
 )

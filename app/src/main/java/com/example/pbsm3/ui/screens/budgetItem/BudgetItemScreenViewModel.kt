@@ -1,7 +1,7 @@
 package com.example.pbsm3.ui.screens.budgetItem
 
 import androidx.compose.runtime.mutableStateOf
-import com.example.pbsm3.model.service.LogService
+import com.example.pbsm3.firebaseModel.service.LogService
 import com.example.pbsm3.ui.screens.CommonViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.math.BigDecimal

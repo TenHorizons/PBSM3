@@ -6,16 +6,17 @@ plugins {
     id 'com.google.firebase.firebase-perf'
     id 'com.google.dagger.hilt.android'
     id 'kotlin-kapt'
+    id("com.google.devtools.ksp")
 }
 
 android {
     namespace 'com.example.pbsm3'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.pbsm3"
         minSdk 26
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -32,17 +33,17 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
     buildFeatures {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.0'
+        kotlinCompilerExtensionVersion '1.4.4'
     }
     packagingOptions {
         resources {
@@ -56,39 +57,54 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.0'
-    implementation 'androidx.activity:activity-compose:1.6.1'
-    implementation "androidx.compose.ui:ui:1.4.0-rc01"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.compose.material3:material3:1.1.0-alpha08'
-    implementation "androidx.compose.material:material-icons-extended:1.3.1"
-    implementation "androidx.navigation:navigation-compose:$nav_version"
-    implementation "org.jetbrains.kotlin:kotlin-script-runtime:1.8.0"
+    // Compose BOM
+    implementation platform('androidx.compose:compose-bom:2023.10.00')
+    implementation 'androidx.compose.animation:animation-core'
+    implementation 'androidx.compose.animation:animation-graphics'
+    implementation 'androidx.compose.material:material-icons-core'
+    implementation 'androidx.compose.material:material-icons-extended'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    //overriding BOM because keeps failing to resolve. Following bom mapping in:
+    //https://developer.android.com/jetpack/compose/bom/bom-mapping
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.5.3'
+
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.2'
+    implementation 'androidx.activity:activity-compose:1.8.0'
+
+    implementation "androidx.navigation:navigation-compose:2.7.4"
+    implementation "org.jetbrains.kotlin:kotlin-script-runtime:1.8.10"
+
+    //Room
+    implementation("androidx.room:room-runtime:2.5.2")
+    ksp "androidx.room:room-compiler:2.5.2"
+    implementation("androidx.room:room-ktx:2.5.2")
 
     //Sheets-Compose-Dialogs Android Library for Month/Year Picker
     implementation "com.maxkeppeler.sheets-compose-dialogs:core:$sheets_compose_dialogs_version"
     implementation "com.maxkeppeler.sheets-compose-dialogs:calendar:$sheets_compose_dialogs_version"
-    implementation "androidx.compose.animation:animation-graphics:1.3.3"
-
 
     //Hilt
-    implementation "com.google.dagger:hilt-android:2.45"
-    kapt "com.google.dagger:hilt-android-compiler:2.45"
-    androidTestImplementation  'com.google.dagger:hilt-android-testing:2.45'
-    kaptAndroidTest 'com.google.dagger:hilt-compiler:2.45'
-    testImplementation 'com.google.dagger:hilt-android-testing:2.45'
-    kaptTest 'com.google.dagger:hilt-compiler:2.45'
-    implementation 'androidx.hilt:hilt-navigation:1.1.0-alpha01'
-    implementation 'androidx.hilt:hilt-navigation-compose:1.1.0-alpha01'
+    implementation "com.google.dagger:hilt-android:2.48"
+    kapt "com.google.dagger:hilt-android-compiler:2.48"
+    androidTestImplementation  'com.google.dagger:hilt-android-testing:2.48'
+    kaptAndroidTest 'com.google.dagger:hilt-compiler:2.48'
+    testImplementation 'com.google.dagger:hilt-android-testing:2.48'
+    kaptTest 'com.google.dagger:hilt-compiler:2.48'
+
+    implementation 'androidx.hilt:hilt-navigation:1.1.0-beta01'
+    implementation 'androidx.hilt:hilt-navigation-compose:1.1.0-beta01'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-    androidTestImplementation "androidx.navigation:navigation-testing:2.5.3"
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    androidTestImplementation "androidx.navigation:navigation-testing:2.7.4"
     debugImplementation "androidx.customview:customview:1.2.0-alpha02"
     debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0"
 
@@ -108,10 +124,10 @@ dependencies {
 
     //make it so copied implementations
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.0'
-    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.2'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1'
 
     //Firebase
     implementation platform('com.google.firebase:firebase-bom:31.2.0')
@@ -122,7 +138,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-perf-ktx'
     implementation 'com.google.firebase:firebase-config-ktx'
     //one-tap sign in
-    implementation 'com.google.android.gms:play-services-auth:20.4.1'
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
 
     androidTestImplementation "com.google.truth:truth:1.1.3"
 }
