@@ -20,7 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pbsm3.data.ALL_ACCOUNTS
 import com.example.pbsm3.data.displayTwoDecimal
 import com.example.pbsm3.data.isLessThanZero
-import com.example.pbsm3.model.Account
+import com.example.pbsm3.firebaseModel.Account
 import com.example.pbsm3.theme.PBSM3Theme
 import com.maxkeppeker.sheets.core.icons.filled.ChevronRight
 

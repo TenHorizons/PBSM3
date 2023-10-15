@@ -2,12 +2,12 @@ package com.example.pbsm3.ui.screens.accountTransactions
 
 import androidx.compose.runtime.mutableStateOf
 import com.example.pbsm3.data.ALL_ACCOUNTS
-import com.example.pbsm3.model.Account
-import com.example.pbsm3.model.BudgetItem
-import com.example.pbsm3.model.Transaction
-import com.example.pbsm3.model.Unassigned
-import com.example.pbsm3.model.service.LogService
-import com.example.pbsm3.model.service.repository.Repository
+import com.example.pbsm3.firebaseModel.Account
+import com.example.pbsm3.firebaseModel.BudgetItem
+import com.example.pbsm3.firebaseModel.Transaction
+import com.example.pbsm3.firebaseModel.Unassigned
+import com.example.pbsm3.firebaseModel.service.LogService
+import com.example.pbsm3.firebaseModel.service.repository.Repository
 import com.example.pbsm3.ui.screens.CommonViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

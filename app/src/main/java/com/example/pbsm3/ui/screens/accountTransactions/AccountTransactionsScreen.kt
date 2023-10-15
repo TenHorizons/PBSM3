@@ -19,7 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pbsm3.data.ALL_ACCOUNTS
 import com.example.pbsm3.data.displayTwoDecimal
 import com.example.pbsm3.data.isLessThanZero
-import com.example.pbsm3.model.Transaction
+import com.example.pbsm3.firebaseModel.Transaction
 import com.example.pbsm3.theme.PBSM3Theme
 
 private const val TAG = "AccountTransactionsScreen"

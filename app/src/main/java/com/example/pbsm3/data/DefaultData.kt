@@ -1,7 +1,7 @@
 package com.example.pbsm3.data
 
-import com.example.pbsm3.model.Account
-import com.example.pbsm3.model.Transaction
+import com.example.pbsm3.firebaseModel.Account
+import com.example.pbsm3.firebaseModel.Transaction
 import java.time.LocalDate
 
 val defaultCategoryNames = listOf(

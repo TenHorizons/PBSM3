@@ -2,7 +2,7 @@ package com.example.pbsm3.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pbsm3.model.service.LogService
+import com.example.pbsm3.firebaseModel.service.LogService
 import com.example.pbsm3.ui.commonScreenComponents.snackbar.SnackbarManager
 import com.example.pbsm3.ui.commonScreenComponents.snackbar.SnackbarMessage.Companion.toSnackbarMessage
 import kotlinx.coroutines.CoroutineExceptionHandler

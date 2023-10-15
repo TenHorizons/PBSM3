@@ -3,8 +3,8 @@ package com.example.pbsm3.ui.screens.splash
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import com.example.pbsm3.model.service.LogService
-import com.example.pbsm3.model.service.repository.UserRepository
+import com.example.pbsm3.firebaseModel.service.LogService
+import com.example.pbsm3.firebaseModel.service.repository.UserRepository
 import com.example.pbsm3.ui.screens.CommonViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -22,11 +22,28 @@ class SplashViewModel @Inject constructor(
     fun onAppStart(onStartupComplete: () -> Unit) {
         val start = System.currentTimeMillis()
         Log.d(TAG, "load start: $start")
-        uiState.value = uiState.value.copy(showError = false)
-        uiState.value = uiState.value.copy(errorMessage = "")
+        uiState.value = uiState.value.copy(
+            showError = false,
+            errorMessage = ""
+        )
 
         viewModelScope.launch {
-            loadUserData()
+            //Firebase Implementation
+            if (!userRepository.hasUser()) {
+                uiState.value = uiState.value.copy(
+                    showError = true,
+                    errorMessage = "user was not saved in user repository."
+                )
+            }
+            else {
+                loadUserData()
+            }
+            val end = System.currentTimeMillis()
+            Log.d(TAG,"load end: $end")
+            Log.d(TAG,"load time: ${end-start}")
+
+            //Room Implementation
+            //loadUserData()
 
             onStartupComplete()
         }
@@ -35,8 +52,10 @@ class SplashViewModel @Inject constructor(
     /**Launches IO thread to get user data*/
     private suspend fun loadUserData() {
         userRepository.loadUserData(onError = {
-            showError.value = true
-            errorMessage.value = "error loading user data. Error: $it."
+            uiState.value = uiState.value.copy(
+                showError = true,
+                errorMessage = "error loading user data. Error: $it."
+            )
             Log.d(TAG, "error loading user data. Error: $it.")
         })
     }

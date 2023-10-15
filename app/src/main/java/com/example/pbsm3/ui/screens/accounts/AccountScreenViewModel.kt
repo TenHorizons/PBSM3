@@ -2,9 +2,9 @@ package com.example.pbsm3.ui.screens.accounts
 
 import androidx.compose.runtime.mutableStateOf
 import com.example.pbsm3.data.defaultAccounts
-import com.example.pbsm3.model.Account
-import com.example.pbsm3.model.service.LogService
-import com.example.pbsm3.model.service.repository.Repository
+import com.example.pbsm3.firebaseModel.Account
+import com.example.pbsm3.firebaseModel.service.LogService
+import com.example.pbsm3.firebaseModel.service.repository.Repository
 import com.example.pbsm3.ui.screens.CommonViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate

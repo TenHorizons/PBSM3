@@ -2,8 +2,8 @@ package com.example.pbsm3.ui.screens.signup
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import com.example.pbsm3.model.service.LogService
-import com.example.pbsm3.model.service.repository.UserRepository
+import com.example.pbsm3.firebaseModel.service.LogService
+import com.example.pbsm3.firebaseModel.service.repository.UserRepository
 import com.example.pbsm3.ui.commonScreenComponents.snackbar.SnackbarManager
 import com.example.pbsm3.ui.screens.CommonViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

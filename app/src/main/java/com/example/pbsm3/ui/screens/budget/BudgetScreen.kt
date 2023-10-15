@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pbsm3.data.*
-import com.example.pbsm3.model.BudgetItem
-import com.example.pbsm3.model.Category
+import com.example.pbsm3.firebaseModel.BudgetItem
+import com.example.pbsm3.firebaseModel.Category
 import com.example.pbsm3.theme.PBSM3Theme
 import com.example.pbsm3.ui.commonScreenComponents.currencytextfield.CurrencyTextField
 import java.math.BigDecimal

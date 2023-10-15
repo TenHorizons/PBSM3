@@ -1,8 +1,8 @@
 package com.example.pbsm3.ui.screens.budget
 
-import com.example.pbsm3.model.BudgetItem
-import com.example.pbsm3.model.Category
-import com.example.pbsm3.model.Unassigned
+import com.example.pbsm3.firebaseModel.BudgetItem
+import com.example.pbsm3.firebaseModel.Category
+import com.example.pbsm3.firebaseModel.Unassigned
 import java.time.LocalDate
 
 data class BudgetScreenState(

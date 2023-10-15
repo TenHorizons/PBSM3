@@ -1,8 +1,8 @@
 package com.example.pbsm3.data
 
-import com.example.pbsm3.model.BudgetItem
-import com.example.pbsm3.model.Category
-import com.example.pbsm3.model.Unassigned
+import com.example.pbsm3.firebaseModel.BudgetItem
+import com.example.pbsm3.firebaseModel.Category
+import com.example.pbsm3.firebaseModel.Unassigned
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate

@@ -40,7 +40,7 @@ fun Main() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        var currentScreen: Screen by remember { mutableStateOf(Screen.Splash) }
+        var currentScreen: Screen by remember { mutableStateOf(Screen.SignInScreen) }
         val appState = rememberAppState()
         var selectedDate: LocalDate by remember { mutableStateOf(getFirstDayOfMonth()) }
         var customTopBarText: String by remember { mutableStateOf("") }
@@ -93,7 +93,7 @@ fun Main() {
         ) { innerPadding ->
             NavHostBuilder(
                 navController = appState.navController,
-                startDestination = Screen.Splash.name,
+                startDestination = Screen.SignInScreen.name,
                 modifier = Modifier.padding(innerPadding),
                 selectedDate = selectedDate,
                 appState = appState,

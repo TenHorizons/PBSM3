@@ -289,7 +289,7 @@ fun Memo(memoText: String, onTextChanged: (String) -> Unit) {
         modifier = Modifier.padding(8.dp)
     ) {
         Text("Memo", Modifier.padding(start = 14.dp))
-        val containerColor = colorScheme.primaryContainer//TODO check if color correct
+        val containerColor = colorScheme.surfaceVariant//TODO check if color correct
         TextField(
             value = memoText,
             onValueChange = onTextChanged,
